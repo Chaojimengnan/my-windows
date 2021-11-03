@@ -27,6 +27,12 @@
     <ClCompile Include="mw_security.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mw_process.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mw_job.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mw_window.h">
@@ -42,6 +48,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="mw_security.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mw_process.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mw_job.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

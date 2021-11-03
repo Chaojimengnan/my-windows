@@ -1,0 +1,169 @@
+body{
+    background-color: hsl(0,0%,22.5%);
+    color: hsl(210,8%,82.5%);
+    max-width: 1264px;
+    margin: 0 auto;
+}
+
+address {
+    color: hsl(210,8%,82.5%);
+}
+
+a{
+    color: rgb(187, 197, 255) !important;
+    text-shadow: none !important;
+}
+
+.sm-dox {
+    background-image: none;
+    background-color: hsl(0,0%,17.5%);
+}
+
+
+
+#titlearea {
+    border-bottom: none;
+}
+
+.sm-dox a, .sm-dox a:focus, .sm-dox a:active, .sm-dox a.highlighted{
+    background-image:none;
+    background-color: hsl(0,0%,17.5%);
+}
+
+.sm-dox a:hover{
+    background-image:none;
+    background-color: rgb(68, 68, 68);
+}
+
+div.header {
+    background-image: none ;
+    background-color: hsl(0,0%,22.5%);
+    border-bottom:none
+}
+
+.sm-dox ul{
+    background: hsl(0,0%,17.5%);
+    border: 2px solid rgb(85, 85, 85);
+}
+
+.sm-dox ul a, .sm-dox ul a:focus, .sm-dox ul a:active{
+    background-color: hsl(0,0%,17.5%);
+}
+
+.sm-dox ul a:hover{
+    background-image: none ;
+    background-color: rgb(68, 68, 68);
+}
+
+#MSearchBox{
+    background: rgb(255, 255, 255);
+}
+
+#MSearchSelectWindow{
+    background: hsl(0,0%,17.5%);
+    border: 2px solid rgb(85, 85, 85);
+}
+
+hr{
+    border-top: 2px solid rgb(85, 85, 85);
+}
+
+.directory tr.even {
+    background-color: hsl(0,0%,17.5%);
+}
+
+div.directory{
+    border-top: 2px solid rgb(85, 85, 85);
+    border-bottom: 2px solid rgb(85, 85, 85);
+}
+
+h2.groupheader{
+    color: hsl(210,8%,82.5%);
+    border-bottom: 2px solid rgb(85, 85, 85);
+}
+
+.mdescLeft, .mdescRight, .memItemLeft, .memItemRight, .memTemplItemLeft, .memTemplItemRight, .memTemplParams{
+    background-color: hsl(0,0%,17.5%);
+}
+
+.mdescLeft, .mdescRight{
+    color: rgb(173, 173, 173);
+}
+
+.memTemplParams, .memtemplate{
+    color: #6998f7;
+}
+
+.memSeparator{
+    border-bottom: 2px solid rgb(85, 85, 85);
+}
+
+.memtitle{
+    border-top: 2px solid rgb(85, 85, 85);
+    border-left: 2px solid rgb(85, 85, 85);
+    border-right: 2px solid rgb(85, 85, 85);
+    background-color: hsl(0,0%,17.5%);
+    background-image: none;
+}
+
+.memproto, dl.reflist dt
+{
+    text-shadow: none;
+    border: 2px solid rgb(85, 85, 85);
+    background-color: hsl(0,0%,17.5%);
+    background-image: none;
+    color: hsl(210,8%,82.5%);
+}
+
+.memdoc, dl.reflist dd{
+    background-color: rgb(56, 56, 56);
+    border: 2px solid rgb(85, 85, 85);
+    border-top: none;
+}
+
+.paramname{
+    color: rgb(87, 196, 190);
+}
+
+.navpath ul{
+    background-image: none;
+    border: 2px solid rgb(85, 85, 85);
+    background-color: hsl(0,0%,17.5%);
+}
+
+
+div.fragment{
+    background-color: hsl(0,2%,11%);
+    border: 1px solid rgb(48, 48, 48);
+    padding: 10px;
+}
+
+
+span.comment{
+    color: rgb(87, 166, 74);
+}
+
+
+span.keyword, span.keywordtype, span.keywordflow{
+    color: rgb(86, 156, 214);
+}
+
+a.code.hl_class{
+    color:   rgb(78, 201, 176) !important;
+}
+
+a.code.hl_function{
+    color:   rgb(220, 220, 170) !important;
+}
+
+span.stringliteral{
+    color: rgb(214, 157, 133);
+}
+
+span.preprocessor{
+    color: rgb(155, 155, 155);
+}
+
+span.mlabel{
+    background-color: #3f537a;
+}

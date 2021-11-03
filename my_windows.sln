@@ -7,6 +7,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "my_windows_lib", "my_window
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "my_windows_test_exec", "my_windows_test_exec\my_windows_test_exec.vcxproj", "{60F3B09D-4607-410A-B53F-3AA53F4B4344}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{825CD877-F3B8-4D1E-8247-246B35382BA2}"
+	ProjectSection(SolutionItems) = preProject
+		doc\tools\Doxyfile = doc\tools\Doxyfile
+		doxygen_doc\html\index.html = doxygen_doc\html\index.html
+		README.MD = README.MD
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
