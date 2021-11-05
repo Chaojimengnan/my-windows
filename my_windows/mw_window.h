@@ -269,4 +269,51 @@ namespace mw {
 		HWND my_hwnd;
 		bool isvaild;
 	};
+
+
+	class MW_API window_class_new {
+	public:
+		/// <summary>
+		/// 窗口消息类型
+		/// </summary>
+		using message_type = UINT;
+		/// <summary>
+		/// 事件消息函数字典类型，根据消息的类型来调用相应的函数
+		/// </summary>
+		/// <remarks>
+		/// 你应该实现bool foo(HWND, WPARAM, LPARAM, LRESULT&)这样的函数，返回值若为false，
+		/// 则调用系统默认处理函数，否则不调用。LRESULT为返回代码，当返回值为true时，使用该代码返回，默认为0
+		/// </remarks>
+		using event_function_dict_type = std::unordered_map<message_type, std::function<bool(HWND, WPARAM, LPARAM, LRESULT&)>>;
+		/// <summary>
+		/// 句柄字典类型，根据句柄来获得对应的事件消息函数字典
+		/// </summary>
+		using handle_dict_type = std::unordered_map<HWND, event_function_dict_type>;
+	public:
+		window_class_new();
+		explicit window_class_new(const std::string& class_name);
+		window_class_new(const std::string& class_name, UINT style, HICON hIcon, HCURSOR hCursor,
+			HBRUSH hbrBackground, HICON hIconSm);
+		window_class_new(const std::string& class_name, const std::string& menu_name
+			, UINT style, int cbClsExtra, int cbWndExtra, HICON hIcon, HCURSOR hCursor,
+			HBRUSH hbrBackground, HICON hIconSm);
+	public:
+		HWND create();
+		HWND create(const std::string& window_name);
+		HWND create(const std::string& window_name, int x, int y, int width, int height);
+		HWND create(const std::string& window_name, int x, int y, int width, int height
+			, HWND window_parent, HMENU menu, LPVOID lParam, DWORD style, DWORD ex_style);
+	private:
+		// 句柄字典操作
+		static handle_dict_type& get_handle_dict();
+		static bool add_item_handle_dict(HWND window_handle, const event_function_dict_type& event_function_dict);
+		static bool add_item_handle_dict(HWND window_handle, event_function_dict_type&& event_function_dict);
+		static bool remove_item_handle_dict(HWND window_handle);
+	private:
+		static LRESULT CALLBACK window_process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+	private:
+		WNDCLASSEX win_class;
+		bool is_registe = false;
+	};
+
 };//mw

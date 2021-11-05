@@ -62,9 +62,9 @@ int main(int argc, char *argv[])
 
 
 
-	auto mymy = mw::make_window_class<my_window>(L"mymy");
+	/*auto mymy = mw::make_window_class<my_window>(L"mymy");
 	auto gogo = mymy->create();
-	gogo->show_window();
+	gogo->show_window();*/
 	
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))

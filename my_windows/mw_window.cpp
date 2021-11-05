@@ -224,4 +224,73 @@ namespace mw {
 		return GetDesktopWindow();
 	}
 
+	window_class_new::handle_dict_type& window_class_new::get_handle_dict()
+	{
+		static handle_dict_type handle_dict;
+		return handle_dict;
+	}
+
+	bool window_class_new::add_item_handle_dict(HWND window_handle, const event_function_dict_type& event_function_dict)
+	{
+		auto return_value = get_handle_dict().insert(std::pair(window_handle, event_function_dict));
+		return return_value.second;
+	}
+
+	bool window_class_new::add_item_handle_dict(HWND window_handle, event_function_dict_type&& event_function_dict)
+	{
+		auto return_value = get_handle_dict().insert(std::pair(window_handle, std::move(event_function_dict)));
+		return return_value.second;
+	}
+
+	bool window_class_new::remove_item_handle_dict(HWND window_handle)
+	{
+		return (get_handle_dict().erase(window_handle) == 1);
+	}
+
+	LRESULT window_class_new::window_process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+	{
+		while (true)
+		{
+			// 检查句柄字典中有没有这个句柄项
+			auto event_function_dict_iter = get_handle_dict().find(hwnd);
+			if (event_function_dict_iter == get_handle_dict().end()) break;
+
+			// 检查事件消息函数字典中有没有这个信息项
+			auto event_function_iter = event_function_dict_iter->second.find(message);
+			if (event_function_iter == event_function_dict_iter->second.end()) break;
+
+			// 调用对应的事件函数，若返回值true，使用return_code返回。
+			LRESULT return_code = 0;
+			if (event_function_iter->second(hwnd, wParam, lParam, return_code))
+			{
+				if (message == WM_DESTROY) remove_item_handle_dict(hwnd);
+				return return_code;
+			}
+			break;
+		}
+		// 否则都将调用系统默认处理函数
+		if (message == WM_DESTROY) remove_item_handle_dict(hwnd);
+		return DefWindowProcA(hwnd, message, wParam, lParam);
+	}
+
+	window_class_new::window_class_new() :window_class_new("my_class", "", CS_HREDRAW | CS_VREDRAW,
+		0, 0, LoadIcon(NULL, IDI_APPLICATION), LoadCursor(NULL, IDC_ARROW),
+		(HBRUSH)GetStockObject(BLACK_BRUSH), NULL) {}
+
+	window_class_new::window_class_new(const std::string& class_name) : window_class_new(class_name, "", CS_HREDRAW | CS_VREDRAW,
+		0, 0, LoadIcon(NULL, IDI_APPLICATION), LoadCursor(NULL, IDC_ARROW),
+		(HBRUSH)GetStockObject(BLACK_BRUSH), NULL) {}
+
+	window_class_new::window_class_new(const std::string& class_name, UINT style,
+		HICON hIcon, HCURSOR hCursor, HBRUSH hbrBackground, HICON hIconSm) 
+		: window_class_new(class_name, "", style, 0, 0, hIcon, hCursor, hbrBackground, hIconSm) {}
+
+	window_class_new::window_class_new(const std::string& class_name, const std::string& menu_name, UINT style, int cbClsExtra, int cbWndExtra, HICON hIcon, HCURSOR hCursor, HBRUSH hbrBackground, HICON hIconSm)
+	{
+	}
+
+
+
+
+
 }//mw
