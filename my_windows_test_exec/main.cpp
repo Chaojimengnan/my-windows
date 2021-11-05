@@ -65,6 +65,28 @@ int main(int argc, char *argv[])
 	/*auto mymy = mw::make_window_class<my_window>(L"mymy");
 	auto gogo = mymy->create();
 	gogo->show_window();*/
+
+	mw::window_class_new::event_function_dict_type my_event;
+	my_event[WM_PAINT] = [](HWND hwnd, WPARAM, LPARAM, LRESULT&)->bool {
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hwnd, &ps);
+
+		MoveToEx(hdc, 30, 10, NULL);
+		LineTo(hdc, 20, 50);
+		LineTo(hdc, 50, 20);
+		LineTo(hdc, 10, 20);
+		LineTo(hdc, 40, 50);
+		LineTo(hdc, 30, 10);
+
+		EndPaint(hwnd, &ps);
+		return true;
+	};
+
+	mw::window_class_new toto("laolao", my_event);
+	mw::window_instance_new dada(toto.create());
+
+	dada.show_window();
+
 	
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
