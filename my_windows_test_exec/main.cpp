@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 	my_job->query_information(JobObjectBasicLimitInformation, &job_limit2, sizeof(job_limit2));*/
 
 
-	mw::window_class_new::event_function_dict_type my_event;
+	mw::window_class::event_function_dict_type my_event;
 	my_event[WM_PAINT] = [](HWND hwnd, WPARAM, LPARAM, LRESULT&)->bool {
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hwnd, &ps);
@@ -53,8 +53,8 @@ int main(int argc, char *argv[])
 		return true;
 	};
 
-	mw::window_class_new toto("laolao", my_event);
-	mw::window_instance_new dada(toto.create());
+	mw::window_class toto("laolao", my_event);
+	mw::window_instance dada(toto.create());
 
 	dada.show_window();
 

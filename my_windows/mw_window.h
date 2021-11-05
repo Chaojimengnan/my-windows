@@ -51,7 +51,7 @@ namespace mw {
 	/// 
 	/// 例如：我想只想定义一个WM_PAINT(绘制消息)处理函数，可以这么写:
 	/// ```cpp
-	/// mw::window_class_new::event_function_dict_type my_event;
+	/// mw::window_class::event_function_dict_type my_event;
 	/// 
 	/// my_event[WM_PAINT] = [](HWND hwnd, WPARAM, LPARAM, LRESULT&)->bool {
 	///		PAINTSTRUCT ps;
@@ -69,7 +69,7 @@ namespace mw {
 	/// };
 	/// ```
 	/// </remarks>
-	class MW_API window_class_new {
+	class MW_API window_class {
 	public:
 		/// <summary>
 		/// 窗口消息类型
@@ -92,13 +92,13 @@ namespace mw {
 		/// 窗口类构造函数，注意，该类有可能构造失败，因为在构造函数中调用了注册窗口类函数，使用前先调用is_vaild()来查看是否成功
 		/// </summary>
 		/// <param name="event_function_dict">事件函数字典</param>
-		window_class_new(const event_function_dict_type& event_function_dict);
+		window_class(const event_function_dict_type& event_function_dict);
 		/// <summary>
 		/// 窗口类构造函数，注意，该类有可能构造失败，因为在构造函数中调用了注册窗口类函数，使用前先调用is_vaild()来查看是否成功
 		/// </summary>
 		/// <param name="class_name">窗口类名字</param>
 		/// <param name="event_function_dict">事件函数字典</param>
-		explicit window_class_new(const std::string& class_name, const event_function_dict_type& event_function_dict);
+		explicit window_class(const std::string& class_name, const event_function_dict_type& event_function_dict);
 		/// <summary>
 		/// 窗口类构造函数，注意，该类有可能构造失败，因为在构造函数中调用了注册窗口类函数，使用前先调用is_vaild()来查看是否成功
 		/// </summary>
@@ -109,7 +109,7 @@ namespace mw {
 		/// <param name="hCursor">鼠标</param>
 		/// <param name="hbrBackground">背景颜色</param>
 		/// <param name="hIconSm">小图标</param>
-		window_class_new(const std::string& class_name, const event_function_dict_type& event_function_dict, 
+		window_class(const std::string& class_name, const event_function_dict_type& event_function_dict, 
 			UINT style, HICON hIcon, HCURSOR hCursor,
 			HBRUSH hbrBackground, HICON hIconSm);
 		/// <summary>
@@ -125,7 +125,7 @@ namespace mw {
 		/// <param name="hCursor">鼠标</param>
 		/// <param name="hbrBackground">背景颜色</param>
 		/// <param name="hIconSm">小图标</param>
-		window_class_new(const std::string& class_name, 
+		window_class(const std::string& class_name, 
 			const event_function_dict_type& event_function_dict, const std::string& menu_name
 			, UINT style, int cbClsExtra, int cbWndExtra, HICON hIcon, HCURSOR hCursor,
 			HBRUSH hbrBackground, HICON hIconSm);
@@ -192,17 +192,17 @@ namespace mw {
 	/// <summary>
 	/// 简单的窗口包装类，里面有一些有用的方法(持续更新)
 	/// </summary>
-	class MW_API window_instance_new {
+	class MW_API window_instance {
 	public:
 		/// <summary>
 		/// 窗口构造函数，默认句柄为NULL
 		/// </summary>
-		window_instance_new() : window_handle(NULL) {}
+		window_instance() : window_handle(NULL) {}
 		/// <summary>
 		/// 窗口构造函数
 		/// </summary>
 		/// <param name="window_handle">窗口句柄</param>
-		explicit window_instance_new(HWND window_handle) : window_handle(window_handle) {}
+		explicit window_instance(HWND window_handle) : window_handle(window_handle) {}
 	public:
 		/// <summary>
 		/// 以指定模式显示窗口

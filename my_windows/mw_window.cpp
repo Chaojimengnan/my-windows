@@ -35,30 +35,30 @@ namespace mw {
 		return GetDesktopWindow();
 	}
 
-	window_class_new::handle_dict_type& window_class_new::get_handle_dict()
+	window_class::handle_dict_type& window_class::get_handle_dict()
 	{
 		static handle_dict_type handle_dict;
 		return handle_dict;
 	}
 
-	bool window_class_new::add_item_handle_dict(HWND window_handle, const event_function_dict_type& event_function_dict)
+	bool window_class::add_item_handle_dict(HWND window_handle, const event_function_dict_type& event_function_dict)
 	{
 		auto return_value = get_handle_dict().insert(std::pair(window_handle, event_function_dict));
 		return return_value.second;
 	}
 
-	bool window_class_new::add_item_handle_dict(HWND window_handle, event_function_dict_type&& event_function_dict)
+	bool window_class::add_item_handle_dict(HWND window_handle, event_function_dict_type&& event_function_dict)
 	{
 		auto return_value = get_handle_dict().insert(std::pair(window_handle, std::move(event_function_dict)));
 		return return_value.second;
 	}
 
-	bool window_class_new::remove_item_handle_dict(HWND window_handle)
+	bool window_class::remove_item_handle_dict(HWND window_handle)
 	{
 		return (get_handle_dict().erase(window_handle) == 1);
 	}
 
-	LRESULT window_class_new::window_process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+	LRESULT window_class::window_process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		while (true)
 		{
@@ -84,21 +84,21 @@ namespace mw {
 		return DefWindowProcA(hwnd, message, wParam, lParam);
 	}
 
-	window_class_new::window_class_new(const event_function_dict_type& event_function_dict) 
-		:window_class_new("my_class",event_function_dict, "", CS_HREDRAW | CS_VREDRAW,
+	window_class::window_class(const event_function_dict_type& event_function_dict) 
+		:window_class("my_class",event_function_dict, "", CS_HREDRAW | CS_VREDRAW,
 		0, 0, LoadIcon(NULL, IDI_APPLICATION), LoadCursor(NULL, IDC_ARROW),
 		(HBRUSH)GetStockObject(WHITE_BRUSH), NULL) {}
 
-	window_class_new::window_class_new(const std::string& class_name, const event_function_dict_type& event_function_dict) 
-		: window_class_new(class_name,  event_function_dict, "", CS_HREDRAW | CS_VREDRAW,
+	window_class::window_class(const std::string& class_name, const event_function_dict_type& event_function_dict) 
+		: window_class(class_name,  event_function_dict, "", CS_HREDRAW | CS_VREDRAW,
 		0, 0, LoadIcon(NULL, IDI_APPLICATION), LoadCursor(NULL, IDC_ARROW),
 		(HBRUSH)GetStockObject(WHITE_BRUSH), NULL) {}
 
-	window_class_new::window_class_new(const std::string& class_name, const event_function_dict_type& event_function_dict ,UINT style,
+	window_class::window_class(const std::string& class_name, const event_function_dict_type& event_function_dict ,UINT style,
 		HICON hIcon, HCURSOR hCursor, HBRUSH hbrBackground, HICON hIconSm) 
-		: window_class_new(class_name, event_function_dict, "", style, 0, 0, hIcon, hCursor, hbrBackground, hIconSm) {}
+		: window_class(class_name, event_function_dict, "", style, 0, 0, hIcon, hCursor, hbrBackground, hIconSm) {}
 
-	window_class_new::window_class_new(const std::string& class_name, 
+	window_class::window_class(const std::string& class_name, 
 		const event_function_dict_type& event_function_dict , const std::string& menu_name, 
 		UINT style, int cbClsExtra, int cbWndExtra, HICON hIcon, HCURSOR hCursor, HBRUSH hbrBackground, HICON hIconSm) 
 		: win_class_id(0), event_function_dict(event_function_dict)
@@ -122,24 +122,24 @@ namespace mw {
 		if (win_class_id == 0) vaild = false;
 	}
 
-	HWND window_class_new::create()
+	HWND window_class::create()
 	{
 		return create("my window", CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 			NULL, NULL, NULL, WS_OVERLAPPEDWINDOW, 0);
 	}
 
-	HWND window_class_new::create(const std::string& window_name)
+	HWND window_class::create(const std::string& window_name)
 	{
 		return create(window_name, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 			NULL, NULL, NULL, WS_OVERLAPPEDWINDOW, 0);
 	}
 
-	HWND window_class_new::create(const std::string& window_name, int x, int y, int width, int height)
+	HWND window_class::create(const std::string& window_name, int x, int y, int width, int height)
 	{
 		return create(window_name, x, y, width, height, NULL, NULL, NULL, WS_OVERLAPPEDWINDOW, 0);
 	}
 
-	HWND window_class_new::create(const std::string& window_name, int x, int y, int width, int height, HWND window_parent, HMENU menu, LPVOID lParam, DWORD style, DWORD ex_style)
+	HWND window_class::create(const std::string& window_name, int x, int y, int width, int height, HWND window_parent, HMENU menu, LPVOID lParam, DWORD style, DWORD ex_style)
 	{
 		auto my_hwnd = CreateWindowExA(ex_style, (LPCSTR)((ULONG_PTR)((WORD)(win_class_id))),
 		window_name.c_str(), style, x, y, width, height,
@@ -150,7 +150,7 @@ namespace mw {
 		return my_hwnd;
 	}
 
-	bool window_class_new::unregister_class()
+	bool window_class::unregister_class()
 	{
 		auto is_ok = UnregisterClassA((LPCSTR)((ULONG_PTR)((WORD)(win_class_id))), GetModuleHandle(NULL));
 		GET_ERROR_MSG_OUTPUT(std::cout);
@@ -159,7 +159,7 @@ namespace mw {
 
 
 
-	bool window_instance_new::show_window(int iCmdShow)
+	bool window_instance::show_window(int iCmdShow)
 	{
 		auto is_ok1 = ShowWindow(window_handle, iCmdShow);
 		GET_ERROR_MSG_OUTPUT(std::cout)
