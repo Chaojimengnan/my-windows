@@ -29,7 +29,7 @@ namespace mw {
 		if (!job_handle)
 		{
 			job_handle = CreateJobObjectA(security_attribute,
-				(job_name == "") ? NULL : job_name.c_str());
+				string_to_pointer(job_name));
 			GET_ERROR_MSG_OUTPUT(std::cout)
 			return job_handle;
 		}

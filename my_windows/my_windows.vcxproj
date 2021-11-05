@@ -149,6 +149,7 @@
     <ClCompile Include="mw_job.cpp" />
     <ClCompile Include="mw_process.cpp" />
     <ClCompile Include="mw_security.cpp" />
+    <ClCompile Include="mw_system.cpp" />
     <ClCompile Include="mw_utility.cpp" />
     <ClCompile Include="mw_window.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -160,6 +161,7 @@
     <ClInclude Include="mw_job.h" />
     <ClInclude Include="mw_process.h" />
     <ClInclude Include="mw_security.h" />
+    <ClInclude Include="mw_system.h" />
     <ClInclude Include="mw_utility.h" />
     <ClInclude Include="my_windows.h" />
     <ClInclude Include="stdafx.h" />

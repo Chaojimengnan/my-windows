@@ -28,8 +28,8 @@ namespace mw {
 		win_class.hCursor = hCursor;
 		win_class.hIconSm = hIconSm;
 		win_class.hbrBackground = hbrBackground;
-		win_class.lpszMenuName = (menu_name == L"" ? NULL : menu_name.c_str());
-		win_class.lpszClassName = (class_name == L"" ? NULL: class_name.c_str());
+		win_class.lpszMenuName = wstring_to_pointer(menu_name);
+		win_class.lpszClassName = wstring_to_pointer(class_name);
 		win_class.hInstance = hinstance;
 		win_class.lpfnWndProc = window_process;
 
@@ -93,11 +93,6 @@ namespace mw {
 	}
 
 
-	/*std::vector<std::weak_ptr<window_instance>>& window_class::instance_vec()
-	{
-		static std::vector<std::weak_ptr<window_instance>> ins_vec;
-		return ins_vec;
-	}*/
 
 	size_t& window_class::window_instance_count()
 	{
@@ -197,6 +192,36 @@ namespace mw {
 		if (is_vaild())
 			return my_hwnd;
 		else return NULL;
+	}
+
+	HWND find_window(const std::string& class_name, const std::string& window_name)
+	{
+		auto window_handle = FindWindowA(string_to_pointer(class_name), 
+			string_to_pointer(window_name));
+		GET_ERROR_MSG_OUTPUT(std::cout)
+		return window_handle;
+	}
+
+	bool get_window_class_name(HWND window_handle, std::string& class_name)
+	{
+		CHAR temp_str[MW_MAX_TEXT] = {0};
+		auto is_ok = RealGetWindowClassA(window_handle, temp_str, MAX_PATH);
+		class_name = temp_str;
+		return is_ok;
+	}
+
+	bool get_window_text(HWND window_handle, std::string& text)
+	{
+		CHAR temp_str[MW_MAX_TEXT];
+		auto is_ok = GetWindowTextA(window_handle, temp_str, MW_MAX_TEXT);
+		text = temp_str;
+		return is_ok;
+	}
+
+
+	HWND get_desktop_window()
+	{
+		return GetDesktopWindow();
 	}
 
 }//mw

@@ -124,5 +124,12 @@ namespace mw {
 		return is_ok;
 	}
 
+	int message_box(const std::string& caption, const std::string& text, UINT type, HWND parent_window)
+	{
+		auto is_ok = MessageBoxA(parent_window, text.c_str(), caption.c_str(), type);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return is_ok;
+	}
+
 
 }//mw

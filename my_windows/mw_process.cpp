@@ -33,7 +33,7 @@ namespace mw {
 		
 		auto is_ok = CreateProcessA(NULL, temp_str, process_attributes, 
 			thread_attributes, inherit_handle, creation_flags,
-			environment, (process_work_dir == "") ? NULL : process_work_dir.c_str(), startup_info, &proc);
+			environment, string_to_pointer(process_work_dir), startup_info, &proc);
 		GET_ERROR_MSG_OUTPUT(std::cout)
 		delete[] temp_str;
 

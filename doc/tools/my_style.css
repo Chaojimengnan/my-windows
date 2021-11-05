@@ -167,3 +167,7 @@ span.preprocessor{
 span.mlabel{
     background-color: #3f537a;
 }
+
+.classindex dl.odd{
+    background-color: hsl(0,0%,17.5%);
+}

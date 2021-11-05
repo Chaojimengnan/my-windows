@@ -14,6 +14,9 @@
 					<< "FILE:" << __FILE__ << "\n"\
 					<< "LINE:" << __LINE__ << "\n";}
 
+/// 最大文本长度宏，用于与WIN32API字符串的交互
+#define MW_MAX_TEXT 512
+
 #ifdef MY_WINDOWS_BUILD
 #   define MW_API __declspec (dllexport)
 #else

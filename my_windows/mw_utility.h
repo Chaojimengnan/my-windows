@@ -91,4 +91,36 @@ namespace mw {
 	/// <returns>操作是否成功</returns>
 	MW_API bool set_current_work_dir(const std::string& work_dir);
 
+	/// <summary>
+	/// 弹出一个对话框
+	/// </summary>
+	/// <param name="caption">对话框标题</param>
+	/// <param name="text">对话框文本</param>
+	/// <param name="type">对话框种类</param>
+	/// <param name="parent_window">父窗口，默认没有</param>
+	/// <returns>操作失败返回0，否则标识用户按下哪个按钮</returns>
+	MW_API int message_box(const std::string& caption, 
+		const std::string& text, UINT type = MB_OK, HWND parent_window = NULL);
+
+
+	/// <summary>
+	/// 返回指向该字符串缓冲区的const指针，若为""，则返回NULL
+	/// </summary>
+	/// <param name="str">源字符串</param>
+	/// <returns>指向字符串缓冲区的const指针</returns>
+	constexpr inline PCSTR string_to_pointer(const std::string& str)
+	{
+		return ((str == "") ? NULL : str.c_str());
+	}
+
+	/// <summary>
+	/// 返回指向该Unicode字符串缓冲区的const指针，若为""，则返回NULL
+	/// </summary>
+	/// <param name="str">源字符串</param>
+	/// <returns>指向Unicode字符串缓冲区的const指针</returns>
+	constexpr inline PCWSTR wstring_to_pointer(const std::wstring& str)
+	{
+		return ((str == L"") ? NULL : str.c_str());
+	}
+
 }//mw

@@ -27,6 +27,40 @@ namespace mw {
 		return std::shared_ptr<the_window_class>(new the_window_class(std::forward<Args>(args)...));
 	}
 
+
+	/// <summary>
+	/// 寻找对应窗口类和窗口名字的`顶级窗口`句柄(不搜寻子窗口)
+	/// </summary>
+	/// <param name="class_name">窗口类的名字，若为""，它将查找标题与window_name匹配的任何窗口</param>
+	/// <param name="window_name">窗口的名字，若为""，则所有窗口名称都匹配</param>
+	/// <returns>返回对应的窗口句柄(操作失败返回NULL)</returns>
+	MW_API HWND find_window(const std::string& class_name = "", const std::string& window_name = "");
+
+	/// <summary>
+	/// 获取窗口句柄对应的窗口类的名字
+	/// </summary>
+	/// <param name="window_handle">窗口句柄</param>
+	/// <param name="class_name">[out]窗口类的名字</param>
+	/// <returns>操作是否成功</returns>
+	MW_API bool get_window_class_name(HWND window_handle, std::string& class_name);
+
+	/// <summary>
+	/// 获取窗口标题文本(如果有的话)，如果窗口是控件，则获取控件的文本。注意该函数无法检索非本程序的控件的文本。
+	/// </summary>
+	/// <param name="window_handle">窗口句柄</param>
+	/// <param name="text">[out]文本</param>
+	/// <returns>操作是否成功</returns>
+	MW_API bool get_window_text(HWND window_handle, std::string& text);
+
+	/// <summary>
+	/// 获取一个桌面窗口的句柄
+	/// </summary>
+	/// <remarks>桌面窗口覆盖整个屏幕，桌面窗口是完全掌控其他窗口绘制的区域</remarks>
+	/// <returns>返回桌面窗口句柄</returns>
+	MW_API HWND get_desktop_window();
+
+
+
 	/// <summary>
 	/// 窗口类，可以生成窗口实例
 	/// </summary>

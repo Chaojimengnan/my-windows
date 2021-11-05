@@ -31,7 +31,8 @@ protected:
 
 int main(int argc, char *argv[])
 {
-	auto my_job = mw::make_job();
+
+	/*auto my_job = mw::make_job();
 	my_job->create("猛男在此");
 	JOBOBJECT_BASIC_LIMIT_INFORMATION job_limit = { 0 };
 	job_limit.PriorityClass = IDLE_PRIORITY_CLASS;
@@ -52,13 +53,19 @@ int main(int argc, char *argv[])
 
 	JOBOBJECT_BASIC_LIMIT_INFORMATION job_limit2 = { 0 };
 
-	my_job->query_information(JobObjectBasicLimitInformation, &job_limit2, sizeof(job_limit2));
+	my_job->query_information(JobObjectBasicLimitInformation, &job_limit2, sizeof(job_limit2));*/
 	
+
+	std::string win_class = "D:\\base\\desktop\\70138748_p0.png";
+
+	mw::set_desktop_wallpaper(win_class);
+
+
 
 	auto mymy = mw::make_window_class<my_window>(L"mymy");
 	auto gogo = mymy->create();
 	gogo->show_window();
-
+	
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
