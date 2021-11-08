@@ -10,11 +10,10 @@ namespace mw {
 		HANDLE target_process_handle = nullptr;
 		DuplicateHandle(GetCurrentProcess(), handle_to_give, target_process,
 			&target_process_handle, desired_access, inherit_handle, options);
-		GET_ERROR_MSG_OUTPUT(std::cout)
+		GET_ERROR_MSG_OUTPUT(std::cout);
 		return target_process_handle;
 	}
 
-	
 	bool create_process(process_info& new_process_info, const std::string& command_line, const std::string& process_work_dir, 
 		BOOL inherit_handle, DWORD creation_flags, LPSECURITY_ATTRIBUTES process_attributes,
 		LPSECURITY_ATTRIBUTES thread_attributes,  
@@ -31,10 +30,10 @@ namespace mw {
 			startup_info = &temp;
 		}
 		
-		auto is_ok = CreateProcessA(NULL, temp_str, process_attributes, 
+		auto is_ok = CreateProcessA( nullptr, temp_str, process_attributes,
 			thread_attributes, inherit_handle, creation_flags,
 			environment, string_to_pointer(process_work_dir), startup_info, &proc);
-		GET_ERROR_MSG_OUTPUT(std::cout)
+		GET_ERROR_MSG_OUTPUT(std::cout);
 		delete[] temp_str;
 
 		new_process_info.process_handle = mw::safe_handle(proc.hProcess);
@@ -55,10 +54,9 @@ namespace mw {
 		if (command_line != "")
 			sei.lpParameters = command_line.c_str();
 
-		auto is_ok = ShellExecuteExA(&sei);
-		GET_ERROR_MSG_OUTPUT(std::cout)
-
-		return is_ok;
+		auto val = ShellExecuteExA(&sei);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
 	}
 
 	
@@ -66,9 +64,8 @@ namespace mw {
 	{
 		auto admin_sid = mw::create_admin_sid();
 		BOOL is_admin;
-		CheckTokenMembership(NULL, admin_sid.get(), &is_admin);
-		GET_ERROR_MSG_OUTPUT(std::cout)
-
+		CheckTokenMembership(nullptr, admin_sid.get(), &is_admin);
+		GET_ERROR_MSG_OUTPUT(std::cout);
 		return is_admin;
 	}
 

@@ -10,8 +10,14 @@ namespace mw {
 	/// <param name="extra_pointer">该参数的作用依赖于action_type，请看文档</param>
 	/// <param name="update_and_broadcast_option">如果是设置一个系统参数，该选项指定是否更新用户档案，以及是否广播WM_SETTINGCHANGE消息</param>
 	/// <returns></returns>
-	MW_API bool system_parameters(UINT action_type, UINT extra_param = 0, 
-		PVOID extra_pointer = NULL, UINT update_and_broadcast_option = 0);
+	inline bool system_parameters(UINT action_type, UINT extra_param = 0,
+		PVOID extra_pointer = nullptr, UINT update_and_broadcast_option = 0)
+	{
+		auto val = SystemParametersInfoA(action_type,
+			extra_param, extra_pointer, update_and_broadcast_option);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
 
 	/// <summary>
 	/// 设置桌面窗口的背景
@@ -21,5 +27,16 @@ namespace mw {
 	MW_API bool set_desktop_wallpaper(const std::string& wallpaper_file_name);
 
 
+	/// <summary>
+	/// 获取指定的系统度量(注意所有的返回的数字均已像素为单位，SM_CX*表示宽度，SM_CY*表示高度)
+	/// </summary>
+	/// <param name="index">指定索引</param>
+	/// <returns>如果函数成功，返回请求的系统度量，若失败则返回0</returns>
+	inline int get_system_metrics(int index)
+	{
+		auto val = GetSystemMetrics(index);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
 
 }//mw

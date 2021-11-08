@@ -36,6 +36,9 @@
     <ClCompile Include="mw_system.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mw_socket.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mw_window.h">
@@ -60,6 +63,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="mw_system.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mw_socket.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

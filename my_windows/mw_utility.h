@@ -19,7 +19,7 @@ namespace mw {
 	/// <param name="is_used_def_char">是否使用了default_char填充</param>
 	/// <returns>返回对应的多字节字符串</returns>
 	MW_API std::string wstring_to_string(const std::wstring& wstr,
-		UINT string_code_page = CP_UTF8, char default_char = '?', PBOOL is_used_def_char = NULL);
+		UINT string_code_page = CP_UTF8, char default_char = '?', PBOOL is_used_def_char = nullptr);
 
 	/// <summary>
 	/// 当前缓冲区是否是Unicode字符串(不一定准确)
@@ -28,7 +28,10 @@ namespace mw {
 	/// <param name="byte_count">待检验的大小，必须小于或等于缓冲区大小</param>
 	/// <param name="test">指定的测试，若为NULL，则全部测试</param>
 	/// <returns>系统判断是否是unicode</returns>
-	MW_API bool is_text_unicode(const void* buffer, int byte_count, int* test = NULL);
+	inline bool is_text_unicode(const void* buffer, int byte_count, int* test = nullptr)
+	{
+		return IsTextUnicode(buffer, byte_count, test);
+	}
 
 	/// <summary>
 	/// 安全句柄包装器，使用智能指针包装，能在销毁时自动关闭句柄
@@ -37,12 +40,6 @@ namespace mw {
 	/// <returns>返回被包装后的句柄</returns>
 	MW_API std::shared_ptr<HANDLE> safe_handle(HANDLE kernel_object);
 
-	/// <summary>
-	/// 将错误代码转换成对应的文本提示
-	/// </summary>
-	/// <param name="error_code">错误代码</param>
-	/// <returns>返回错误代码对应的文本提示信息</returns>
-	MW_API std::string formate_error_code(DWORD error_code);
 
 	/// <summary>
 	/// 获取当前线程所在进程的命令行的vector包装
@@ -69,7 +66,12 @@ namespace mw {
 	/// <param name="var_name">环境变量的名字</param>
 	/// <param name="var_value">环境变量的值</param>
 	/// <returns>操作是否成功</returns>
-	MW_API bool set_envionment_var(const std::string& var_name, const std::string& var_value);
+	inline bool set_envionment_var(const std::string& var_name, const std::string& var_value)
+	{
+		auto val = SetEnvironmentVariableA(var_name.c_str(), var_value.c_str());
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
 
 	/// <summary>
 	/// 将指定字符串中的变量使用环境变量替换(如变量$windir$)
@@ -89,7 +91,12 @@ namespace mw {
 	/// </summary>
 	/// <param name="work_dir">新工作目录</param>
 	/// <returns>操作是否成功</returns>
-	MW_API bool set_current_work_dir(const std::string& work_dir);
+	inline bool set_current_work_dir(const std::string& work_dir)
+	{
+		auto val = SetCurrentDirectoryA(work_dir.c_str());
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
 
 	/// <summary>
 	/// 弹出一个对话框
@@ -99,28 +106,12 @@ namespace mw {
 	/// <param name="type">对话框种类</param>
 	/// <param name="parent_window">父窗口，默认没有</param>
 	/// <returns>操作失败返回0，否则标识用户按下哪个按钮</returns>
-	MW_API int message_box(const std::string& caption, 
-		const std::string& text, UINT type = MB_OK, HWND parent_window = NULL);
-
-
-	/// <summary>
-	/// 返回指向该字符串缓冲区的const指针，若为""，则返回NULL
-	/// </summary>
-	/// <param name="str">源字符串</param>
-	/// <returns>指向字符串缓冲区的const指针</returns>
-	constexpr inline PCSTR string_to_pointer(const std::string& str)
+	inline int message_box(const std::string& caption,
+		const std::string& text, UINT type = MB_OK, HWND parent_window = nullptr)
 	{
-		return ((str == "") ? NULL : str.c_str());
-	}
-
-	/// <summary>
-	/// 返回指向该Unicode字符串缓冲区的const指针，若为""，则返回NULL
-	/// </summary>
-	/// <param name="str">源字符串</param>
-	/// <returns>指向Unicode字符串缓冲区的const指针</returns>
-	constexpr inline PCWSTR wstring_to_pointer(const std::wstring& str)
-	{
-		return ((str == L"") ? NULL : str.c_str());
+		auto val = MessageBoxA(parent_window, text.c_str(), caption.c_str(), type);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
 	}
 
 }//mw

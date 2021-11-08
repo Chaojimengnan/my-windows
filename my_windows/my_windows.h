@@ -9,3 +9,4 @@
 #include "mw_process.h"		// 进程相关的封装
 #include "mw_job.h"			// 作业相关的封装
 #include "mw_system.h"		// 系统相关的封装
+#include "mw_socket.h"		// 套接字相关的封装

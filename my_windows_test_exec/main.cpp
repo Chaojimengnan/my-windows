@@ -1,5 +1,6 @@
-#include "my_windows.h"
+#include "my_windows/my_windows.h"
 #include <iostream>
+#include <sstream>
 
 #ifdef _WIN32
 #include <crtdbg.h>
@@ -8,12 +9,13 @@
 #endif
 #endif
 
+#include "resource.h"
 
 
 int main(int argc, char *argv[])
 {
 
-	/*auto my_job = mw::make_job();
+	auto my_job = mw::make_job();
 	my_job->create("猛男在此");
 	JOBOBJECT_BASIC_LIMIT_INFORMATION job_limit = { 0 };
 	job_limit.PriorityClass = IDLE_PRIORITY_CLASS;
@@ -27,22 +29,21 @@ int main(int argc, char *argv[])
 	mw::process_info toto1, toto2;
 	mw::create_process(toto1, "cmd", "", 0, CREATE_SUSPENDED|CREATE_NEW_CONSOLE);
 	mw::create_process(toto2, "cmd", "", 0, CREATE_SUSPENDED | CREATE_NEW_CONSOLE);
-	my_job->assign_process(*toto1.process_handle);
+	my_job->assign_process((HANDLE)123);
 	my_job->assign_process(*toto2.process_handle);
 	ResumeThread(*toto1.thread_handle);
 	ResumeThread(*toto2.thread_handle);
 
 	JOBOBJECT_BASIC_LIMIT_INFORMATION job_limit2 = { 0 };
 
-	my_job->query_information(JobObjectBasicLimitInformation, &job_limit2, sizeof(job_limit2));*/
+	my_job->query_information(JobObjectBasicLimitInformation, &job_limit2, sizeof(job_limit2));
 
-
-	mw::window_class::event_function_dict_type my_event;
+	mw::window::window_class::event_function_dict_type my_event;
 	my_event[WM_PAINT] = [](HWND hwnd, WPARAM, LPARAM, LRESULT&)->bool {
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hwnd, &ps);
 
-		MoveToEx(hdc, 30, 10, NULL);
+		MoveToEx(hdc, 30, 10, nullptr);
 		LineTo(hdc, 20, 50);
 		LineTo(hdc, 50, 20);
 		LineTo(hdc, 10, 20);
@@ -53,19 +54,27 @@ int main(int argc, char *argv[])
 		return true;
 	};
 
-	mw::window_class toto("laolao", my_event);
-	mw::window_instance dada(toto.create());
+	
+	mw::window::window_class toto(my_event, "my_class");
+	mw::window::window_instance dada(toto.create());
+	
+	std::string ppa;
+	mw::window::get_desktop_window();
+	auto qwq = mw::window::is_window_handle_vaild(dada.get_handle());
+	//dada.to(mw::window::get_window_class_name, ppa);
+	//mw::window::get_window_class_name((HWND)123, ppa);
 
+	std::cout << ppa << "\n";
 	dada.show_window();
 
-	
+
 	MSG msg;
-	while (GetMessage(&msg, NULL, 0, 0))
+	while (GetMessage(&msg, nullptr, 0, 0))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-
+	
 
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);

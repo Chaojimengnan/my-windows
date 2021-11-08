@@ -147,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="mw_job.cpp" />
+    <ClCompile Include="mw_socket.cpp" />
     <ClCompile Include="mw_process.cpp" />
     <ClCompile Include="mw_security.cpp" />
     <ClCompile Include="mw_system.cpp" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mw_job.h" />
+    <ClInclude Include="mw_socket.h" />
     <ClInclude Include="mw_process.h" />
     <ClInclude Include="mw_security.h" />
     <ClInclude Include="mw_system.h" />

@@ -29,7 +29,7 @@ namespace mw {
 	{
 	public:
 		job();
-		~job();
+		~job() { CloseHandle(job_handle); GET_ERROR_MSG_OUTPUT(std::cout);}
 
 	public:
 		job(const job&) = delete;
@@ -46,7 +46,7 @@ namespace mw {
 		/// <param name="security_attribute">安全属性</param>
 		/// <returns>是否创建成功</returns>
 		bool create(const std::string& job_name = "", 
-			LPSECURITY_ATTRIBUTES security_attribute = NULL);
+			LPSECURITY_ATTRIBUTES security_attribute = nullptr);
 
 		/// <summary>
 		/// 打开一个作业

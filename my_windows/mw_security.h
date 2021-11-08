@@ -41,7 +41,7 @@ namespace mw {
 		/// </summary>
 		/// <param name="boundary_name">边界名字</param>
 		/// <param name="namespace_name">专有空间名字</param>
-		private_namespace(const std::wstring& boundary_name, const std::wstring& namespace_name);
+		private_namespace(const std::string& boundary_name, const std::string& namespace_name);
 		~private_namespace();
 
 		/// <summary>
@@ -55,8 +55,8 @@ namespace mw {
 		/// <returns>返回专有空间的句柄</returns>
 		HANDLE get_namespace_handle() { return namespace_handle; }
 	private:
-		HANDLE boundary_handle = NULL;
-		HANDLE namespace_handle = NULL;
+		HANDLE boundary_handle = nullptr;
+		HANDLE namespace_handle = nullptr;
 	};
 
 }//mw
