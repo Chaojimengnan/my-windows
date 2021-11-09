@@ -4,7 +4,7 @@
 #include <iostream>
 
 namespace mw {
-namespace window {
+namespace user {
 
 
 	window_class::handle_dict_type& window_class::get_handle_dict()
@@ -32,28 +32,40 @@ namespace window {
 
 	LRESULT window_class::window_process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
-		while (true)
+		static auto check_item = [](HWND hwnd ,UINT message, 
+			std::function<bool(HWND, UINT, WPARAM, LPARAM, LRESULT&)>& fun) -> bool 
 		{
 			// 检查句柄字典中有没有这个句柄项
 			auto event_function_dict_iter = get_handle_dict().find(hwnd);
-			if (event_function_dict_iter == get_handle_dict().end()) break;
+			if (event_function_dict_iter == get_handle_dict().end()) return false;
 
 			// 检查事件消息函数字典中有没有这个信息项
 			auto event_function_iter = event_function_dict_iter->second.find(message);
-			if (event_function_iter == event_function_dict_iter->second.end()) break;
+			if (event_function_iter == event_function_dict_iter->second.end()) return false;
 
-			// 调用对应的事件函数，若返回值true，使用return_code返回。
-			LRESULT return_code = 0;
-			if (event_function_iter->second(hwnd, wParam, lParam, return_code))
-			{
-				if (message == WM_DESTROY) remove_item_handle_dict(hwnd);
-				return return_code;
-			}
-			break;
-		}
-		// 否则都将调用系统默认处理函数
-		if (message == WM_DESTROY) remove_item_handle_dict(hwnd);
-		return DefWindowProcA(hwnd, message, wParam, lParam);
+			// 找到了就返回true
+			fun = event_function_iter->second;
+			return true;
+		};
+
+		std::function<bool(HWND, UINT, WPARAM, LPARAM, LRESULT&)> fun;
+		LRESULT return_code = 0;
+
+		// 寻找特定消息对应的函数
+		if (check_item(hwnd, message, fun))
+			if (fun(hwnd, message, wParam, lParam, return_code))
+				goto to_re;
+
+		// 寻找是否存在默认处理函数
+		if (check_item(hwnd, DEFALT_PROCESS_FUNCTION, fun))
+			if (fun(hwnd, message, wParam, lParam, return_code))
+				goto to_re;
+
+		// 否则使用默认窗口过程函数
+		return_code = DefWindowProcA(hwnd, message, wParam, lParam);
+
+to_re:	if (message == WM_DESTROY) remove_item_handle_dict(hwnd);
+		return return_code;
 	}
 
 	window_class::window_class(const event_function_dict_type& event_function_dict, 
