@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 	JOBOBJECT_BASIC_LIMIT_INFORMATION job_limit2 = { 0 };
 
 	my_job->query_information(JobObjectBasicLimitInformation, &job_limit2, sizeof(job_limit2));*/
+	
 
 
 	mw::user::window_class::event_function_dict_type my_event;
@@ -63,16 +64,10 @@ int main(int argc, char *argv[])
 
 
 	mw::user::window_class toto(my_event, "my_class", nullptr, 
-		(HCURSOR)mw::user::load_internal_image(mw::get_module_handle(), IDC_CURSOR1, IMAGE_CURSOR, 0, 0, false, false, true));
+		(HCURSOR)mw::user::load_internal_image(mw::get_module_handle(), IDC_CURSOR1, IMAGE_CURSOR));
 	mw::user::window_instance dada(toto.create());
-	
-	std::string ppa;
-	mw::user::get_desktop_window();
-	auto qwq = mw::user::is_window_handle_vaild(dada.get_handle());
 
-	std::cout << ppa << "\n";
 	dada.show_window();
-
 
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0))

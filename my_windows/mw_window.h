@@ -289,6 +289,33 @@ namespace user {
 		return SetCursor(cursor);
 	}
 
+	/// <summary>
+	/// 将指定消息信息传给指定窗口过程，一般用于超类或子类过程调用原始窗口过程
+	/// </summary>
+	/// <param name="window_procedure">指定窗口过程的指针</param>
+	/// <param name="hWnd">窗口句柄</param>
+	/// <param name="Msg">消息标识符</param>
+	/// <param name="wParam">额外消息参数</param>
+	/// <param name="lParam">额外消息参数</param>
+	/// <returns>指定窗口过程的返回值</returns>
+	inline LRESULT call_window_procedure(WNDPROC window_procedure, HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+	{
+		return CallWindowProcA(window_procedure, hWnd, Msg, wParam, lParam);
+	}
+
+	/// <summary>
+	/// 系统定义的默认窗口过程函数，若你的窗口过程没有处理某种消息，就调用该函数来默认处理
+	/// </summary>
+	/// <param name="hWnd">窗口句柄</param>
+	/// <param name="Msg">消息标识符</param>
+	/// <param name="wParam">额外消息参数</param>
+	/// <param name="lParam">额外消息参数</param>
+	/// <returns>默认窗口过程函数的返回值</returns>
+	inline LRESULT default_window_procedure(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+	{
+		return DefWindowProcA(hWnd, Msg, wParam, lParam);
+	}
+
 
 	/// <summary>
 	/// 窗口类，可以生成窗口
