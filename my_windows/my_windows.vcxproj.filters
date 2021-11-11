@@ -74,6 +74,9 @@
     <ClInclude Include="mw_resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mw_header_only.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

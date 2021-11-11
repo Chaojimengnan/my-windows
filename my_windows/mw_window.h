@@ -317,6 +317,67 @@ namespace user {
 	}
 
 
+
+	/// <summary>
+	/// 注册一个窗口类，返回一个能指定该窗口类的ATOM
+	/// </summary>
+	/// <param name="procedure">窗口过程</param>
+	/// <param name="class_name">窗口类名字</param>
+	/// <param name="event_function_dict">事件函数字典</param>
+	/// <param name="hIcon">图标句柄</param>
+	/// <param name="hCursor">光标句柄</param>
+	/// <param name="hbrBackground">背景刷</param>
+	/// <param name="hIconSm">小图标句柄</param>
+	/// <param name="style">样式</param>
+	/// <param name="menu_name">菜单名字</param>
+	/// <param name="cbClsExtra">窗口类额外空间(字节)</param>
+	/// <param name="cbWndExtra">窗口额外空间(字节)</param>
+	/// <returns>返回一个能唯一指定该窗口类的ATOM，若失败返回0</returns>
+	MW_API ATOM register_window_class(WNDPROC procedure,
+		const std::string& class_name = "my_class",
+		HICON hIcon = nullptr, HCURSOR hCursor = nullptr,
+		HBRUSH hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH),
+		HICON hIconSm = nullptr, UINT style = CS_HREDRAW | CS_VREDRAW,
+		const std::string& menu_name = "",
+		int cbClsExtra = 0, int cbWndExtra = 0);
+
+
+
+	/// <summary>
+	/// 创建并返回一个窗口句柄
+	/// </summary>
+	/// <param name="window_class_name">窗口类的名字</param>
+	/// <param name="window_name">窗口的名字</param>
+	/// <param name="x">窗口的x位置</param>
+	/// <param name="y">窗口的y位置</param>
+	/// <param name="width">窗口的宽度</param>
+	/// <param name="height">窗口的高度</param>
+	/// <param name="window_parent">该窗口的父窗口句柄</param>
+	/// <param name="menu">菜单句柄</param>
+	/// <param name="lParam"></param>
+	/// <param name="style">样式</param>
+	/// <param name="ex_style">扩展样式</param>
+	/// <returns>窗口句柄</returns>
+	MW_API HWND create_window(const std::string& window_class_name, const std::string& window_name = "my window",
+		int x = CW_USEDEFAULT, int y = CW_USEDEFAULT, int width = CW_USEDEFAULT, int height = CW_USEDEFAULT,
+		HWND window_parent = nullptr, HMENU menu = nullptr,
+		LPVOID lParam = nullptr, DWORD style = WS_OVERLAPPEDWINDOW, DWORD ex_style = 0);
+
+
+	/// <summary>
+	/// 注销注册的窗口类，注意，注销之前一定确保由该窗口类生成的窗口都已被销毁
+	/// </summary>
+	/// <param name="window_class_name">窗口类名字</param>
+	/// <param name="ins">模块实例句柄</param>
+	/// <returns>操作是否成功</returns>
+	inline bool unregister_window_class(const std::string& window_class_name, HINSTANCE ins)
+	{
+		auto val = UnregisterClassA(window_class_name.c_str(), ins);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+
 	/// <summary>
 	/// 窗口类，可以生成窗口
 	/// </summary>
@@ -517,5 +578,249 @@ namespace user {
 	private:
 		HWND window_handle;
 	};
+
+
+	/// <summary>
+	/// 回调函数模板工具类，使用字典查询关键字调用相应函数的模式，适用于所有的Windows回调函数。dict_depth表示关键字的个数，或字典嵌套的深度。
+	/// </summary>
+	/// <remarks>
+	/// 如我们想要用该模板实例化一个窗口过程，可以这么写：
+	/// ```cpp
+	/// // 先写一个类型别名，由于窗口过程需要两个关键字，一个是窗口句柄HWND，一个是消息标识符UINT。
+	/// // 没有句柄就无法找到指定窗口的处理函数字典，没有消息标识符就无法找到指定窗口的指定消息的处理函数
+	/// // 所以应该使用一个嵌套字典，其深度为2，即如下指定。我们还需要一个默认处理函数，所以我们使用
+	/// // `decltype(mw::user::default_window_procedure)`来指定默认处理函数的类型
+	/// using window_dict = mw::user::procedure_dict_tools<2,
+	/// std::unordered_map<HWND, std::unordered_map<UINT, std::function<bool(LRESULT&, HWND, UINT, WPARAM, LPARAM)>>>,
+	/// 	decltype(mw::user::default_window_procedure)> ;
+	/// 
+	/// // 然后我们需要将默认函数的指针传进去
+	/// window_dict::set_default_process_function(mw::user::default_window_procedure);
+	/// 
+	/// // 使用包装函数注册一个窗口类，并将我们的实例化的模板函数传进去，注意，由于是模板，所以
+	/// // 实例化代码是放在你的程序的，若你想将其放在DLL中，那么就在DLL中实例化模板
+	/// mw::user::register_window_class(window_dict::callback_function<LRESULT, HWND, UINT, WPARAM, LPARAM>, "my_class");
+	/// 
+	/// // 现在我们需要创建子字典，该字典用于指定特定窗口的消息字典
+	/// window_dict::dict_value_type my_event;
+	/// 
+	/// // 注意，最终调用的函数的第一个参数，类型必须是LRESULT的引用，窗口用这个值来返回，
+	/// // 且返回值必须是布尔值，若返回true，系统将不调用默认处理函数，否则将调用，且用它的返回值返回
+	/// my_event[WM_PAINT] = [](LRESULT&, HWND hwnd, UINT, WPARAM, LPARAM)->bool {
+	///		PAINTSTRUCT ps;
+	///		HDC hdc = BeginPaint(hwnd, &ps);
+	///
+	///		MoveToEx(hdc, 30, 10, nullptr);
+	///		LineTo(hdc, 20, 50);
+	///		LineTo(hdc, 50, 20);
+	///		LineTo(hdc, 10, 20);
+	///		LineTo(hdc, 40, 50);
+	///		LineTo(hdc, 30, 10);
+	///
+	///		EndPaint(hwnd, &ps);
+	///		return true;
+	/// };
+	/// 
+	/// // 然后我们创建一个窗口，并将它的句柄和我们之前写的消息子字典一起添加进字典，这样字典上就登记了这个窗口句柄以及它对应的消息字典了。
+	/// // 这样当模板回调函数被系统调用时，通过查询传入的句柄，就能找到我们写的消息字典，从而实现了我们的自定义消息操作
+	/// // 注意，由于是先创建窗口，才能获得句柄，才能将句柄拿去注册字典，在这段时间中，可能已经错过了WM_CREATE等消息
+	/// // 你若必须要在接收WM_CREATE时进行一些操作，那么你可以定义一个你自己的回调函数，然后自己捕获WM_CREATE等消息，然后其他消息传给
+	/// // 模板回调函数即可，就像默认处理函数那样用。
+	/// mw::user::window_instance dada(mw::user::create_window("my_class"));
+	/// window_dict::add_item_to_dict(dada.get_handle(), my_event);
+	/// ```
+	/// </remarks>
+	/// <typeparam name="dict_type">字典类型，这应该是一个完整的字典类型</typeparam>
+	/// <typeparam name="default_process_function_type">默认处理函数的类型，当查询不到关键字对应的值时调用进行默认处理</typeparam>
+	template<int dict_depth, typename dict_type, typename default_process_function_type>
+	class procedure_dict_tools {
+	private:
+		/// <summary>
+		/// 获取嵌套字典的最终的value类型(递归)
+		/// </summary>
+		/// <typeparam name="current_type">当前类型</typeparam>
+		template<int depth, typename current_type>
+		struct get_dict_value_type {
+			using type = typename get_dict_value_type<depth - 1, typename current_type::mapped_type>::type;
+		};
+
+		/// <summary>
+		/// 获取嵌套字典的最终的value类型(终点)
+		/// </summary>
+		/// <typeparam name="current_type">当前类型</typeparam>
+		template<typename current_type>
+		struct get_dict_value_type<1, current_type> {
+			using type = typename current_type::mapped_type;
+		};
+
+		/// <summary>
+		/// 获取嵌套字典的最终的key类型(递归)
+		/// </summary>
+		/// <typeparam name="current_type">当前类型</typeparam>
+		template<int depth, typename current_type>
+		struct get_dict_key_type {
+			using type = typename get_dict_key_type<depth - 1, typename current_type::mapped_type>::type;
+		};
+
+		/// <summary>
+		/// 获取嵌套字典的最终的key类型(终点)
+		/// </summary>
+		/// <typeparam name="current_type">当前类型</typeparam>
+		template<typename current_type>
+		struct get_dict_key_type<1, current_type> {
+			using type = typename current_type::key_type;
+		};
+
+	public:
+		/// <summary>
+		/// 字典的key类型，对于嵌套字典，这是最顶层的key类型
+		/// </summary>
+		using dict_key_type = typename dict_type::key_type;
+		/// <summary>
+		/// 字典的value类型，对于嵌套字典，这是最顶层的value类型
+		/// </summary>
+		using dict_value_type = typename dict_type::mapped_type;
+		/// <summary>
+		/// 字典最终的key类型，对于嵌套字典，这是最里面的key类型。对于非嵌套字典，其类型等于dict_key_type
+		/// </summary>
+		using final_dict_key_type = typename get_dict_key_type<dict_depth, dict_type>::type;
+		/// <summary>
+		/// 字典最终的value类型，对于嵌套字典，这是最里面的value类型。对于非嵌套字典，其类型等于dict_value_type
+		/// </summary>
+		using final_dict_value_type = typename get_dict_value_type<dict_depth, dict_type>::type;
+
+	private:
+		/// <summary>
+		/// 查询字典的模板函数，可以查找嵌套的字典，若未找到指定项，则返回false，否则返回true。使用keys_num指定嵌套的数量(或关键字的数量)
+		/// </summary>
+		/// <param name="val">[out]用于返回查询到的值</param>
+		/// <param name="dict">用于查询的字典</param>
+		/// <param name="key">第一个用于查询的key</param>
+		/// <param name="...arg">其他需要查询的key，顺序应该是由外到内</param>
+		/// <returns>若找到指定项，返回true，否则返回false</returns>
+		template<int keys_num, typename dict_type, typename current_dict_key_type, typename... Args>
+		static bool check_item(final_dict_value_type& val, dict_type& dict, current_dict_key_type key, Args&&... args)
+		{
+			auto iter = dict.find(key);
+			if (iter == dict.end()) return false;
+
+			return check_item<keys_num - 1>(val, iter->second, std::forward<Args>(args)...);
+		}
+
+		/// <summary>
+		/// 查询字典的模板函数，若未找到指定项，则返回false，否则返回true。（该版本只适用于查询未嵌套的字典）
+		/// </summary>
+		/// <param name="val">[out]用于返回查询到的值</param>
+		/// <param name="dict">用于查询的字典</param>
+		/// <param name="key">用于查询的key</param>
+		/// <returns>若找到指定项，返回true，否则返回false</returns>
+		template<int keys_num = 1, typename dict_type, typename... Args>
+		static bool check_item(final_dict_value_type& val, dict_type& dict, final_dict_key_type key, Args&&... args)
+		{
+			auto iter = dict.find(key);
+			if (iter == dict.end()) return false;
+
+			val = iter->second;
+			return true;
+		}
+
+		// 上面都是模板元工具，用于获取嵌套字典的值或值的类型
+	public:
+		/// <summary>
+		/// 模板回调函数，适用于所有Windows的回调函数，通过字典关键字调用特定的函数，支持字典嵌套(即多关键字)
+		/// </summary>
+		/// <typeparam name="return_type">返回类型</typeparam>
+		/// <param name="...args">回调函数需要的参数包</param>
+		/// <returns>返回指定类型的值</returns>
+		template<typename return_type, typename... Args>
+		static return_type CALLBACK callback_function(Args... args)
+		{
+			final_dict_value_type f;
+			return_type r;
+
+			// 寻找特定消息对应的函数
+			if (check_item<dict_depth>(f, get_dict(), args...))
+				if (f(r, args...))
+					return r;
+
+			// 否则使用默认处理函数
+			return my_f(args...);
+		}
+
+		/// <summary>
+		/// 模板回调函数，无返回值的版本
+		/// </summary>
+		/// <param name="...args">回调函数需要的参数包</param>
+		template<typename... Args>
+		static void CALLBACK callback_function(Args... args)
+		{
+			final_dict_value_type f;
+
+			// 寻找特定消息对应的函数
+			if (check_item<dict_depth>(f, get_dict(), args...))
+				if (f(args...))
+					return;
+
+			// 否则使用默认处理函数
+			my_f(args...);
+			return;
+		}
+
+		/// <summary>
+		/// 设置默认的可调用对象，用于当回调函数模板未找到对应key的value时调用
+		/// </summary>
+		/// <param name="f">默认可调用对象，可以是函数指针，lambda表达式，或重载了()运算符的类</param>
+		static void set_default_process_function(default_process_function_type f)
+		{
+			my_f = f;
+		}
+
+		/// <summary>
+		/// 将一个项加入到字典
+		/// </summary>
+		/// <param name="key">指定关键字</param>
+		/// <param name="val">指定对应值</param>
+		/// <returns>操作是否成功</returns>
+		static bool add_item_to_dict(const dict_key_type& key, const dict_value_type& val)
+		{
+			auto return_value = get_dict().insert(std::pair(key, val));
+			return return_value.second;
+		}
+
+		/// <summary>
+		/// 从字典删除一个项
+		/// </summary>
+		/// <param name="key">指定项的关键字</param>
+		/// <returns>操作是否成功</returns>
+		static bool remove_item_from_dict(const dict_key_type& key)
+		{
+			return (get_dict().erase(key) == 1);
+		}
+
+	public:
+		/// <summary>
+		/// 默认处理函数的指针
+		/// </summary>
+		static default_process_function_type* my_f;
+
+	public:
+		/// <summary>
+		/// 静态变量字典包装函数，只有声明为静态或全局，窗口过程才能访问到这个字典
+		/// </summary>
+		/// <returns>字典</returns>
+		static auto& get_dict()
+		{
+			static dict_type dict;
+			return dict;
+		}
+	};
+
+	/// <summary>
+	/// 定义这个默认处理函数静态变量
+	/// </summary>
+	template<int dict_depth, typename dict_type, typename default_process_function_type>
+	default_process_function_type* procedure_dict_tools<dict_depth, dict_type, default_process_function_type>::my_f = nullptr;
+
+
 };//window
 };//mw
