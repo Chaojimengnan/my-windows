@@ -39,4 +39,43 @@ namespace mw {
 		return val;
 	}
 
+	/// <summary>
+	/// 获取指定显示元素的当前颜色。显示元素是出现在系统显示屏幕上的窗口和显示的组成部分。
+	/// </summary>
+	/// <param name="index">指定哪个显示元素的颜色会被获取，它是一个以COLOR_开头的宏，WIN10或以上版本有许多不支持的宏，详见文档</param>
+	/// <returns>返回给定元素颜色的RGB值，若index超出范围，则返回0，但是0也是一个有效的RGB，所以无法使用该函数确认是否有效</returns>
+	inline DWORD get_system_color(int index)
+	{
+		auto val = GetSysColor(index);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+	/// <summary>
+	/// 设置指定显示元素的颜色，使用该函数做的修改系统不会保存，仅在当前会话有效
+	/// </summary>
+	/// <param name="index_nums">index_array和color_array大小</param>
+	/// <param name="index_array">index数组，用于指定修改哪个显示元素，其是以COLOR_开头的宏</param>
+	/// <param name="color_array">与index数组对应的color数组，用于指定对应索引的显示元素的新颜色</param>
+	/// <returns>操作是否成功</returns>
+	inline bool set_system_color(int index_nums, const INT* index_array, const COLORREF* color_array)
+	{
+		auto val = SetSysColors(index_nums, index_array, color_array);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+	/// <summary>
+	/// 获取指定显示元素的当前颜色的画刷。显示元素是出现在系统显示屏幕上的窗口和显示的组成部分。
+	/// </summary>
+	/// <remarks>系统颜色画笔归系统所有，因此您无需销毁它们。虽然您不需要删除GetSysColorBrush返回的逻辑画笔，但调用DeleteObject不会造成任何损害。</remarks>
+	/// <param name="index">指定哪个显示元素的颜色会被获取，它是一个以COLOR_开头的宏，WIN10或以上版本有许多不支持的宏，详见文档</param>
+	/// <returns>返回给定元素颜色的画刷，否则返回NULL</returns>
+	inline HBRUSH get_system_color_brush(int index)
+	{
+		auto val = GetSysColorBrush(index);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
 }//mw

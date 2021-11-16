@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <winsock2.h>
 #include <shellapi.h>
+
 #include <memory>
 #include <string>
 #include <iostream>
@@ -13,11 +14,17 @@
 
 
 /// 获取错误代码,如果是非0值则将对应文本输入到output_stream中
+#ifdef _DEBUG
 #define GET_ERROR_MSG_OUTPUT(output_stream) {auto my_error_code = GetLastError();\
 		if (my_error_code != 0)\
-		output_stream << __FUNCTION__ << "  " << mw::formate_error_code(my_error_code)\
+		output_stream << __FUNCTION__ << "  ("  << my_error_code << ")"<< mw::formate_error_code(my_error_code)\
 					<< __FILE__ << ":" << __LINE__  << "\n\n"\
 					;}
+#else
+#define GET_ERROR_MSG_OUTPUT(output_stream)
+#endif
+
+
 
 /// 最大文本长度宏，用于与WIN32API字符串的交互
 #define MW_MAX_TEXT 512

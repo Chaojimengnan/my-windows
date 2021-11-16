@@ -40,7 +40,7 @@ namespace mw {
 	std::vector<std::string> get_cmd_vec()
 	{
 		int argc = 0;
-		auto argv = CommandLineToArgvW(GetCommandLine(), &argc);
+		auto argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 		GET_ERROR_MSG_OUTPUT(std::cout);
 
 		std::vector<std::string> cmd_vec;

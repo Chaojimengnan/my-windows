@@ -79,4 +79,23 @@ namespace mw {
 	MW_API bool is_current_process_admin();
 
 
+	/// <summary>
+	/// 获得调用线程所在进程的伪句柄(即不需要CloseHandle)
+	/// </summary>
+	/// <returns>返回当前进程的伪句柄。</returns>
+	inline HANDLE get_current_process()
+	{
+		return GetCurrentProcess();
+	}
+
+	/// <summary>
+	/// 获取调用进程的进程标识符,在进程终止之前，进程标识符在整个系统中唯一标识该进程。
+	/// </summary>
+	/// <returns>返回调用进程的进程标识符</returns>
+	inline DWORD get_current_process_id()
+	{
+		return GetCurrentProcessId();
+	}
+
+
 }//mw

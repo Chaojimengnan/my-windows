@@ -98,20 +98,6 @@ namespace mw {
 		return val;
 	}
 
-	/// <summary>
-	/// 弹出一个对话框
-	/// </summary>
-	/// <param name="caption">对话框标题</param>
-	/// <param name="text">对话框文本</param>
-	/// <param name="type">对话框种类</param>
-	/// <param name="parent_window">父窗口，默认没有</param>
-	/// <returns>操作失败返回0，否则标识用户按下哪个按钮</returns>
-	inline int message_box(const std::string& caption,
-		const std::string& text, UINT type = MB_OK, HWND parent_window = nullptr)
-	{
-		auto val = MessageBoxA(parent_window, text.c_str(), caption.c_str(), type);
-		GET_ERROR_MSG_OUTPUT(std::cout);
-		return val;
-	}
+	
 
 }//mw
