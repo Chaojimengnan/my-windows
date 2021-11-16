@@ -149,5 +149,52 @@ namespace user {
 		return val;
 	}
 
+	/// <summary>
+	/// 设置指定对话框的指定ID的控件的标题或文本，该函数会发送一条`WM_SETTEXT`消息给指定控件
+	/// </summary>
+	/// <param name="dialog_handle">指定控件对应的对话框句柄</param>
+	/// <param name="control_id">指定控件的ID</param>
+	/// <param name="text">文本或标题名字(根据控件种类来看)</param>
+	/// <returns>操作是否成功</returns>
+	inline bool set_dialog_item_text(HWND dialog_handle, int control_id, const std::string& text)
+	{
+		auto val = SetDlgItemTextA(dialog_handle, control_id, text.c_str());
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+	/// <summary>
+	/// 获取指定对话框的指定ID的控件的标题或文本，该函数发送一条`WM_GETTEXT`消息给指定控件。注意，只能拷贝MW_MAX_TEXT-1个字节的字符串
+	/// </summary>
+	/// <param name="dialog_handle">指定控件对应的对话框句柄</param>
+	/// <param name="control_id">指定控件的ID</param>
+	/// <param name="text">[out]文本或标题名字(根据控件种类来看)</param>
+	/// <returns>操作是否成功</returns>
+	inline bool get_dialog_item_text(HWND dialog_handle, int control_id, std::string& text)
+	{
+		CHAR temp_str[MW_MAX_TEXT] = { 0 };
+		auto val = GetDlgItemTextA(dialog_handle, control_id, temp_str, MW_MAX_TEXT);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		text = temp_str;
+		return val;
+	}
+
+
+	/// <summary>
+	/// 改变指定对话框的指定ID的复选框(check boxes)的检查状态(check state)，该函数发送给指定按钮控件一条BM_SETCHECK消息.
+	/// </summary>
+	/// <param name="dialog_handle">指定控件对应的对话框句柄</param>
+	/// <param name="button_id">指定按钮的ID</param>
+	/// <param name="check_flag">设置按钮的检查状态，它是以BST_开头的宏</param>
+	/// <returns></returns>
+	inline bool set_dialog_button_check_state(HWND dialog_handle, int button_id, UINT check_flag = BST_CHECKED)
+	{
+		auto val = CheckDlgButton(dialog_handle, button_id, check_flag);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+
+
 };//user
 };//mw

@@ -163,6 +163,7 @@ namespace user {
 	/// <summary>
 	/// 更改指定窗口标题栏的文本（如果有的话）。如果指定的窗口是控件，则更改控件的文本。注意该函数无法修改非本程序的控件的文本。
 	/// </summary>
+	/// <remarks>使用SetDlgItemText而不是该函数来修改控件的文本或标题</remarks>
 	/// <param name="window_handle"></param>
 	/// <param name="text"></param>
 	/// <returns></returns>
@@ -313,6 +314,31 @@ namespace user {
 		int point_y, UINT flags = CWP_SKIPDISABLED | CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT)
 	{
 		auto val = ChildWindowFromPointEx( parent_window, POINT{ point_x, point_y }, flags);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+	/// <summary>
+	/// 从指定父窗口获取指定标识符(ID)的子窗口句柄，也可以用来获取对话框的控件句柄(因为控件是对话框的子窗口)
+	/// </summary>
+	/// <param name="parent_window">父窗口句柄</param>
+	/// <param name="child_id">子窗口的ID，可以是CreateWindowEx中hMenu参数指定的值，也可以是对话框控件的ID(它们是一样的)</param>
+	/// <returns>指定子窗口的句柄</returns>
+	inline HWND get_child_winodw_from_id(HWND parent_window, int child_id)
+	{
+		auto val = GetDlgItem(parent_window, child_id);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+	/// <summary>
+	/// 获取指定控件的标识符(ID),也可以获取子窗口的ID
+	/// </summary>
+	/// <param name="control_handle">指定控件的句柄，也可以是子窗口的句柄</param>
+	/// <returns>指定控件的标识符(ID)，或子窗口ID</returns>
+	inline int get_child_window_id(HWND control_handle)
+	{
+		auto val = GetDlgCtrlID(control_handle);
 		GET_ERROR_MSG_OUTPUT(std::cout);
 		return val;
 	}
