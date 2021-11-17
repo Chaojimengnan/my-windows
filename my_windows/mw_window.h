@@ -1259,7 +1259,7 @@ namespace user {
 	/// </remarks>
 	/// <typeparam name="dict_type">字典类型，这应该是一个完整的字典类型</typeparam>
 	/// <typeparam name="default_process_function_type">默认处理函数的类型，当查询不到关键字对应的值时调用进行默认处理</typeparam>
-	template<int dict_depth, typename dict_type, typename default_process_function_type>
+	template<int dict_depth, typename _dict_type, typename _default_process_function_type>
 	class procedure_dict_tools {
 	private:
 		/// <summary>
@@ -1299,6 +1299,14 @@ namespace user {
 		};
 
 	public:
+		/// <summary>
+		/// 字典类型
+		/// </summary>
+		using dict_type = _dict_type;
+		/// <summary>
+		/// 默认处理函数类型
+		/// </summary>
+		using default_process_function_type = _default_process_function_type;
 		/// <summary>
 		/// 字典的key类型，对于嵌套字典，这是最顶层的key类型
 		/// </summary>
@@ -1451,21 +1459,18 @@ namespace user {
 
 
 	public:
-		/*/// <summary>
+		/// <summary>
 		/// 默认处理函数
 		/// </summary>
-		static std::function<default_process_function_type> my_f;
-		/// <summary>
-		/// 前置处理函数
-		/// </summary>
-		static std::function<default_process_function_type> my_pref;*/
-
 		static auto& get_my_f()
 		{
 			static std::function<default_process_function_type> my_f;
 			return my_f;
 		}
 
+		/// <summary>
+		/// 前置处理函数
+		/// </summary>
 		static auto& get_my_pref()
 		{
 			static std::function<default_process_function_type> my_pref;
@@ -1483,18 +1488,6 @@ namespace user {
 			return dict;
 		}
 	};
-
-	/*/// <summary>
-	/// 定义默认处理函数静态变量
-	/// </summary>
-	template<int dict_depth, typename dict_type, typename default_process_function_type>
-	std::function<default_process_function_type> procedure_dict_tools<dict_depth, dict_type, default_process_function_type>::my_f = nullptr;
-	/// <summary>
-	/// 定义前置处理函数静态变量
-	/// </summary>
-	template<int dict_depth, typename dict_type, typename default_process_function_type>
-	std::function<default_process_function_type> procedure_dict_tools<dict_depth, dict_type, default_process_function_type>::my_pref = nullptr;*/
-
 
 };//window
 };//mw

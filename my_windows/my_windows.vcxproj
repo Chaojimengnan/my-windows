@@ -163,7 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mw_dialog.h" />
-    <ClInclude Include="mw_header_only.hpp" />
+    <ClCompile Include="mw_header_only.hpp" />
     <ClInclude Include="mw_job.h" />
     <ClInclude Include="mw_resource.h" />
     <ClInclude Include="mw_socket.h" />

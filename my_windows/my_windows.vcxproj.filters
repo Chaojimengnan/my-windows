@@ -48,6 +48,9 @@
     <ClCompile Include="mw_dialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mw_header_only.hpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mw_window.h">
@@ -78,9 +81,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="mw_resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="mw_header_only.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="mw_thread.h">
