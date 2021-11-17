@@ -1,4 +1,5 @@
 #pragma once
+#include "mw_process.h"
 #include <unordered_map>
 
 namespace mw {
@@ -26,7 +27,7 @@ namespace user {
 	inline bool get_window_rect(HWND window_handle, RECT& window_rect)
 	{
 		auto val = GetWindowRect(window_handle, &window_rect);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -41,7 +42,7 @@ namespace user {
 	{
 		RECT tmp{ 0 };
 		auto val = GetClientRect(window_handle, &tmp);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		width = tmp.right, height = tmp.bottom;
 		return val;
 	}
@@ -57,7 +58,7 @@ namespace user {
 	{
 		POINT tmp{ point_x, point_y };
 		auto val = ScreenToClient(window_handle, &tmp);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		point_x = tmp.x, point_y = tmp.y;
 		return val;
 	}
@@ -80,7 +81,7 @@ namespace user {
 	inline bool client_size_to_window_size(RECT& rect, DWORD style = 0, bool has_menu = false, DWORD exstyle = 0)
 	{
 		auto val = AdjustWindowRectEx(&rect, style, has_menu, exstyle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -90,10 +91,10 @@ namespace user {
 	/// <param name="class_name">窗口类的名字，若为""，它将查找标题与window_name匹配的任何窗口</param>
 	/// <param name="window_name">窗口的名字，若为""，则所有窗口名称都匹配</param>
 	/// <returns>返回对应的窗口句柄(操作失败返回NULL)</returns>
-	inline HWND find_window(const std::string& class_name = "", const std::string& window_name = "")
+	inline HWND find_window(const std::tstring& class_name = _T(""), const std::tstring& window_name = _T(""))
 	{
-		auto val = FindWindowA( string_to_pointer(class_name), string_to_pointer(window_name));
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = FindWindow( tstring_to_pointer(class_name), tstring_to_pointer(window_name));
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -105,41 +106,41 @@ namespace user {
 	/// <param name="parent_window">指定要搜索哪个父窗口的子窗口，若为NULL，父窗口为桌面窗口，若为HWND_MESSAGE，则寻找仅消息窗口</param>
 	/// <param name="child_after">从该子窗口句柄(必须是直接子窗口)之后开始搜索，顺序是Z轴顺序，若为NULL，则从第一个开始</param>
 	/// <returns>返回对应的窗口句柄(操作失败返回NULL)</returns>
-	inline HWND find_child_window(const std::string& class_name = "",
-		const std::string& window_name = "", HWND parent_window = nullptr, HWND child_after = nullptr)
+	inline HWND find_child_window(const std::tstring& class_name = _T(""),
+		const std::tstring& window_name = _T(""), HWND parent_window = nullptr, HWND child_after = nullptr)
 	{
-		auto val = FindWindowExA( parent_window, child_after,
-			string_to_pointer(class_name), string_to_pointer(window_name));
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = FindWindowEx( parent_window, child_after,
+			tstring_to_pointer(class_name), tstring_to_pointer(window_name));
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
 	/// <summary>
-	/// 获取窗口句柄对应的窗口类的名字(GetClassNameA)
+	/// 获取窗口句柄对应的窗口类的名字(GetClassName)
 	/// </summary>
 	/// <param name="window_handle">窗口句柄</param>
 	/// <param name="class_name">[out]窗口类的名字</param>
 	/// <returns>操作是否成功</returns>
-	inline bool get_window_class_name(HWND window_handle, std::string& class_name)
+	inline bool get_window_class_name(HWND window_handle, std::tstring& class_name)
 	{
-		CHAR temp_str[MW_MAX_TEXT] = { 0 };
-		auto is_ok = GetClassNameA( window_handle, temp_str, MAX_PATH);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		TCHAR temp_str[MW_MAX_TEXT] = { 0 };
+		auto is_ok = GetClassName( window_handle, temp_str, MAX_PATH);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		class_name = temp_str;
 		return is_ok;
 	}
 
 	/// <summary>
-	/// 获取指定窗口的类型字符串(RealGetWindowClassA)
+	/// 获取指定窗口的类型字符串(RealGetWindowClass)
 	/// </summary>
 	/// <param name="window_handle">窗口句柄</param>
 	/// <param name="class_name">[out]窗口类型字符串</param>
 	/// <returns>操作是否成功</returns>
-	inline bool get_window_type(HWND window_handle, std::string& class_name)
+	inline bool get_window_type(HWND window_handle, std::tstring& class_name)
 	{
-		CHAR temp_str[MW_MAX_TEXT] = { 0 };
-		auto is_ok = RealGetWindowClassA( window_handle, temp_str, MAX_PATH);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		TCHAR temp_str[MW_MAX_TEXT] = { 0 };
+		auto is_ok = RealGetWindowClass( window_handle, temp_str, MAX_PATH);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		class_name = temp_str;
 		return is_ok;
 	}
@@ -150,11 +151,11 @@ namespace user {
 	/// <param name="window_handle">窗口句柄</param>
 	/// <param name="text">[out]文本</param>
 	/// <returns>操作是否成功</returns>
-	inline bool get_window_text(HWND window_handle, std::string& text)
+	inline bool get_window_text(HWND window_handle, std::tstring& text)
 	{
-		CHAR temp_str[MW_MAX_TEXT] = { 0 };
-		auto is_ok = GetWindowTextA( window_handle, temp_str, MW_MAX_TEXT);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		TCHAR temp_str[MW_MAX_TEXT] = { 0 };
+		auto is_ok = GetWindowText( window_handle, temp_str, MW_MAX_TEXT);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		text = temp_str;
 		return is_ok;
 	}
@@ -167,10 +168,10 @@ namespace user {
 	/// <param name="window_handle"></param>
 	/// <param name="text"></param>
 	/// <returns></returns>
-	inline bool set_window_text(HWND window_handle, const std::string& text)
+	inline bool set_window_text(HWND window_handle, const std::tstring& text)
 	{
-		auto val = SetWindowTextA( window_handle, text.c_str());
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SetWindowText( window_handle, text.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -179,7 +180,7 @@ namespace user {
 	/// 改变指定窗口的属性，该函数也可以在额外窗口内存中的指定偏移处设置一个值。
 	/// </summary>
 	/// <remarks>
-	/// 封装自`SetWindowLongPtrA`，关于index的可选值请看文档
+	/// 封装自`SetWindowLongPtr`，关于index的可选值请看文档
 	/// </remarks>
 	/// <param name="window_handle">窗口句柄</param>
 	/// <param name="index">指定偏移量，具体可选值看文档</param>
@@ -187,9 +188,9 @@ namespace user {
 	/// <returns>如果成功，返回值是前一个指定的偏移量，若之前没有设置，则返回0。函数在失败时也返回0</returns>
 	inline LONG_PTR set_window_attribute(HWND window_handle, int index, LONG_PTR new_attribute)
 	{
-		auto val = SetWindowLongPtrA(window_handle, index, new_attribute);
+		auto val = SetWindowLongPtr(window_handle, index, new_attribute);
 		SetLastError(0);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -198,7 +199,7 @@ namespace user {
 	/// 改变指定窗口类的属性，该函数也可以在额外窗口类内存中的指定偏移处设置一个值(实际就是改系统维护的这个窗口类的WNDCLASSEX)
 	/// </summary>
 	/// <remarks>
-	/// 封装自`SetClassLongPtrA`，关于index的可选值请看文档
+	/// 封装自`SetClassLongPtr`，关于index的可选值请看文档
 	/// </remarks>
 	/// <param name="window_handle">属于指定窗口类的窗口的句柄</param>
 	/// <param name="index">指定偏移量，具体可选值看文档</param>
@@ -206,8 +207,8 @@ namespace user {
 	/// <returns>如果成功，返回值是前一个指定的偏移量，若之前没有设置，则返回0。函数在失败时也返回0</returns>
 	inline ULONG_PTR set_window_class_attribute(HWND window_handle, int index, LONG_PTR new_attribute)
 	{
-		auto val = SetClassLongPtrA(window_handle, index, new_attribute);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SetClassLongPtr(window_handle, index, new_attribute);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -218,11 +219,11 @@ namespace user {
 	/// <param name="output_window_class">指定窗口类的WNDCLASSEXA信息副本</param>
 	/// <param name="instance">一般为NULL，表示获取系统全局窗口类</param>
 	/// <returns>若函数找到匹配数据，并成功复制数据，返回true，否则返回false</returns>
-	inline bool get_window_class_info(const std::string& window_class_name,
-		WNDCLASSEXA& output_window_class, HINSTANCE instance = nullptr)
+	inline bool get_window_class_info(const std::tstring& window_class_name,
+		WNDCLASSEX& output_window_class, HINSTANCE instance = nullptr)
 	{
-		auto val = GetClassInfoExA(instance, window_class_name.c_str(), &output_window_class);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = GetClassInfoEx(instance, window_class_name.c_str(), &output_window_class);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -231,7 +232,7 @@ namespace user {
 	/// 获取指定窗口的指定属性，该函数也可以在额外窗口内存中的指定偏移处获得一个值
 	/// </summary>
 	/// <remarks>
-	/// 封装自`GetWindowLongPtrA`，关于index的可选值请看文档。
+	/// 封装自`GetWindowLongPtr`，关于index的可选值请看文档。
 	/// 
 	/// 如果之前没有调用过set_window_attribute的情况下请求额外窗口内存的某个值，该函数将返回0
 	/// </remarks>
@@ -240,8 +241,8 @@ namespace user {
 	/// <returns>若函数成功，返回请求的值，否则返回0</returns>
 	inline LONG_PTR get_window_attribute(HWND window_handle, int index)
 	{
-		auto val = GetWindowLongPtrA( window_handle, index);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = GetWindowLongPtr( window_handle, index);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -250,15 +251,15 @@ namespace user {
 	/// 获取指定窗口类的指定属性，该函数也可以在额外窗口类内存中的指定偏移处获得一个值(实际上就是获取系统维护的这个窗口类的WNDCLASSEX)
 	/// </summary>
 	/// <remarks>
-	/// 封装自`GetClassLongPtrA`，关于index的可选值请看文档
+	/// 封装自`GetClassLongPtr`，关于index的可选值请看文档
 	/// </remarks>
 	/// <param name="window_handle">属于指定窗口类的窗口的句柄</param>
 	/// <param name="index">指定偏移量，具体可选值看文档</param>
 	/// <returns>成功则返回请求的值，否则返回0</returns>
 	inline ULONG_PTR get_window_class_attribute(HWND window_handle, int index)
 	{
-		auto val = GetClassLongPtrA(window_handle, index);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = GetClassLongPtr(window_handle, index);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -282,7 +283,7 @@ namespace user {
 	inline bool is_window_handle_vaild(HWND window_handle)
 	{
 		auto val = IsWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -297,7 +298,7 @@ namespace user {
 	inline HWND get_window_from_screen_point(int point_x, int point_y)
 	{
 		auto val = WindowFromPoint( POINT{ point_x, point_y });
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -314,7 +315,7 @@ namespace user {
 		int point_y, UINT flags = CWP_SKIPDISABLED | CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT)
 	{
 		auto val = ChildWindowFromPointEx( parent_window, POINT{ point_x, point_y }, flags);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -327,7 +328,7 @@ namespace user {
 	inline HWND get_child_winodw_from_id(HWND parent_window, int child_id)
 	{
 		auto val = GetDlgItem(parent_window, child_id);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -339,7 +340,7 @@ namespace user {
 	inline int get_child_window_id(HWND control_handle)
 	{
 		auto val = GetDlgCtrlID(control_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -374,7 +375,7 @@ namespace user {
 	/// <returns>指定窗口过程的返回值</returns>
 	inline LRESULT call_window_procedure(WNDPROC window_procedure, HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		return CallWindowProcA(window_procedure, hWnd, Msg, wParam, lParam);
+		return CallWindowProc(window_procedure, hWnd, Msg, wParam, lParam);
 	}
 
 	/// <summary>
@@ -387,7 +388,7 @@ namespace user {
 	/// <returns>默认窗口过程函数的返回值</returns>
 	inline LRESULT default_window_procedure(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		return DefWindowProcA(hWnd, Msg, wParam, lParam);
+		return DefWindowProc(hWnd, Msg, wParam, lParam);
 	}
 
 
@@ -407,13 +408,34 @@ namespace user {
 	/// <param name="cbClsExtra">窗口类额外空间(字节)</param>
 	/// <param name="cbWndExtra">窗口额外空间(字节)</param>
 	/// <returns>返回一个能唯一指定该窗口类的ATOM，若失败返回0</returns>
-	MW_API ATOM register_window_class(WNDPROC procedure,
-		const std::string& class_name = "my_class",
+	inline ATOM register_window_class(WNDPROC procedure,
+		const std::tstring& class_name = _T("my_class"),
 		HICON hIcon = nullptr, HCURSOR hCursor = nullptr,
 		HBRUSH hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH),
 		HICON hIconSm = nullptr, UINT style = CS_HREDRAW | CS_VREDRAW,
-		const std::string& menu_name = "",
-		int cbClsExtra = 0, int cbWndExtra = 0);
+		const std::tstring& menu_name = _T(""),
+		int cbClsExtra = 0, int cbWndExtra = 0)
+	{
+		WNDCLASSEX win_class;
+
+		auto hinstance = get_module_handle();
+		win_class.cbSize = sizeof(WNDCLASSEX);
+		win_class.style = style;
+		win_class.cbClsExtra = cbClsExtra;
+		win_class.cbWndExtra = cbWndExtra;
+		win_class.hIcon = hIcon;
+		win_class.hCursor = hCursor;
+		win_class.hIconSm = hIconSm;
+		win_class.hbrBackground = hbrBackground;
+		win_class.lpszMenuName = tstring_to_pointer(menu_name);
+		win_class.lpszClassName = tstring_to_pointer(class_name);
+		win_class.hInstance = hinstance;
+		win_class.lpfnWndProc = procedure;
+
+		auto val = RegisterClassEx(&win_class);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
 
 
 
@@ -432,10 +454,20 @@ namespace user {
 	/// <param name="style">窗口样式</param>
 	/// <param name="ex_style">扩展样式</param>
 	/// <returns>返回新创建窗口的句柄</returns>
-	MW_API HWND create_window(const std::string& window_class_name, const std::string& window_name = "my window",
+	inline HWND create_window(const std::tstring& window_class_name, const std::tstring& window_name = _T("my window"),
 		int x = CW_USEDEFAULT, int y = CW_USEDEFAULT, int width = CW_USEDEFAULT, int height = CW_USEDEFAULT,
 		HWND window_parent = nullptr, HMENU menu = nullptr,
-		LPVOID lParam = nullptr, DWORD style = WS_OVERLAPPEDWINDOW, DWORD ex_style = 0);
+		LPVOID lParam = nullptr, DWORD style = WS_OVERLAPPEDWINDOW, DWORD ex_style = 0)
+	{
+		/*TCHAR buffer[MAX_PATH] = { 0 };
+		_tcscpy_s(buffer, MAX_PATH, window_name.c_str())*/
+
+		auto my_hwnd = CreateWindowEx(ex_style, window_class_name.c_str(),
+			window_name.c_str(), style, x, y, width, height,
+			window_parent, menu, get_module_handle(), lParam);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return my_hwnd;
+	}
 
 
 	/// <summary>
@@ -444,10 +476,10 @@ namespace user {
 	/// <param name="window_class_name">窗口类名字</param>
 	/// <param name="ins">模块实例句柄</param>
 	/// <returns>操作是否成功</returns>
-	inline bool unregister_window_class(const std::string& window_class_name, HINSTANCE ins)
+	inline bool unregister_window_class(const std::tstring& window_class_name, HINSTANCE ins)
 	{
-		auto val = UnregisterClassA(window_class_name.c_str(), ins);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = UnregisterClass(window_class_name.c_str(), ins);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -465,7 +497,7 @@ namespace user {
 	inline bool enum_window(WNDENUMPROC enum_procedure, LPARAM lParam = 0)
 	{
 		auto val = EnumWindows(enum_procedure, lParam);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -479,7 +511,7 @@ namespace user {
 	inline bool enum_thread_window(DWORD thread_id, WNDENUMPROC enum_procedure, LPARAM lParam = 0)
 	{
 		auto val = EnumThreadWindows(thread_id, enum_procedure, lParam);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -507,7 +539,7 @@ namespace user {
 	inline DWORD get_thread_process_id_from_window(HWND window_handle, LPDWORD process_id = nullptr)
 	{
 		auto val = GetWindowThreadProcessId(window_handle, process_id);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -520,7 +552,7 @@ namespace user {
 	inline bool show_window(HWND window_handle, int cmd_show = 1)
 	{
 		auto val = ShowWindow(window_handle, cmd_show);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -533,7 +565,7 @@ namespace user {
 	inline bool show_window_async(HWND window_handle, int cmd_show)
 	{
 		auto val = ShowWindowAsync(window_handle, cmd_show);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -547,7 +579,7 @@ namespace user {
 	inline HWND set_parent(HWND child_handle, HWND new_parent_handle = nullptr)
 	{
 		auto val = SetParent(child_handle, new_parent_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -560,7 +592,7 @@ namespace user {
 	inline HWND get_window(HWND window_handle, UINT cmd)
 	{
 		auto val = GetWindow(window_handle, cmd);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -573,7 +605,7 @@ namespace user {
 	inline HWND get_ancestor(HWND window_handle, UINT flags = GA_PARENT)
 	{
 		auto val = GetAncestor(window_handle, flags);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -586,7 +618,7 @@ namespace user {
 	inline bool is_child(HWND parent_handle, HWND window_handle)
 	{
 		auto val = IsChild(parent_handle, window_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -599,7 +631,7 @@ namespace user {
 	inline bool is_window_visible(HWND window_handle)
 	{
 		auto val = IsWindowVisible(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -611,7 +643,7 @@ namespace user {
 	inline bool is_window_enabled(HWND window_handle)
 	{
 		auto val = IsWindowEnabled(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -625,7 +657,7 @@ namespace user {
 	inline bool enable_window(HWND window_handle, bool is_enable)
 	{
 		auto val = EnableWindow(window_handle, is_enable);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -638,7 +670,7 @@ namespace user {
 	inline bool show_owned_popups(HWND window_handle, bool is_show)
 	{
 		auto val = ShowOwnedPopups(window_handle, is_show);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -661,7 +693,7 @@ namespace user {
 	inline bool set_foreground_window(HWND window_handle)
 	{
 		auto val = SetForegroundWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -673,7 +705,7 @@ namespace user {
 	inline bool lock_set_foreground_window(UINT lock_code = LSFW_LOCK)
 	{
 		auto val = LockSetForegroundWindow(lock_code);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -685,7 +717,7 @@ namespace user {
 	inline bool bring_window_to_top(HWND window_handle)
 	{
 		auto val = BringWindowToTop(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -697,7 +729,7 @@ namespace user {
 	inline HWND get_top_window(HWND window_handle)
 	{
 		auto val = GetTopWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -717,7 +749,7 @@ namespace user {
 	inline bool set_window_pos(HWND window_handle, UINT flags = SWP_NOMOVE|SWP_NOSIZE, int offset_x = 0, int offset_y = 0, int width = 0, int height = 0,  HWND insert_after = HWND_TOP)
 	{
 		auto val = SetWindowPos(window_handle, insert_after, offset_x, offset_y, width, height, flags);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -729,7 +761,7 @@ namespace user {
 	inline HWND set_active_window(HWND window_handle)
 	{
 		auto val = SetActiveWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -751,7 +783,7 @@ namespace user {
 	inline bool destroy_window(HWND window_handle)
 	{
 		auto val = DestroyWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -765,7 +797,7 @@ namespace user {
 	inline bool animate_window(HWND window_handle, DWORD time = 200, DWORD flags = AW_BLEND)
 	{
 		auto val = AnimateWindow(window_handle, time, flags);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -777,7 +809,7 @@ namespace user {
 	inline bool update_window(HWND window_handle)
 	{
 		auto val = UpdateWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -797,10 +829,10 @@ namespace user {
 	/// <remarks>其他应用程序出于不同目的使用相同的消息标识符，则使用此功函数可以防止可能出现的冲突(一般用于程序之间的交流)</remarks>
 	/// <param name="message_str">消息字符串</param>
 	/// <returns>一个在系统唯一的新消息值</returns>
-	inline UINT register_window_message(const std::string& message_str)
+	inline UINT register_window_message(const std::tstring& message_str)
 	{
-		auto val = RegisterWindowMessageA(message_str.c_str());
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = RegisterWindowMessage(message_str.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -816,8 +848,8 @@ namespace user {
 	/// <returns>操作是否成功</returns>
 	inline bool post_message(HWND window_handle, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		auto val = PostMessageA(window_handle, Msg, wParam, lParam);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = PostMessage(window_handle, Msg, wParam, lParam);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -834,8 +866,8 @@ namespace user {
 	/// <returns>操作是否成功</returns>
 	inline bool post_thread_message(DWORD thread_id, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		auto val = PostThreadMessageA(thread_id, Msg, wParam, lParam);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = PostThreadMessage(thread_id, Msg, wParam, lParam);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -850,8 +882,8 @@ namespace user {
 	/// <returns>接收到WM_QUIT时返回0，否则返回非0值，注意返回-1，则说明发生错误</returns>
 	inline BOOL get_message(MSG& msg, HWND window_handle = nullptr, int msg_filter_min = 0, int msg_filter_max = 0)
 	{
-		auto val = GetMessageA(&msg, window_handle, msg_filter_min, msg_filter_max);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = GetMessage(&msg, window_handle, msg_filter_min, msg_filter_max);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -868,8 +900,8 @@ namespace user {
 	inline bool peek_message(MSG& msg, HWND window_handle = nullptr, 
 		UINT remove_msg = PM_REMOVE, int msg_filter_min = 0, int msg_filter_max = 0)
 	{
-		auto val = PeekMessageA(&msg, window_handle, msg_filter_min, msg_filter_max, remove_msg);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = PeekMessage(&msg, window_handle, msg_filter_min, msg_filter_max, remove_msg);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -881,7 +913,7 @@ namespace user {
 	/// <returns>窗口过程返回的值，通常会忽略</returns>
 	inline LRESULT dispatch_message(const MSG& msg)
 	{
-		return DispatchMessageA(&msg);
+		return DispatchMessage(&msg);
 	}
 
 	/// <summary>
@@ -918,8 +950,8 @@ namespace user {
 	/// <returns>返回值指定消息处理的结果；这取决于发送的消息。</returns>
 	inline LRESULT send_message(HWND window_handle, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		auto val = SendMessageA(window_handle, Msg, wParam, lParam);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SendMessage(window_handle, Msg, wParam, lParam);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -939,8 +971,8 @@ namespace user {
 	inline bool send_message_callback(HWND window_handle, UINT Msg, WPARAM wParam, LPARAM lParam, 
 		SENDASYNCPROC callback_function, ULONG_PTR data = 0)
 	{
-		auto val = SendMessageCallbackA(window_handle, Msg, wParam, lParam, callback_function, data);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SendMessageCallback(window_handle, Msg, wParam, lParam, callback_function, data);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -955,8 +987,8 @@ namespace user {
 	/// <returns>操作是否成功</returns>
 	inline bool send_notify_message(HWND window_handle, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		auto val = SendNotifyMessageA(window_handle, Msg, wParam, lParam);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SendNotifyMessage(window_handle, Msg, wParam, lParam);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -974,8 +1006,8 @@ namespace user {
 	inline bool send_message_timeout(HWND window_handle, UINT Msg, WPARAM wParam, LPARAM lParam, 
 		UINT flags, UINT timeout, PDWORD_PTR result = nullptr)
 	{
-		auto val = SendMessageTimeoutA(window_handle, Msg, wParam, lParam, flags, timeout, result);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SendMessageTimeout(window_handle, Msg, wParam, lParam, flags, timeout, result);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -992,8 +1024,8 @@ namespace user {
 	inline long broadcast_system_message(DWORD flags, UINT Msg, WPARAM wParam, LPARAM lParam, 
 		LPDWORD info = nullptr, PBSMINFO sm_info = nullptr)
 	{
-		auto val = BroadcastSystemMessageExA(flags, info , Msg, wParam, lParam, sm_info);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = BroadcastSystemMessageEx(flags, info , Msg, wParam, lParam, sm_info);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -1047,7 +1079,7 @@ namespace user {
 	inline UINT_PTR set_timer(HWND window_handle, UINT_PTR timer_id, UINT time_out_val)
 	{
 		auto val = SetTimer(window_handle, timer_id, time_out_val, nullptr);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -1060,7 +1092,7 @@ namespace user {
 	inline bool kill_timer(HWND window_handle, UINT_PTR timer_id)
 	{
 		auto val = KillTimer(window_handle, timer_id);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -1072,10 +1104,10 @@ namespace user {
 	/// <param name="prop_name">所有物名字，用于唯一标识该所有物</param>
 	/// <param name="data">所有物对应的数据，它可以是指向任何有用数据的指针</param>
 	/// <returns>操作是否成功</returns>
-	inline bool set_prop(HWND window_handle, const std::string& prop_name, HANDLE data)
+	inline bool set_prop(HWND window_handle, const std::tstring& prop_name, HANDLE data)
 	{
-		auto val = SetPropA(window_handle, prop_name.c_str(), data);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SetProp(window_handle, prop_name.c_str(), data);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -1085,10 +1117,10 @@ namespace user {
 	/// <param name="window_handle">指定条目所在所有物列表对应的窗口句柄</param>
 	/// <param name="prop_name">所有物名字，用于唯一标识该所有物</param>
 	/// <returns>返回存储的数据指针，若找不到指定所有物，返回NULL</returns>
-	inline HANDLE remove_prop(HWND window_handle, const std::string& prop_name)
+	inline HANDLE remove_prop(HWND window_handle, const std::tstring& prop_name)
 	{
-		auto val = RemovePropA(window_handle, prop_name.c_str());
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = RemoveProp(window_handle, prop_name.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -1098,10 +1130,10 @@ namespace user {
 	/// <param name="window_handle">要获取所有物关联的窗口句柄</param>
 	/// <param name="prop_name">所有物名字，用于唯一标识该所有物</param>
 	/// <returns>返回数据指针，若没找到返回NULL</returns>
-	inline HANDLE get_prop(HWND window_handle, const std::string& prop_name)
+	inline HANDLE get_prop(HWND window_handle, const std::tstring& prop_name)
 	{
-		auto val = GetPropA(window_handle, prop_name.c_str());
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = GetProp(window_handle, prop_name.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -1114,10 +1146,10 @@ namespace user {
 	/// <param name="enum_function">回调函数，用于枚举所有物列表</param>
 	/// <param name="lParam">程序定义的数据，传给回调函数</param>
 	/// <returns>返回值指定回调函数返回的最后一个值。如果函数未找到所有物，则为-1</returns>
-	inline int enum_props(HWND window_handle, PROPENUMPROCEXA enum_function, LPARAM lParam = 0)
+	inline int enum_props(HWND window_handle, PROPENUMPROCEX enum_function, LPARAM lParam = 0)
 	{
-		auto val = EnumPropsExA(window_handle, enum_function, lParam);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = EnumPropsEx(window_handle, enum_function, lParam);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -1133,8 +1165,8 @@ namespace user {
 	/// <returns>若成功，返回挂钩过程的句柄，若失败返回NULL</returns>
 	inline HHOOK set_windows_hook(int hook_type, HOOKPROC hook_procedure, HINSTANCE module_handle, DWORD thread_id)
 	{
-		auto val = SetWindowsHookExA(hook_type, hook_procedure, module_handle, thread_id);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SetWindowsHookEx(hook_type, hook_procedure, module_handle, thread_id);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -1163,7 +1195,7 @@ namespace user {
 	inline bool remove_windows_hook(HHOOK hook_handle)
 	{
 		auto val = UnhookWindowsHookEx(hook_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -1489,5 +1521,5 @@ namespace user {
 		}
 	};
 
-};//window
+};//user
 };//mw

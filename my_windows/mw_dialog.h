@@ -12,11 +12,11 @@ namespace user {
 	/// <param name="parent_window">父窗口，默认没有</param>
 	/// <param name="language_id">消息框按钮中显示的文本的语言，0表示以默认系统语言显示按钮文本</param>
 	/// <returns>操作失败返回0，否则标识用户按下哪个按钮</returns>
-	inline int message_box(const std::string& caption,
-		const std::string& text, UINT type = MB_OK, HWND parent_window = nullptr, WORD language_id = 0)
+	inline int message_box(const std::tstring& caption,
+		const std::tstring& text, UINT type = MB_OK, HWND parent_window = nullptr, WORD language_id = 0)
 	{
-		auto val = MessageBoxExA(parent_window, text.c_str(), caption.c_str(), type, language_id);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = MessageBoxEx(parent_window, text.c_str(), caption.c_str(), type, language_id);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -39,8 +39,8 @@ namespace user {
 	inline INT_PTR create_modal_dialog(int dialog_id, DLGPROC dialog_procedure, HWND parent_handle, 
 		LPARAM init_param = 0 , HINSTANCE module_instance = nullptr)
 	{
-		auto val = DialogBoxParamW(module_instance, MAKEINTRESOURCEW(dialog_id), parent_handle, dialog_procedure, init_param);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = DialogBoxParam(module_instance, MAKEINTRESOURCE(dialog_id), parent_handle, dialog_procedure, init_param);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -57,11 +57,11 @@ namespace user {
 	/// <param name="init_param">初始化参数，将作为WM_INITDIALOG的lParam参数发送给对话框过程</param>
 	/// <param name="module_instance">用于指定哪个模块包含指定模板资源，若在exe中置为NULL即可，若在DLL中，应该传入正确的DLL实例句柄</param>
 	/// <returns>若函数成功，返回值是调用EndDialog时指定的返回值，若因为parent_handle无效而失败，返回0，若是其他原因失败返回-1</returns>
-	inline INT_PTR create_modal_dialog_indirect(LPCDLGTEMPLATEA dialog_template, DLGPROC dialog_procedure, HWND parent_handle, 
+	inline INT_PTR create_modal_dialog_indirect(LPCDLGTEMPLATE dialog_template, DLGPROC dialog_procedure, HWND parent_handle, 
 		LPARAM init_param = 0, HINSTANCE module_instance = nullptr)
 	{
-		auto val = DialogBoxIndirectParamW(module_instance, dialog_template, parent_handle, dialog_procedure, init_param);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = DialogBoxIndirectParam(module_instance, dialog_template, parent_handle, dialog_procedure, init_param);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -75,7 +75,7 @@ namespace user {
 	inline bool end_modal_dialog(HWND dialog_handle, INT_PTR result)
 	{
 		auto val = EndDialog(dialog_handle, result);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -96,8 +96,8 @@ namespace user {
 	inline HWND create_modeless_dialog(int dialog_id, DLGPROC dialog_procedure, HWND parent_handle = nullptr,
 		LPARAM init_param = 0, HINSTANCE module_instance = nullptr)
 	{
-		auto val = CreateDialogParamW(module_instance, MAKEINTRESOURCEW(dialog_id), parent_handle, dialog_procedure, init_param);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = CreateDialogParam(module_instance, MAKEINTRESOURCE(dialog_id), parent_handle, dialog_procedure, init_param);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -114,11 +114,11 @@ namespace user {
 	/// <param name="init_param">初始化参数，将作为WM_INITDIALOG的lParam参数发送给对话框过程</param>
 	/// <param name="module_instance">用于指定哪个模块包含指定模板资源，若在exe中置为NULL即可，若在DLL中，应该传入正确的DLL实例句柄</param>
 	/// <returns>若成功，返回值是当前非模态对话框的句柄，否则是NULL</returns>
-	inline HWND create_modeless_dialog_indirect(LPCDLGTEMPLATEA dialog_template, DLGPROC dialog_procedure, HWND parent_handle = nullptr,
+	inline HWND create_modeless_dialog_indirect(LPCDLGTEMPLATE dialog_template, DLGPROC dialog_procedure, HWND parent_handle = nullptr,
 		LPARAM init_param = 0, HINSTANCE module_instance = nullptr)
 	{
-		auto val = CreateDialogIndirectParamW(module_instance, dialog_template, parent_handle, dialog_procedure, init_param);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = CreateDialogIndirectParam(module_instance, dialog_template, parent_handle, dialog_procedure, init_param);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -131,8 +131,8 @@ namespace user {
 	/// <returns>消息是否被处理</returns>
 	inline bool is_dialog_message(HWND dialog_handle, MSG& msg)
 	{
-		auto val = IsDialogMessageA(dialog_handle, &msg);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = IsDialogMessage(dialog_handle, &msg);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -145,7 +145,7 @@ namespace user {
 	inline bool map_dialog_rect(HWND dialog_handle, RECT& rect)
 	{
 		auto val = MapDialogRect(dialog_handle, &rect);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -156,10 +156,10 @@ namespace user {
 	/// <param name="control_id">指定控件的ID</param>
 	/// <param name="text">文本或标题名字(根据控件种类来看)</param>
 	/// <returns>操作是否成功</returns>
-	inline bool set_dialog_item_text(HWND dialog_handle, int control_id, const std::string& text)
+	inline bool set_dialog_item_text(HWND dialog_handle, int control_id, const std::tstring& text)
 	{
-		auto val = SetDlgItemTextA(dialog_handle, control_id, text.c_str());
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SetDlgItemText(dialog_handle, control_id, text.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -170,11 +170,11 @@ namespace user {
 	/// <param name="control_id">指定控件的ID</param>
 	/// <param name="text">[out]文本或标题名字(根据控件种类来看)</param>
 	/// <returns>操作是否成功</returns>
-	inline bool get_dialog_item_text(HWND dialog_handle, int control_id, std::string& text)
+	inline bool get_dialog_item_text(HWND dialog_handle, int control_id, std::tstring& text)
 	{
-		CHAR temp_str[MW_MAX_TEXT] = { 0 };
-		auto val = GetDlgItemTextA(dialog_handle, control_id, temp_str, MW_MAX_TEXT);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		TCHAR temp_str[MW_MAX_TEXT] = { 0 };
+		auto val = GetDlgItemText(dialog_handle, control_id, temp_str, MW_MAX_TEXT);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		text = temp_str;
 		return val;
 	}
@@ -186,11 +186,11 @@ namespace user {
 	/// <param name="dialog_handle">指定控件对应的对话框句柄</param>
 	/// <param name="button_id">指定按钮的ID</param>
 	/// <param name="check_flag">设置按钮的检查状态，它是以BST_开头的宏</param>
-	/// <returns></returns>
+	/// <returns>操作是否成功</returns>
 	inline bool set_dialog_button_check_state(HWND dialog_handle, int button_id, UINT check_flag = BST_CHECKED)
 	{
 		auto val = CheckDlgButton(dialog_handle, button_id, check_flag);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 

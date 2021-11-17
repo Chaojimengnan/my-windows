@@ -29,7 +29,7 @@ namespace mw {
 	{
 	public:
 		job();
-		~job() { CloseHandle(job_handle); GET_ERROR_MSG_OUTPUT(std::cout);}
+		~job() { CloseHandle(job_handle); GET_ERROR_MSG_OUTPUT(std::tcout);}
 
 	public:
 		job(const job&) = delete;
@@ -45,7 +45,7 @@ namespace mw {
 		/// <param name="job_name">作业名字</param>
 		/// <param name="security_attribute">安全属性</param>
 		/// <returns>是否创建成功</returns>
-		bool create(const std::string& job_name = "", 
+		bool create(const std::tstring& job_name, 
 			LPSECURITY_ATTRIBUTES security_attribute = nullptr);
 
 		/// <summary>
@@ -55,7 +55,7 @@ namespace mw {
 		/// <param name="inherit_handle">该进程以后创建的子进程是否能继承该作业句柄</param>
 		/// <param name="desired_access">访问该作业句柄的请求</param>
 		/// <returns>是否打开成功</returns>
-		bool open(const std::string& job_name, bool inherit_handle = FALSE, 
+		bool open(const std::tstring& job_name, bool inherit_handle = FALSE, 
 			DWORD desired_access = JOB_OBJECT_ALL_ACCESS);
 
 		/// <summary>

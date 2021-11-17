@@ -45,7 +45,7 @@ namespace mw {
 	/// 获取当前线程所在进程的命令行的vector包装
 	/// </summary>
 	/// <returns>返回所在进程命令行的vector包装</returns>
-	MW_API std::vector<std::string> get_cmd_vec();
+	MW_API std::vector<std::tstring> get_cmd_vec();
 
 	/// <summary>
 	/// 获取指定的环境变量的值
@@ -53,7 +53,7 @@ namespace mw {
 	/// <param name="var_name">环境变量的名字</param>
 	/// <param name="var_value">[out]环境变量的值</param>
 	/// <returns>操作是否成功(是否被找到)</returns>
-	MW_API bool get_envionment_var(const std::string& var_name, std::string& var_value);
+	MW_API bool get_envionment_var(const std::tstring& var_name, std::tstring& var_value);
 	
 	/// <summary>
 	/// 设置指定的环境变量的值
@@ -66,10 +66,10 @@ namespace mw {
 	/// <param name="var_name">环境变量的名字</param>
 	/// <param name="var_value">环境变量的值</param>
 	/// <returns>操作是否成功</returns>
-	inline bool set_envionment_var(const std::string& var_name, const std::string& var_value)
+	inline bool set_envionment_var(const std::tstring& var_name, const std::tstring& var_value)
 	{
-		auto val = SetEnvironmentVariableA(var_name.c_str(), var_value.c_str());
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SetEnvironmentVariable(var_name.c_str(), var_value.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -78,23 +78,23 @@ namespace mw {
 	/// </summary>
 	/// <param name="src">源字符串</param>
 	/// <returns>使用环境变量替换后的字符串</returns>
-	MW_API std::string expand_envionment_str(const std::string& src);
+	MW_API std::tstring expand_envionment_str(const std::tstring& src);
 
 	/// <summary>
 	/// 获得当前线程所在进程的工作目录
 	/// </summary>
 	/// <returns>返回所在进程的工作目录</returns>
-	MW_API std::string get_current_work_dir();
+	MW_API std::tstring get_current_work_dir();
 
 	/// <summary>
 	/// 设置当前线程所在进程的工作目录
 	/// </summary>
 	/// <param name="work_dir">新工作目录</param>
 	/// <returns>操作是否成功</returns>
-	inline bool set_current_work_dir(const std::string& work_dir)
+	inline bool set_current_work_dir(const std::tstring& work_dir)
 	{
-		auto val = SetCurrentDirectoryA(work_dir.c_str());
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = SetCurrentDirectory(work_dir.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 

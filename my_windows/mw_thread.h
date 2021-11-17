@@ -28,7 +28,7 @@ namespace mw {
 	inline DWORD get_thread_id(HANDLE target_thread)
 	{
 		auto val = GetThreadId(target_thread);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 

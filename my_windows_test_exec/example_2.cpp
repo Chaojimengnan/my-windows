@@ -9,10 +9,10 @@ bool cmd(INT_PTR& return_value, HWND hwnd, UINT msg, WPARAM w, LPARAM l)
 	switch (low_w)
 	{
 	case IDOK:
-		mw::user::set_dialog_item_text(hwnd, IDC_STATIC1, "呵呵,你点击了确定按钮！");
+		mw::user::set_dialog_item_text(hwnd, IDC_STATIC1, _T("呵呵,你点击了确定按钮！"));
 		break;
 	case IDCANCEL:
-		mw::user::set_dialog_item_text(hwnd, IDC_STATIC1, "妈的，你点击了取消按钮！");
+		mw::user::set_dialog_item_text(hwnd, IDC_STATIC1, _T("妈的，你点击了取消按钮！"));
 		break;
 
 	default:
@@ -36,8 +36,8 @@ bool destroy(INT_PTR& return_value, HWND hwnd, UINT msg, WPARAM w, LPARAM l)
 
 bool mouse_move(INT_PTR& return_value, HWND hwnd, UINT msg, WPARAM w, LPARAM l)
 {
-	std::ostringstream s;
-	s << "鼠标的位置为x:" << LOWORD(l) << ", y:" << HIWORD(l);
+	std::tostringstream s;
+	s << _T("鼠标的位置为x:") << LOWORD(l) << _T(", y:") << HIWORD(l);
 
 	mw::user::set_dialog_item_text(hwnd, IDC_STATIC1, s.str());
 	return return_value = true;

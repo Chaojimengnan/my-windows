@@ -10,30 +10,30 @@ namespace mw {
 		HANDLE target_process_handle = nullptr;
 		DuplicateHandle(GetCurrentProcess(), handle_to_give, target_process,
 			&target_process_handle, desired_access, inherit_handle, options);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return target_process_handle;
 	}
 
-	bool create_process(process_info& new_process_info, const std::string& command_line, const std::string& process_work_dir, 
+	bool create_process(process_info& new_process_info, const std::tstring& command_line, const std::tstring& process_work_dir, 
 		BOOL inherit_handle, DWORD creation_flags, LPSECURITY_ATTRIBUTES process_attributes,
 		LPSECURITY_ATTRIBUTES thread_attributes,  
-		LPVOID environment, LPSTARTUPINFOA startup_info)
+		LPVOID environment, LPSTARTUPINFO startup_info)
 	{
-		STARTUPINFOA temp;
+		STARTUPINFO temp;
 		PROCESS_INFORMATION proc;
-		char* temp_str = new char[command_line.size() + 1];
-		strcpy_s(temp_str, command_line.size() + 1, command_line.c_str());
+		TCHAR* temp_str = new TCHAR[command_line.size() + 1];
+		_tcscpy_s(temp_str, command_line.size() + 1, command_line.c_str());
 		if (!startup_info)
 		{
-			ZeroMemory(&temp, sizeof(STARTUPINFOA));
-			temp.cb = sizeof(STARTUPINFOA);
+			ZeroMemory(&temp, sizeof(STARTUPINFO));
+			temp.cb = sizeof(STARTUPINFO);
 			startup_info = &temp;
 		}
 		
-		auto is_ok = CreateProcessA( nullptr, temp_str, process_attributes,
+		auto is_ok = CreateProcess( nullptr, temp_str, process_attributes,
 			thread_attributes, inherit_handle, creation_flags,
-			environment, string_to_pointer(process_work_dir), startup_info, &proc);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+			environment, tstring_to_pointer(process_work_dir), startup_info, &proc);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		delete[] temp_str;
 
 		new_process_info.process_handle = mw::safe_handle(proc.hProcess);
@@ -45,17 +45,17 @@ namespace mw {
 	}
 
 	
-	bool create_process_admin(const std::string& file, const std::string& command_line)
+	bool create_process_admin(const std::tstring& file, const std::tstring& command_line)
 	{
-		SHELLEXECUTEINFOA sei = { sizeof(SHELLEXECUTEINFOA) };
-		sei.lpVerb = "runas";
+		SHELLEXECUTEINFO sei = { sizeof(SHELLEXECUTEINFO) };
+		sei.lpVerb = _T("runas");
 		sei.lpFile = file.c_str();
 		sei.nShow = SW_SHOWNORMAL;
-		if (command_line != "")
+		if (command_line != _T(""))
 			sei.lpParameters = command_line.c_str();
 
-		auto val = ShellExecuteExA(&sei);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = ShellExecuteEx(&sei);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -65,7 +65,7 @@ namespace mw {
 		auto admin_sid = mw::create_admin_sid();
 		BOOL is_admin;
 		CheckTokenMembership(nullptr, admin_sid.get(), &is_admin);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return is_admin;
 	}
 

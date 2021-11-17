@@ -22,10 +22,10 @@ namespace mw {
 	/// </summary>
 	/// <param name="module_name">模块名字(exe或dll)，若为""，则返回主调进程的可执行文件的句柄(基地址)</param>
 	/// <returns>返回指定模块的句柄(基地址)</returns>
-	inline HMODULE get_module_handle(const std::string& module_name = "")
+	inline HMODULE get_module_handle(const std::tstring& module_name = _T(""))
 	{
-		auto val = GetModuleHandleA(string_to_pointer(module_name));
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		auto val = GetModuleHandle(tstring_to_pointer(module_name));
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -58,11 +58,11 @@ namespace mw {
 	/// <param name="environment">环境块，默认值则与父进程相同</param>
 	/// <param name="startup_info">启动信息</param>
 	/// <returns>是否成功</returns>
-	MW_API bool create_process(process_info& new_process_info, const std::string& command_line,
-			const std::string& process_work_dir = "", BOOL inherit_handle = FALSE, DWORD creation_flags = 0,
+	MW_API bool create_process(process_info& new_process_info, const std::tstring& command_line,
+			const std::tstring& process_work_dir = _T(""), BOOL inherit_handle = FALSE, DWORD creation_flags = 0,
 			LPSECURITY_ATTRIBUTES process_attributes = nullptr,
 			LPSECURITY_ATTRIBUTES thread_attributes = nullptr,
-			LPVOID environment = nullptr, LPSTARTUPINFOA startup_info = nullptr);
+			LPVOID environment = nullptr, LPSTARTUPINFO startup_info = nullptr);
 
 	/// <summary>
 	/// 创建一个要求管理员的新进程(向用户弹出UAC对话框)
@@ -70,7 +70,7 @@ namespace mw {
 	/// <param name="file">新进程可执行文件的路径</param>
 	/// <param name="command_line">新进程的命令行(不包含可执行文件路径)</param>
 	/// <returns>是否成功</returns>
-	MW_API bool create_process_admin(const std::string& file, const std::string& command_line = "");
+	MW_API bool create_process_admin(const std::tstring& file, const std::tstring& command_line = TEXT(""));
 
 	/// <summary>
 	/// 判断当前线程所在进程的令牌是否是管理员组
@@ -105,7 +105,7 @@ namespace mw {
 	inline DWORD get_process_id(HANDLE target_process)
 	{
 		auto val = GetProcessId(target_process);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -117,7 +117,7 @@ namespace mw {
 	inline DWORD get_process_id_from_thread(HANDLE thread_handle)
 	{
 		auto val = GetProcessIdOfThread(thread_handle);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -130,7 +130,7 @@ namespace mw {
 	inline bool get_process_exit_code(HANDLE target_process, DWORD& exit_code)
 	{
 		auto val = GetExitCodeProcess(target_process, &exit_code);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -144,7 +144,7 @@ namespace mw {
 	inline bool terminate_process(HANDLE target_process, UINT exit_code)
 	{
 		auto val = TerminateProcess(target_process, exit_code);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 

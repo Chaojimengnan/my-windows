@@ -7,7 +7,7 @@ namespace mw {
 		auto wide_size = MultiByteToWideChar(string_code_page, 0, str.c_str(), -1, nullptr, 0);
 		PWSTR temp_wstr = new WCHAR[wide_size];
 		MultiByteToWideChar(string_code_page, 0, str.c_str(), -1, temp_wstr, wide_size);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		std::wstring wstr(temp_wstr);
 
 		delete[] temp_wstr;
@@ -22,7 +22,7 @@ namespace mw {
 		PSTR temp_str = new CHAR[str_size];
 		WideCharToMultiByte(string_code_page, 0, wstr.c_str(),
 			-1, temp_str, str_size, &default_char, is_used_def_char);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		std::string str(temp_str);
 
 		delete[] temp_str;
@@ -37,53 +37,57 @@ namespace mw {
 		return safe_handle_object;
 	}
 
-	std::vector<std::string> get_cmd_vec()
+	std::vector<std::tstring> get_cmd_vec()
 	{
 		int argc = 0;
 		auto argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 
-		std::vector<std::string> cmd_vec;
+		std::vector<std::tstring> cmd_vec;
 		for (size_t i = 0; i < argc; i++)
+#ifdef UNICODE
+			cmd_vec.push_back(argv[i]);
+#else
 			cmd_vec.push_back(mw::wstring_to_string(argv[i]));
+#endif // UNICODE
 		HeapFree(GetProcessHeap(), 0, argv);
 		return cmd_vec;
 	}
 
-	bool get_envionment_var(const std::string& var_name, std::string& var_value)
+	bool get_envionment_var(const std::tstring& var_name, std::tstring& var_value)
 	{
-		auto size_of_char = GetEnvironmentVariableA(var_name.c_str(), nullptr, 0);
-		auto mybuffer = new char[size_of_char];
+		auto size_of_char = GetEnvironmentVariable(var_name.c_str(), nullptr, 0);
+		auto mybuffer = new TCHAR[size_of_char];
 
-		if (GetEnvironmentVariableA(var_name.c_str(), mybuffer, size_of_char))
+		if (GetEnvironmentVariable(var_name.c_str(), mybuffer, size_of_char))
 		{
 			var_value = mybuffer;
 			delete[] mybuffer;
 			return true;
 		}
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		delete[] mybuffer;
 		return false;
 	}
 
-	std::string expand_envionment_str(const std::string& src)
+	std::tstring expand_envionment_str(const std::tstring& src)
 	{
-		auto size_of_char = ExpandEnvironmentStringsA(src.c_str(), nullptr, 0);
-		auto mybuffer = new char[size_of_char];
-		ExpandEnvironmentStringsA(src.c_str(), mybuffer, size_of_char);
-		GET_ERROR_MSG_OUTPUT(std::cout);
-		std::string des_str = mybuffer;
+		auto size_of_char = ExpandEnvironmentStrings(src.c_str(), nullptr, 0);
+		auto mybuffer = new TCHAR[size_of_char];
+		ExpandEnvironmentStrings(src.c_str(), mybuffer, size_of_char);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		std::tstring des_str = mybuffer;
 		delete[] mybuffer;
 		return des_str;
 	}
 
-	std::string get_current_work_dir()
+	std::tstring get_current_work_dir()
 	{
-		auto size = GetCurrentDirectoryA(0, nullptr);
-		char* temp_str = new char[size];
-		GetCurrentDirectoryA(size, temp_str);
-		GET_ERROR_MSG_OUTPUT(std::cout);
-		std::string dir_str = temp_str;
+		auto size = GetCurrentDirectory(0, nullptr);
+		TCHAR* temp_str = new TCHAR[size];
+		GetCurrentDirectory(size, temp_str);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		std::tstring dir_str = temp_str;
 		delete[] temp_str;
 		return dir_str;
 	}

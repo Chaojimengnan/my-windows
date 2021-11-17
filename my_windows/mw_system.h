@@ -13,9 +13,9 @@ namespace mw {
 	inline bool system_parameters(UINT action_type, UINT extra_param = 0,
 		PVOID extra_pointer = nullptr, UINT update_and_broadcast_option = 0)
 	{
-		auto val = SystemParametersInfoA(action_type,
+		auto val = SystemParametersInfo(action_type,
 			extra_param, extra_pointer, update_and_broadcast_option);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -24,7 +24,7 @@ namespace mw {
 	/// </summary>
 	/// <param name="bmp_file_name">图片文件路径</param>
 	/// <returns>操作是否成功</returns>
-	MW_API bool set_desktop_wallpaper(const std::string& wallpaper_file_name);
+	MW_API bool set_desktop_wallpaper(const std::tstring& wallpaper_file_name);
 
 
 	/// <summary>
@@ -35,7 +35,7 @@ namespace mw {
 	inline int get_system_metrics(int index)
 	{
 		auto val = GetSystemMetrics(index);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -47,7 +47,7 @@ namespace mw {
 	inline DWORD get_system_color(int index)
 	{
 		auto val = GetSysColor(index);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -61,7 +61,7 @@ namespace mw {
 	inline bool set_system_color(int index_nums, const INT* index_array, const COLORREF* color_array)
 	{
 		auto val = SetSysColors(index_nums, index_array, color_array);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -74,7 +74,7 @@ namespace mw {
 	inline HBRUSH get_system_color_brush(int index)
 	{
 		auto val = GetSysColorBrush(index);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 

@@ -7,7 +7,7 @@ namespace mw {
 		
 		BOOL is_in_job = FALSE;
 		IsProcessInJob(GetCurrentProcess(), nullptr, &is_in_job);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return is_in_job;
 	}
 
@@ -18,13 +18,13 @@ namespace mw {
 	}
 
 
-	bool job::create(const std::string& job_name, LPSECURITY_ATTRIBUTES security_attribute)
+	bool job::create(const std::tstring& job_name, LPSECURITY_ATTRIBUTES security_attribute)
 	{
 		if (!job_handle)
 		{
-			job_handle = CreateJobObjectA( security_attribute,
-				string_to_pointer(job_name));
-			GET_ERROR_MSG_OUTPUT(std::cout);
+			job_handle = CreateJobObject( security_attribute,
+				tstring_to_pointer(job_name));
+			GET_ERROR_MSG_OUTPUT(std::tcout);
 			return job_handle;
 		}
 		else {
@@ -32,13 +32,13 @@ namespace mw {
 		}
 	}
 
-	bool job::open(const std::string& job_name, bool inherit_handle, DWORD desired_access)
+	bool job::open(const std::tstring& job_name, bool inherit_handle, DWORD desired_access)
 	{
 		if (!job_handle)
 		{
-			job_handle = OpenJobObjectA(desired_access, 
+			job_handle = OpenJobObject(desired_access, 
 				inherit_handle, job_name.c_str());
-			GET_ERROR_MSG_OUTPUT(std::cout);
+			GET_ERROR_MSG_OUTPUT(std::tcout);
 			return job_handle;
 		}
 		else {
@@ -49,7 +49,7 @@ namespace mw {
 	bool job::assign_process(HANDLE process)
 	{
 		auto val = AssignProcessToJobObject(job_handle, process);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -57,7 +57,7 @@ namespace mw {
 	{
 		auto val = SetInformationJobObject(job_handle, information_type,
 			job_information, size_of_information);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
@@ -65,14 +65,14 @@ namespace mw {
 	{
 		auto val = QueryInformationJobObject(job_handle,
 			information_type, output_job_information, size_of_information, nullptr);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 
 	bool job::kill_all_process_in_job(UINT exit_code)
 	{
 		auto val = TerminateJobObject(job_handle, exit_code);
-		GET_ERROR_MSG_OUTPUT(std::cout);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
 

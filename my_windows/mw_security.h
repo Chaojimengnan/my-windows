@@ -41,7 +41,7 @@ namespace mw {
 		/// </summary>
 		/// <param name="boundary_name">边界名字</param>
 		/// <param name="namespace_name">专有空间名字</param>
-		private_namespace(const std::string& boundary_name, const std::string& namespace_name);
+		private_namespace(const std::tstring& boundary_name, const std::tstring& namespace_name);
 		~private_namespace();
 
 		/// <summary>

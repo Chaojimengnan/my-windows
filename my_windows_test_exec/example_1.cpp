@@ -2,11 +2,11 @@
 
 BOOL CALLBACK GG(HWND hwnd, LPARAM lParam)
 {
-	std::string temp;
+	std::tstring temp;
 	mw::user::get_window_text(hwnd, temp);
-	std::cout << temp << ", ";
+	std::tcout << temp << ", ";
 	mw::user::get_window_class_name(hwnd, temp);
-	std::cout << temp << "\n";
+	std::tcout << temp << "\n";
 	return true;
 }
 
@@ -19,38 +19,38 @@ bool my_value3 = true;
 
 
 
-BOOL CALLBACK HH(HWND hwnd, LPSTR name, HANDLE data, ULONG_PTR)
+BOOL CALLBACK HH(HWND hwnd, LPTSTR name, HANDLE data, ULONG_PTR)
 {
-	std::string ta(name);
+	std::tstring ta(name);
 
-	if (ta == "猛男1")
+	if (ta == _T("猛男1"))
 	{
-		std::cout << *(int*)data << "\n";
+		std::tcout << *(int*)data << "\n";
 		mw::user::remove_prop(hwnd, name);
 	}
-	else if (ta == "猛男2")
+	else if (ta == _T("猛男2"))
 	{
-		std::cout << *(std::string*)data << "\n";
+		std::tcout << *(std::tstring*)data << "\n";
 		mw::user::remove_prop(hwnd, name);
 	}
-	else if (ta == "猛男3")
+	else if (ta == _T("猛男3"))
 	{
-		std::cout << *(bool*)data << "\n";
+		std::tcout << *(bool*)data << "\n";
 		mw::user::remove_prop(hwnd, name);
 	}
 	else {
 		ta.~basic_string();
 	}
-	std::cout << name << "\n";
+	std::tcout << name << "\n";
 	return true;
 }
 
 
 LRESULT CALLBACK JJ(int nCode, WPARAM wParam, LPARAM lParam)
 {
-	/*std::cout << "nCode:" << nCode << ", wParam:" << wParam << ", lParam:" << lParam << "\n";*/
+	/*std::tcout << "nCode:" << nCode << ", wParam:" << wParam << ", lParam:" << lParam << "\n";*/
 	auto op = (LPMOUSEHOOKSTRUCT)lParam;
-	std::cout << op->pt.x << "," << op->pt.y << "\n";
+	std::tcout << op->pt.x << _T(",") << op->pt.y << _T("\n");
 
 	return mw::user::call_next_hook(nCode, wParam, lParam);
 }
@@ -61,11 +61,11 @@ INT_PTR CALLBACK KK(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_INITDIALOG:
 	{
-		std::cout << "进入对话框WM_INITDIALOG" << lParam << "\n";
+		std::tcout << _T("进入对话框WM_INITDIALOG") << lParam << _T("\n");
 	}
 	break;
 	case WM_CLOSE:
-		std::cout << "关闭对话框WM_CLOSE\n";
+		std::tcout << _T("关闭对话框WM_CLOSE\n");
 		//mw::user::end_modal_dialog(hwnd, 1);
 		mw::user::destroy_window(hwnd);
 		return true;
@@ -76,12 +76,15 @@ INT_PTR CALLBACK KK(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
+
+
+
 void example_1()
 {
-		/*std::cout << mw::get_current_process_id() << "\n";
-	std::cout << mw::get_current_thread_id() << "\n";
-	std::cout << mw::get_current_process() << "\n";
-	std::cout << mw::get_current_thread() << "\n";
+		/*std::tcout << mw::get_current_process_id() << "\n";
+	std::tcout << mw::get_current_thread_id() << "\n";
+	std::tcout << mw::get_current_process() << "\n";
+	std::tcout << mw::get_current_thread() << "\n";
 	GG(mw::user::get_foreground_window(), 0);
 	GG(mw::user::get_top_window(nullptr), 0);*/
 	/*auto my_job = mw::make_job();
@@ -109,7 +112,7 @@ void example_1()
 
 	/*mw::user::window_dict::set_pre_process_function(
 		[](HWND hwnd, UINT msg, WPARAM w, LPARAM l)->LRESULT {
-			std::cout << "Fuck you\n";
+			std::tcout << "Fuck you\n";
 			return 0;
 		}
 	);*/
@@ -132,7 +135,7 @@ void example_1()
 				//mw::user::set_prop(hwnd, "猛男3", &my_value3);
 				ShowWindow(hwnd, 1);
 				auto hdc = GetDC(hwnd);
-				TextOutA(hdc, 400, 300, "哈哈老子进来了", 21);
+				TextOut(hdc, 400, 300, _T("哈哈老子进来了"), 7);
 				hpen1 = GetStockObject(DC_PEN);
 
 				hpen2 = SelectObject(hdc, hpen1);
@@ -145,7 +148,7 @@ void example_1()
 			return mw::user::default_window_procedure(hwnd, msg, w, l);
 		});
 
-	mw::user::register_window_class(mw::user::window_dict::callback_function, "my_class");
+	mw::user::register_window_class(mw::user::window_dict::callback_function, _T("my_class"));
 	mw::user::window_dict::dict_value_type my_event;
 	my_event[WM_PAINT] = [](LRESULT&, HWND hwnd, UINT, WPARAM, LPARAM)->bool {
 		PAINTSTRUCT ps;
@@ -186,15 +189,16 @@ void example_1()
 	};
 
 	my_event[WM_TIMER] = [](LRESULT&, HWND hwnd, UINT, WPARAM, LPARAM)->bool {
-		//std::cout << "草拟哥\n";
+		//std::tcout << "草拟哥\n";
 		return true;
 	};
 
 	//auto hook_handle = mw::user::set_windows_hook(WH_MOUSE, JJ, nullptr, mw::get_current_thread_id());
+	TCHAR mymy[MAX_PATH] = {0};
+	LoadString(nullptr, IDS_STRING105, mymy, MAX_PATH);
 
-	mw::user::window_instance dada(mw::user::create_window("my_class"));
+	mw::user::window_instance dada(mw::user::create_window(_T("my_class"), mymy));
 	mw::user::window_dict::add_item_to_dict(dada.get_handle(), my_event);
-
 
 	//mw::user::create_modal_dialog(IDD_DIALOG1, KK, dada.get_handle());
 	auto dialog_handle = mw::user::create_modeless_dialog(IDD_DIALOG1, KK, dada.get_handle());
