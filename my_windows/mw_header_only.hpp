@@ -18,6 +18,8 @@ namespace user {
 	/// </summary>
 	template LRESULT window_dict::callback_function(HWND, UINT, WPARAM, LPARAM);
 
+	//template window_dict:: window_dict::get_dict;
+
 
 	/// <summary>
 	/// 针对对话框过程的实例化

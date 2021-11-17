@@ -1366,8 +1366,8 @@ namespace user {
 			return_type r;
 
 			// 调用前置处理函数
-			if (my_pref)
-				my_pref(args...);
+			if (get_my_pref())
+				get_my_pref()(args...);
 
 			// 寻找特定消息对应的函数
 			if (check_item<dict_depth>(f, get_dict(), args...))
@@ -1375,8 +1375,8 @@ namespace user {
 					return r;
 
 			// 否则使用默认处理函数
-			if (my_f)
-				return my_f(args...);
+			if (get_my_f())
+				return get_my_f()(args...);
 			else return return_type();
 		}
 
@@ -1386,7 +1386,7 @@ namespace user {
 		/// <param name="f">默认可调用对象，可以是函数指针，lambda表达式，或重载了()运算符的类</param>
 		static void set_default_process_function(default_process_function_type f)
 		{
-			my_f = f;
+			get_my_f() = f;
 		}
 
 		/// <summary>
@@ -1395,7 +1395,7 @@ namespace user {
 		/// <param name="f">前置可调用对象，可以是函数指针，lambda表达式，或重载了()运算符的类</param>
 		static void set_pre_process_function(default_process_function_type f)
 		{
-			my_pref = f;
+			get_my_pref() = f;
 		}
 
 		/// <summary>
@@ -1451,14 +1451,26 @@ namespace user {
 
 
 	public:
-		/// <summary>
+		/*/// <summary>
 		/// 默认处理函数
 		/// </summary>
 		static std::function<default_process_function_type> my_f;
 		/// <summary>
 		/// 前置处理函数
 		/// </summary>
-		static std::function<default_process_function_type> my_pref;
+		static std::function<default_process_function_type> my_pref;*/
+
+		static auto& get_my_f()
+		{
+			static std::function<default_process_function_type> my_f;
+			return my_f;
+		}
+
+		static auto& get_my_pref()
+		{
+			static std::function<default_process_function_type> my_pref;
+			return my_pref;
+		}
 
 	public:
 		/// <summary>
@@ -1472,7 +1484,7 @@ namespace user {
 		}
 	};
 
-	/// <summary>
+	/*/// <summary>
 	/// 定义默认处理函数静态变量
 	/// </summary>
 	template<int dict_depth, typename dict_type, typename default_process_function_type>
@@ -1481,7 +1493,7 @@ namespace user {
 	/// 定义前置处理函数静态变量
 	/// </summary>
 	template<int dict_depth, typename dict_type, typename default_process_function_type>
-	std::function<default_process_function_type> procedure_dict_tools<dict_depth, dict_type, default_process_function_type>::my_pref = nullptr;
+	std::function<default_process_function_type> procedure_dict_tools<dict_depth, dict_type, default_process_function_type>::my_pref = nullptr;*/
 
 
 };//window
