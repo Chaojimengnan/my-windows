@@ -97,5 +97,64 @@ namespace mw {
 		return GetCurrentProcessId();
 	}
 
+	/// <summary>
+	/// 获取指定进程的进程标识符(PID)
+	/// </summary>
+	/// <param name="target_process">指定进程的句柄，该句柄必须有PROCESS_QUERY_INFORMATION或PROCESS_QUERY_LIMITED_INFORMATION访问权限</param>
+	/// <returns>若失败返回0，否则返回指定进程标识符</returns>
+	inline DWORD get_process_id(HANDLE target_process)
+	{
+		auto val = GetProcessId(target_process);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+	/// <summary>
+	/// 获取指定线程所在进程的标识符(PID)
+	/// </summary>
+	/// <param name="thread_handle">指定线程句柄，该句柄必须具有 THREAD_QUERY_INFORMATION或THREAD_QUERY_LIMITED_INFORMATION</param>
+	/// <returns>函数失败返回0，否则返回指定线程所在进程的标识符</returns>
+	inline DWORD get_process_id_from_thread(HANDLE thread_handle)
+	{
+		auto val = GetProcessIdOfThread(thread_handle);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+	/// <summary>
+	/// 获取指定进程的退出代码，该函数立即返回
+	/// </summary>
+	/// <param name="target_process">指定进程的句柄，该句柄必须具有PROCESS_QUERY_INFORMATION或PROCESS_QUERY_LIMITED_INFORMATION访问权限</param>
+	/// <param name="exit_code">[out]进程退出代码，若进程尚未终止且函数成功，返回STILL_ACTIVE，如果进程终止且函数成功，则返回值是退出进程的退出代码，具体看文档</param>
+	/// <returns>操作是否成功</returns>
+	inline bool get_process_exit_code(HANDLE target_process, DWORD& exit_code)
+	{
+		auto val = GetExitCodeProcess(target_process, &exit_code);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+	/// <summary>
+	/// 终止指定进程及其所有线程，如是进程自行终止，该函数在停止调用线程并且不返回，否则该函数是异步的，它启动终止并立即返回，更多事项看文档。
+	/// </summary>
+	/// <remarks>不到万不得已，不要调用该函数</remarks>
+	/// <param name="target_process">要终止的进程的句柄，该句柄必须具有PROCESS_TERMINATE访问权限</param>
+	/// <param name="exit_code">指定由于此调用而终止的进程和线程使用的退出代码</param>
+	/// <returns>操作是否成功</returns>
+	inline bool terminate_process(HANDLE target_process, UINT exit_code)
+	{
+		auto val = TerminateProcess(target_process, exit_code);
+		GET_ERROR_MSG_OUTPUT(std::cout);
+		return val;
+	}
+
+	/// <summary>
+	/// 结束该调用进程及其所有线程，有DLL谨慎使用该函数，具体看文档
+	/// </summary>
+	/// <param name="exit_code">进程和所有线程的退出代码</param>
+	inline void exit_process(UINT exit_code)
+	{
+		ExitProcess(exit_code);
+	}
 
 }//mw

@@ -72,14 +72,6 @@ void example_2()
 
 	mw::user::show_window(dialog_handle);
 
-	auto ok_button = mw::user::get_child_winodw_from_id(dialog_handle, IDOK);
-	//mw::user::enable_window(ok_button, false);
-	//mw::user::set_window_text(ok_button, "阿瑟东就");
-	mw::user::set_dialog_item_text(dialog_handle, IDC_STATIC1, "猛男啊实打实大苏打实打实大苏打");
-	mw::user::set_dialog_button_check_state(dialog_handle, IDCANCEL, BST_INDETERMINATE);
-	//mw::user::set_foreground_window(dialog_handle);
-	//mw::user::bring_window_to_top(dialog_handle);
-
 	MSG msg;
 	while (mw::user::get_message(msg))
 	{
