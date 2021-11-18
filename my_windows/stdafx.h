@@ -17,10 +17,10 @@
 /// 获取错误代码,如果是非0值则将对应文本输入到output_stream中
 #ifdef _DEBUG
 #define GET_ERROR_MSG_OUTPUT(output_stream) {auto my_error_code = GetLastError();\
-		if (my_error_code != 0)\
+		if (my_error_code != 0){\
 		output_stream << __FUNCTION__ << _T("  (")  << my_error_code << _T(")")<< mw::formate_error_code(my_error_code)\
 					<< __FILE__ << _T(":") << __LINE__  << _T("\n\n")\
-					;}
+					;SetLastError(0);}}
 #else
 #define GET_ERROR_MSG_OUTPUT(output_stream)
 #endif
@@ -86,5 +86,16 @@ namespace mw {
 		return ((str == _T("")) ? nullptr : str.c_str());
 	}
 
+	/// <summary>
+	/// 从tstring中复制一个使用智能指针包装的原生的缓冲区
+	/// </summary>
+	/// <param name="tstr">指定tstring</param>
+	/// <returns>原生缓冲区</returns>
+	inline std::shared_ptr<TCHAR[]> get_buffer_from_tstring(const std::tstring& tstr)
+	{
+		std::shared_ptr<TCHAR[]> buffer(new TCHAR[tstr.size() + 1]);
+		_tcscpy_s(buffer.get(), tstr.size() + 1, tstr.c_str());
+		return buffer;
+	}
 
 }//mw

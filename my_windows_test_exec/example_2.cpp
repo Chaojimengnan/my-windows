@@ -5,14 +5,21 @@ bool cmd(INT_PTR& return_value, HWND hwnd, UINT msg, WPARAM w, LPARAM l)
 {
 	auto high_w = HIWORD(w);
 	auto low_w = LOWORD(w);
+	std::tstring my;
 
 	switch (low_w)
 	{
 	case IDOK:
-		mw::user::set_dialog_item_text(hwnd, IDC_STATIC1, _T("呵呵,你点击了确定按钮！"));
+		mw::user::set_dialog_radio_button_check_state(hwnd, IDC_RADIO1, IDC_RADIO2, IDC_RADIO1);
+		//mw::user::set_dialog_button_check_state(hwnd, IDC_RADIO1, BST_CHECKED);
+		mw::user::get_dialog_item_text(hwnd, IDC_EDIT1, my);
+		mw::user::set_dialog_item_text(hwnd, IDC_STATIC1, my);
 		break;
 	case IDCANCEL:
+		mw::user::set_dialog_radio_button_check_state(hwnd, IDC_RADIO1, IDC_RADIO2, IDC_RADIO2);
+		//mw::user::set_dialog_button_check_state(hwnd, IDC_RADIO2, BST_CHECKED);
 		mw::user::set_dialog_item_text(hwnd, IDC_STATIC1, _T("妈的，你点击了取消按钮！"));
+		mw::user::set_dialog_item_text(hwnd, IDC_EDIT1, _T("你说你妈呢"));
 		break;
 
 	default:
@@ -64,7 +71,7 @@ void example_2()
 	dialog_event_dict[WM_COMMAND] = cmd;
 	dialog_event_dict[WM_CLOSE] = close;
 	dialog_event_dict[WM_DESTROY] = destroy;
-	dialog_event_dict[WM_MOUSEMOVE] = mouse_move;
+	//dialog_event_dict[WM_MOUSEMOVE] = mouse_move;
 
 	// 创建一个非模态对话框并注册进入字典
 	auto dialog_handle = mw::user::dialog_dict::create_key_and_add(dialog_event_dict,

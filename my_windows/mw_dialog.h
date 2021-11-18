@@ -179,13 +179,43 @@ namespace user {
 		return val;
 	}
 
+	/// <summary>
+	/// 获取对话框指定控件的文本并转换为整数值，该函数向控件发送WM_GETTEXT消息，并将返回的文本试图转换为整数
+	/// </summary>
+	/// <param name="dialog_handle">指定对话框句柄</param>
+	/// <param name="control_id">控件ID</param>
+	/// <param name="val">[out]整数值</param>
+	/// <returns>操作是否成功</returns>
+	inline bool get_dialog_item_int(HWND dialog_handle, int control_id, int& the_val)
+	{
+		BOOL is_ok;
+		UINT _val = GetDlgItemInt(dialog_handle, control_id, &is_ok, true);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		the_val = (int)_val;
+		return is_ok;
+	}
 
 	/// <summary>
-	/// 改变指定对话框的指定ID的复选框(check boxes)的检查状态(check state)，该函数发送给指定按钮控件一条BM_SETCHECK消息.
+	/// 使用指定整数设置对话框控件的文本，该函数发送WM_SETTEXT消息给指定控件，并将整数转换为字符串发送过去
+	/// </summary>
+	/// <param name="dialog_handle">指定对话框句柄</param>
+	/// <param name="control_id">控件ID</param>
+	/// <param name="val">指定整数值</param>
+	/// <returns>操作是否成功</returns>
+	inline bool set_dialog_item_int(HWND dialog_handle, int control_id, int the_val)
+	{
+		auto val = SetDlgItemInt(dialog_handle, control_id, the_val, true);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+
+	/// <summary>
+	/// 改变指定对话框的指定ID的复选框(check boxes)的勾选状态(check state)，该函数发送给指定按钮控件一条BM_SETCHECK消息.
 	/// </summary>
 	/// <param name="dialog_handle">指定控件对应的对话框句柄</param>
 	/// <param name="button_id">指定按钮的ID</param>
-	/// <param name="check_flag">设置按钮的检查状态，它是以BST_开头的宏</param>
+	/// <param name="check_flag">设置按钮的勾选状态，它是以BST_开头的宏</param>
 	/// <returns>操作是否成功</returns>
 	inline bool set_dialog_button_check_state(HWND dialog_handle, int button_id, UINT check_flag = BST_CHECKED)
 	{
@@ -194,7 +224,51 @@ namespace user {
 		return val;
 	}
 
+	/// <summary>
+	/// 给一个组中指定的单选按钮添加勾选标记，并移除组中其他所有单选按钮的勾选标记(check mark)。该函数给指定组的每一个单选按钮发送BM_SETCHECK消息
+	/// </summary>
+	/// <remarks>first_radio_button_id和last_radio_button_id指定一个范围的按钮</remarks>
+	/// <param name="dialog_handle">包含单选按钮的对话框句柄</param>
+	/// <param name="first_radio_button_id">一组中第一个单选按钮ID</param>
+	/// <param name="last_radio_button_id">一组中最后一个单选按钮ID</param>
+	/// <param name="check_radio_button_id">被勾选的单选按钮ID(它将被添加勾选标记)</param>
+	/// <returns>操作是否成功</returns>
+	inline bool set_dialog_radio_button_check_state(HWND dialog_handle, 
+		int first_radio_button_id, int last_radio_button_id, int check_radio_button_id)
+	{
+		auto val = CheckRadioButton(dialog_handle, first_radio_button_id, last_radio_button_id, check_radio_button_id);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
 
+	/// <summary>
+	/// 确认指定对话框的指定按钮是否被勾选，返回值分别是BST_CHECKED或BST_INDETERMINATE或BST_UNCHECKED。该函数给指定按钮控件发送BM_GETCHECK消息
+	/// </summary>
+	/// <param name="dialog_handle">包含按钮控件的对话框按钮</param>
+	/// <param name="button_id">指定按钮的ID</param>
+	/// <returns>返回按钮的检查状态，具体事项看文档</returns>
+	inline UINT is_dialog_button_checked(HWND dialog_handle, int button_id)
+	{
+		auto val = IsDlgButtonChecked(dialog_handle, button_id);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 发送一条消息给对话框指定控件，与SendMessage相同，只不过使用控件ID来指定控件
+	/// </summary>
+	/// <param name="dialog_handle">指定控件所在的对话框句柄</param>
+	/// <param name="control_id">控件ID</param>
+	/// <param name="Msg">要发送的消息</param>
+	/// <param name="wParam">额外消息参数</param>
+	/// <param name="lParam">额外消息参数</param>
+	/// <returns>返回值指定消息处理的结果；这取决于发送的消息。</returns>
+	inline LRESULT send_dialog_item_message(HWND dialog_handle, int control_id, UINT Msg, WPARAM wParam, LPARAM lParam)
+	{
+		auto val = SendDlgItemMessage(dialog_handle, control_id, Msg, wParam, lParam);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
 
 };//user
 };//mw

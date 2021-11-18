@@ -98,6 +98,4 @@ namespace mw {
 		return val;
 	}
 
-	
-
 }//mw

@@ -6,7 +6,7 @@ namespace mw {
 	/// 将当前线程所在进程的一个句柄复制给目标进程(target_process)，并返回复制产生的句柄(注意该句柄应该是内核对象的句柄)
 	/// </summary>
 	/// <remarks>注意，返回的新句柄应该传给目标进程，源进程不要使用这个句柄(封装自DuplicateHandle)</remarks>
-	/// <param name="target_process">目标进程</param>
+	/// <param name="target_process">目标进程，可以是本身</param>
 	/// <param name="handle_to_give">要复制的句柄</param>
 	/// <param name="inherit_handle">新句柄是否可以被目标进程新创建的子进程继承</param>
 	/// <param name="desired_access">新句柄的访问设置</param>
