@@ -9,7 +9,7 @@ namespace mw {
 	/// <param name="target_process">目标进程，可以是本身</param>
 	/// <param name="handle_to_give">要复制的句柄</param>
 	/// <param name="inherit_handle">新句柄是否可以被目标进程新创建的子进程继承</param>
-	/// <param name="desired_access">新句柄的访问设置</param>
+	/// <param name="desired_access">复制的新句柄的访问权限</param>
 	/// <param name="options">可选行为</param>
 	/// <returns>复制产生的新句柄</returns>
 	MW_API HANDLE give_handle_to_other_process(HANDLE target_process,
@@ -155,6 +155,20 @@ namespace mw {
 	inline void exit_process(UINT exit_code)
 	{
 		ExitProcess(exit_code);
+	}
+
+	/// <summary>
+	/// 根据进程ID获取一个存在进程的内核对象句柄
+	/// </summary>
+	/// <param name="thread_id">指定要打开的进程ID</param>
+	/// <param name="inherit_handle">若为TRUE，则返回的句柄是可继承句柄，否则不是</param>
+	/// <param name="desired_access">新句柄的访问权限</param>
+	/// <returns>若成功，返回指定进程的句柄，否则返回NULL</returns>
+	inline HANDLE open_process(DWORD process_id, bool inherit_handle = false, DWORD desired_access = 0)
+	{
+		auto val = OpenProcess(desired_access, inherit_handle, process_id);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
 	}
 
 }//mw

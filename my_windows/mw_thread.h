@@ -128,5 +128,45 @@ namespace mw {
 		_endthreadex(exit_code);
 	}
 
+	/// <summary>
+	/// 挂起指定线程，64位程序应该使用Wow64SuspendThread来挂起一个WOW64线程(32位线程)。不建议使用该函数挂起其他线程(有可能发生死锁)
+	/// </summary>
+	/// <remarks>
+	/// 此函数主要供调试器使用。它不应该用于线程同步。如果调用线程尝试获取挂起线程拥有的同步对象，
+	/// 则在拥有同步对象（例如互斥锁或临界区）的线程上调用 SuspendThread可能会导致死锁。为避免这种情况，应用程序中不是调试器的线程应该通知另一个线程挂起自己。
+	/// 目标线程必须设计为监视此信号并做出适当的响应。
+	/// 具体事项看文档
+	/// </remarks>
+	/// <param name="thread_handle">指定线程句柄，该句柄必须具有THREAD_SUSPEND_RESUME访问权限</param>
+	/// <returns>若函数成功，返回之前的挂起次数，否则返回-1</returns>
+	inline DWORD suspend_thread(HANDLE thread_handle)
+	{
+		auto val = SuspendThread(thread_handle);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 根据线程ID获取一个存在线程的内核对象句柄
+	/// </summary>
+	/// <param name="thread_id">指定要打开的线程ID</param>
+	/// <param name="inherit_handle">若为TRUE，则返回的句柄是可继承句柄，否则不是</param>
+	/// <param name="desired_access">新句柄的访问权限</param>
+	/// <returns>若成功，返回指定线程的句柄，否则返回NULL</returns>
+	inline HANDLE open_thread(DWORD thread_id, bool inherit_handle = false, DWORD desired_access = 0)
+	{
+		auto val = OpenThread(desired_access, inherit_handle, thread_id);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 使调用线程挂起milliseconds长的时间，注意有些情况下不要调用该函数，会引发死锁，请看文档
+	/// </summary>
+	/// <param name="milliseconds">挂起的时间，若为0，则表示调用线程放弃当前时间片(系统直接调度其他线程)，若为INFINITE，则直接挂起</param>
+	inline VOID sleep(DWORD milliseconds)
+	{
+		Sleep(milliseconds);
+	}
 
 };//mw

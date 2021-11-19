@@ -45,11 +45,17 @@
 /// 最大文本长度宏，用于与WIN32API字符串的交互
 #define MW_MAX_TEXT 512
 
+#ifdef _WINDLL
 #ifdef MY_WINDOWS_BUILD
 #   define MW_API __declspec (dllexport)
 #else
 #   define MW_API __declspec (dllimport)
 #endif
+#else
+#   define MW_API
+#endif // _WINDLL
+
+
 
 namespace mw {
 

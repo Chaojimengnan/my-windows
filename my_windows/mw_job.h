@@ -53,7 +53,7 @@ namespace mw {
 		/// </summary>
 		/// <param name="job_name">作业名字</param>
 		/// <param name="inherit_handle">该进程以后创建的子进程是否能继承该作业句柄</param>
-		/// <param name="desired_access">访问该作业句柄的请求</param>
+		/// <param name="desired_access">新句柄的访问权限</param>
 		/// <returns>是否打开成功</returns>
 		bool open(const std::tstring& job_name, bool inherit_handle = FALSE, 
 			DWORD desired_access = JOB_OBJECT_ALL_ACCESS);
