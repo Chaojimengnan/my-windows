@@ -98,4 +98,98 @@ namespace mw {
 		return val;
 	}
 
+namespace user {
+
+	/// <summary>
+	/// 将屏幕坐标(像素)转换为鼠标绝对坐标(0-65535)
+	/// </summary>
+	/// <param name="screen_x">屏幕坐标X</param>
+	/// <param name="screen_y">屏幕坐标Y</param>
+	/// <returns>对应的转换pair</returns>
+	inline std::pair<LONG, LONG> trans_screen_to_absolute(LONG screen_x, LONG screen_y)
+	{
+		auto screen_width = GetSystemMetrics(SM_CXSCREEN);
+		auto screen_height = GetSystemMetrics(SM_CYSCREEN);
+
+		return std::pair<LONG, LONG>(((float)screen_x / screen_width) * 65535, ((float)screen_y / screen_height) * 65535);
+	}
+
+	/// <summary>
+	/// 该函数将INPUT结构中的事件依次插入到键盘或鼠标输入流中，该函数受UIPI约束
+	/// </summary>
+	/// <param name="input_array">一列INPUT结构体的数组</param>
+	/// <param name="input_struct_nums">数组的大小(INPUT的数量)</param>
+	/// <returns>该返回成功插入键盘或鼠标输入流的事件数，若为0，则输入已经被其他线程阻塞了(若是UIPI阻塞，GetLastError不会显示是UIPI阻塞导致的失败)</returns>
+	inline UINT send_input(LPINPUT input_array, UINT input_struct_nums = 1)
+	{
+		auto val = SendInput(input_struct_nums, input_array, sizeof(INPUT));
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 为指定INPUT结构体写入一个鼠标事件，它应该是一个未初始化的INPUT结构体
+	/// </summary>
+	/// <param name="input_pointer">指定INPUT指针，它应该是一个未初始化的INPUT结构体</param>
+	/// <param name="dx">鼠标的绝对位置，或自上次生成鼠标事件以来的运动量，取决于flags成员的值。绝对位置指定为鼠标的x坐标(0到65535)；相对位置被指定为移动的像素数。</param>
+	/// <param name="dy">鼠标的绝对位置，或自上次生成鼠标事件以来的运动量，取决于flags成员的值。绝对位置指定为鼠标的y坐标；相对位置被指定为移动的像素数。</param>
+	/// <param name="flags">一个位标志，它是以MOUSEEVENTF_开头的宏的组合，用于指定鼠标事件的具体类型</param>
+	/// <param name="mouse_data">与flags有关，若没有在flag中指定滚轮或X按钮，它应该为0</param>
+	/// <param name="time">事件的时间戳，以毫秒为单位。如果此参数为 0，系统将提供自己的时间戳</param>
+	/// <param name="extra_info">与鼠标事件关联的附加值，可以为0</param>
+	/// <returns>操作是否成功</returns>
+	inline bool write_mouse_event(LPINPUT input_pointer, LONG dx, LONG dy, DWORD flags, DWORD mouse_data = 0, DWORD time = 0, ULONG_PTR extra_info = 0)
+	{
+		ZeroMemory(input_pointer, sizeof(INPUT));
+		input_pointer->type = INPUT_MOUSE;
+		input_pointer->mi.dx = dx;
+		input_pointer->mi.dy = dy;
+		input_pointer->mi.dwFlags = flags;
+		input_pointer->mi.mouseData = mouse_data;
+		input_pointer->mi.time = time;
+		input_pointer->mi.dwExtraInfo = extra_info;
+		return true;
+	}
+
+	/// <summary>
+	/// 为指定INPUT结构体写入一个键盘事件，它应该是一个未初始化的INPUT结构体
+	/// </summary>
+	/// <param name="input_pointer">指定INPUT指针，它应该是一个未初始化的INPUT结构体</param>
+	/// <param name="virtual_key">一个虚拟键码。代码必须是1到254范围内的值，它可以是VK_开头的宏。如果flags成员指定KEYEVENTF_UNICODE，则virtual_key必须为0</param>
+	/// <param name="flags">一个位标志，它是以KEYEVENTF_开头的宏的组合，用于指定键盘事件的具体类型</param>
+	/// <param name="scan_code">按键的硬件扫描码。如果flags指定KEYEVENTF_UNICODE，则scan_code指定要发送到前台应用程序的Unicode字符</param>
+	/// <param name="time">事件的时间戳，以毫秒为单位。如果此参数为 0，系统将提供自己的时间戳</param>
+	/// <param name="extra_info">与键盘事件关联的附加值，可以为0</param>
+	/// <returns>操作是否成功</returns>
+	inline bool write_keyboard_event(LPINPUT input_pointer, WORD virtual_key, DWORD flags, WORD scan_code, DWORD time = 0, ULONG_PTR extra_info = 0)
+	{
+		ZeroMemory(input_pointer, sizeof(INPUT));
+		input_pointer->type = INPUT_KEYBOARD;
+		input_pointer->ki.wVk = virtual_key;
+		input_pointer->ki.wScan = scan_code;
+		input_pointer->ki.dwFlags = flags;
+		input_pointer->ki.time = time;
+		input_pointer->ki.dwExtraInfo = extra_info;
+		return true;
+	}
+
+	/// <summary>
+	/// 为指定INPUT结构体写入一个模拟鼠标或键盘事件，它应该是一个未初始化的INPUT结构体
+	/// </summary>
+	/// <param name="input_pointer">指定INPUT指针，它应该是一个未初始化的INPUT结构体</param>
+	/// <param name="uMsg">生成的消息</param>
+	/// <param name="wParamL">wParam参数的低位</param>
+	/// <param name="wParamH">wParam参数的高位</param>
+	/// <returns>操作是否成功</returns>
+	inline bool write_hardware_event(LPINPUT input_pointer, DWORD uMsg, WORD wParamL, WORD wParamH)
+	{
+		ZeroMemory(input_pointer, sizeof(INPUT));
+		input_pointer->type = INPUT_HARDWARE;
+		input_pointer->hi.uMsg = uMsg;
+		input_pointer->hi.wParamL = wParamL;
+		input_pointer->hi.wParamH = wParamH;
+		return true;
+	}
+};//user
+
 }//mw

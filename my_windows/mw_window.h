@@ -1521,5 +1521,15 @@ namespace user {
 		}
 	};
 
+	// 针对窗口的实例化
+	using window_dict = mw::user::procedure_dict_tools<2,
+		std::unordered_map<HWND, std::unordered_map<UINT, std::function<bool(LRESULT&, HWND, UINT, WPARAM, LPARAM)>>>,
+		decltype(mw::user::default_window_procedure)>;
+
+	// 针对对话框的实例化
+	using dialog_dict = mw::user::procedure_dict_tools<2,
+		std::unordered_map<HWND, std::unordered_map<UINT, std::function<bool(INT_PTR&, HWND, UINT, WPARAM, LPARAM)>>>,
+		INT_PTR(HWND, UINT, WPARAM, LPARAM)>;
+
 };//user
 };//mw

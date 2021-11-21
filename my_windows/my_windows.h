@@ -13,4 +13,3 @@
 #include "mw_system.h"			// 系统相关的封装
 #include "mw_resource.h"		// 资源相关的封装
 #include "mw_socket.h"			// 套接字相关的封装
-#include "mw_header_only.hpp"	// 用于一些有用模板的实例化
