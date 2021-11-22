@@ -169,4 +169,67 @@ namespace mw {
 		Sleep(milliseconds);
 	}
 
+	/// <summary>
+	/// 调用线程将执行权交给另一个准备好在当前处理器上运行的线程。操作系统选择下一个要执行的线程。该函数相比于Sleep传入0，允许执行低优先级线程，而Sleep则不然
+	/// </summary>
+	/// <remarks>其他事项请看文档</remarks>
+	/// <returns>若调用该函数时没有其他线程可以运行，返回FALSE，否则返回非零值</returns>
+	inline BOOL switch_to_thread()
+	{
+		return SwitchToThread();
+	}
+
+	/// <summary>
+	/// 该函数只用于超线程CPU，调用线程放弃控制权交给该处理器的另一个线程
+	/// </summary>
+	inline VOID yield_processor() 
+	{
+		YieldProcessor();
+	}
+
+	/// <summary>
+	/// 获取指定线程的计时信息，单位为100纳秒(ns)，FILETIME为两个32位值组成(兼容32位程序)
+	/// </summary>
+	/// <param name="thread_handle">指定线程的句柄，THREAD_QUERY_INFORMATION或THREAD_QUERY_LIMITED_INFORMATION访问权限</param>
+	/// <param name="creation_time">[out]线程创建时间</param>
+	/// <param name="exit_time">[out]线程退出时间，若线程仍然运行，退出时间是没有定义的</param>
+	/// <param name="kernel_time">[out]线程执行内核代码所用时间量</param>
+	/// <param name="user_time">[out]线程执行应用程序代码所用时间量</param>
+	/// <returns>操作是否成功</returns>
+	inline bool get_thread_times(HANDLE thread_handle, FILETIME& creation_time,
+		FILETIME& exit_time, FILETIME& kernel_time, FILETIME& user_time)
+	{
+		auto val = GetThreadTimes(thread_handle, &creation_time, &exit_time, &kernel_time, &user_time);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 获取指定线程的上下文，64位应用程序可以使用Wow64GetThreadContext获取WOW64线程的上下文(32位线程)。在调用之前请先调用SuspendThread挂起指定线程
+	/// </summary>
+	/// <param name="thread_handle">指定线程的句柄，请确保指定线程已被挂起，否则无法获得有效上下文，该句柄必须具有THREAD_GET_CONTEXT访问权限</param>
+	/// <param name="context">[in,out]一个用于接收上下文的CONTEXT结构体</param>
+	/// <param name="context_flags">对应于CONTEXT结构体的ContextFlags成员，指定获取上下文的哪些部分，它可以是以CONTEXT_开头的宏的组合</param>
+	/// <returns>操作是否成功</returns>
+	inline bool get_thread_context(HANDLE thread_handle, CONTEXT& context, DWORD context_flags = CONTEXT_FULL)
+	{
+		context.ContextFlags = context_flags;
+		auto val = GetThreadContext(thread_handle, &context);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 设置指定线程的上下文，64位应用程序可以使用Wow64SetThreadContext获取WOW64线程的上下文(32位线程)。在调用之前请先调用SuspendThread挂起指定线程
+	/// </summary>
+	/// <param name="thread_handle">指定线程的句柄，请确保指定线程已被挂起，否则结果是不可预测的。该句柄必须具有THREAD_SET_CONTEXT访问权限</param>
+	/// <param name="context">用于设置上下文的CONTEXT结构体，其ContextFlags成员指定了设置哪些内容，它是以CONTEXT_开头的宏的组合</param>
+	/// <returns>操作是否成功</returns>
+	inline bool set_thread_context(HANDLE thread_handle, const CONTEXT& context)
+	{
+		auto val = SetThreadContext(thread_handle, &context);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
 };//mw

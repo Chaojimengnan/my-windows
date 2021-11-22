@@ -78,5 +78,13 @@ namespace mw {
 		return val;
 	}
 
+	/// <summary>
+	/// 获取自系统启动以来的毫秒数
+	/// </summary>
+	/// <returns>获取自系统启动以来的毫秒数</returns>
+	inline ULONGLONG get_system_time()
+	{
+		return GetTickCount64();
+	}
 
 }//mw

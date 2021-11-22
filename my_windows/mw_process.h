@@ -171,4 +171,21 @@ namespace mw {
 		return val;
 	}
 
+	/// <summary>
+	/// 获取指定进程的计时信息，单位为100纳秒(ns)，FILETIME为两个32位值组成(兼容32位程序)
+	/// </summary>
+	/// <param name="thread_handle">指定线程的句柄，PROCESS_QUERY_INFORMATION或PROCESS_QUERY_LIMITED_INFORMATION访问权限</param>
+	/// <param name="creation_time">[out]进程创建时间</param>
+	/// <param name="exit_time">[out]进程退出时间，若线程仍然运行，退出时间是没有定义的</param>
+	/// <param name="kernel_time">[out]进程执行内核代码所用时间量(进程下所有线程内核代码所用时间之和)</param>
+	/// <param name="user_time">[out]进程执行应用程序代码所用时间量(进程下所有线程应用程序代码所用时间之和)，注意该时间可能超过实际时间(多核CPU情况)</param>
+	/// <returns>操作是否成功</returns>
+	inline bool get_process_times(HANDLE thread_handle, FILETIME& creation_time,
+		FILETIME& exit_time, FILETIME& kernel_time, FILETIME& user_time)
+	{
+		auto val = GetProcessTimes(thread_handle, &creation_time, &exit_time, &kernel_time, &user_time);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
 }//mw

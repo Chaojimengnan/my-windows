@@ -98,6 +98,16 @@ namespace mw {
 		return val;
 	}
 
+	/// <summary>
+	/// 将FILETIME转换为64位无符号数字(包括32位程序)
+	/// </summary>
+	/// <param name="ft">FILETIME结构体</param>
+	/// <returns>对应的数字</returns>
+	inline ULONGLONG file_time_to_qword(FILETIME& ft)
+	{
+		return (Int64ShllMod32(ft.dwHighDateTime, 32) | ft.dwLowDateTime);
+	}
+
 namespace user {
 
 	/// <summary>
