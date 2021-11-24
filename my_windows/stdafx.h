@@ -3,7 +3,6 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <Windows.h>
-#include <winsock2.h>
 #include <shellapi.h>
 #include <tchar.h>
 
@@ -23,6 +22,17 @@
 					;SetLastError(0);}}
 #else
 #define GET_ERROR_MSG_OUTPUT(output_stream)
+#endif
+
+// 判断函数返回值，若为error_value，则输入到output_stream中(适用于没有错误代码和对应文本的函数)
+#ifdef _DEBUG
+#define GET_ERROR_MSG_OUTPUT_NORMAL(output_stream, value, error_value) {\
+		if (value == error_value){\
+		output_stream << __FUNCTION__  << _T("  函数失败\n")\
+					<< __FILE__ << _T(":") << __LINE__  << _T("\n\n")\
+					;}}
+#else
+#define GET_ERROR_MSG_OUTPUT_NORMAL(output_stream, bool_value)
 #endif
 
 #ifdef UNICODE

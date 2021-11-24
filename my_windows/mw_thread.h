@@ -232,4 +232,81 @@ namespace mw {
 		return val;
 	}
 
+	/// <summary>
+	/// 设置指定线程相对优先级，该值与线程所在进程的优先级类一起确定线程的基本优先级(base priority level)，注意这个优先级只影响CPU调度
+	/// </summary>
+	/// <param name="thread_handle">指定要设置相对优先级的线程，其句柄必须具有THREAD_SET_INFORMATION或THREAD_SET_LIMITED_INFORMATION访问权限</param>
+	/// <param name="priority">线程相对优先级值，它应该是特定宏的一个，请看文档</param>
+	/// <returns>操作是否成功</returns>
+	inline bool set_thread_priority(HANDLE thread_handle, int priority = THREAD_PRIORITY_NORMAL)
+	{
+		auto val = SetThreadPriority(thread_handle, priority);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 获取指定线程相对优先级，该值与线程所在进程的优先级类一起确定线程的基本优先级(base priority level)，注意这个优先级只影响CPU调度
+	/// </summary>
+	/// <param name="thread_handle">指定线程局部，其句柄必须具有THREAD_QUERY_INFORMATION或THREAD_QUERY_LIMITED_INFORMATION访问权限</param>
+	/// <returns>若成功，返回值是线程相对优先级，若失败，返回值是THREAD_PRIORITY_ERROR_RETURN</returns>
+	inline int get_thread_priority(HANDLE thread_handle)
+	{
+		auto val = GetThreadPriority(thread_handle);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 禁用或启用系统临时提高线程优先级的能力(若禁用则系统不能再临时提升指定线程的优先级)
+	/// </summary>
+	/// <param name="thread_handle">线程句柄，句柄必须具有THREAD_SET_INFORMATION或THREAD_SET_LIMITED_INFORMATION访问权限</param>
+	/// <param name="is_disable_priority_boost">若为TRUE，则禁用动态提升，若为FALSE启用动态提升</param>
+	/// <returns>操作是否成功</returns>
+	inline bool set_thread_priority_boost(HANDLE thread_handle, BOOL is_disable_priority_boost)
+	{
+		auto val = SetThreadPriorityBoost(thread_handle, is_disable_priority_boost);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 获取指定线程的优先级提升控制状态，若为TRUE表示该线程动态提升已被禁用，若为FALSE表示该线程动态提升已启用
+	/// </summary>
+	/// <param name="thread_handle">线程的句柄，句柄必须具有THREAD_QUERY_INFORMATION或THREAD_QUERY_LIMITED_INFORMATION访问权限</param>
+	/// <param name="is_disable_priority_boost">[out]用于接收优先级动态提升控制状态，为TRUE表示该线程动态提升已被禁用，若为FALSE表示该线程动态提升已启用</param>
+	/// <returns>操作是否成功</returns>
+	inline bool get_thread_priority_boost(HANDLE thread_handle, BOOL& is_disable_priority_boost)
+	{
+		auto val = GetThreadPriorityBoost(thread_handle, &is_disable_priority_boost);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 为指定线程设置处理器关联掩码，使得指定线程只能在CPU的一个子集上运行
+	/// </summary>
+	/// <param name="thread_handle">设置其关联掩码的线程的句柄，此句柄必须具有THREAD_SET_INFORMATION或THREAD_SET_LIMITED_INFORMATION访问权限以及THREAD_QUERY_INFORMATION或THREAD_QUERY_LIMITED_INFORMATION访问权限。</param>
+	/// <param name="thread_affinity_mask">位掩码，它应该是所在进程掩码的一个子集。每一位代表对应的CPU是否可被使用，如0x5，即0101，CPU 0，CPU 2可以使用</param>
+	/// <returns>操作是否成功</returns>
+	inline DWORD_PTR set_thread_affinity_mask(HANDLE thread_handle, DWORD_PTR thread_affinity_mask)
+	{
+		auto val = SetThreadAffinityMask(thread_handle, thread_affinity_mask);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 为线程设置首选处理器。系统尽可能在其首选处理器上调度线程
+	/// </summary>
+	/// <param name="thread_handle">要设置其首选处理器的线程的句柄。句柄必须具有 THREAD_SET_INFORMATION 访问权限</param>
+	/// <param name="ideal_processor">线程的首选处理器的编号。该值从0开始到MAXIMUM_PROCESSORS。如果此参数为MAXIMUM_PROCESSORS，则函数返回当前的首选处理器而不更改它</param>
+	/// <returns>若成功，返回值是前一个首选处理器编号，若失败，返回值是(DWORD)-1</returns>
+	inline DWORD set_thread_ideal_processor(HANDLE thread_handle, DWORD ideal_processor)
+	{
+		auto val = SetThreadIdealProcessor(thread_handle, ideal_processor);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
 };//mw

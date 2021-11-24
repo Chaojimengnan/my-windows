@@ -207,6 +207,15 @@ void example_1()
 
 	dada.to(mw::user::show_window, 1);
 
+	auto my_hdc = mw::gdi::get_dc(dada.get_handle());
+	RECT rect;
+	GetClientRect(dada.get_handle(), &rect);
+
+	mw::gdi::text_out(0, 300, 600, _T("呵呵，去你妈的"));
+
+	mw::gdi::draw_text(my_hdc, _T("呵呵，去你爸的"), rect);
+
+	mw::gdi::release_dc(dada.get_handle(), my_hdc);
 
 	//mw::user::send_message(dada.get_handle(), mw_paint_something, 0, 0);
 

@@ -12,6 +12,11 @@ DWORD WINAPI ThreadFunc(PVOID param)
 
 void example_3()
 {
+	/*auto thread_handle = CreateThread(NULL, 0, ThreadFunc, nullptr, CREATE_SUSPENDED, nullptr);
+	SetThreadPriority(thread_handle, THREAD_PRIORITY_IDLE);
+	ResumeThread(thread_handle);
+	CloseHandle(thread_handle);*/
+
 	std::tcout << _T("这是主线程，正在执行~\n");
 
 	auto thread_handle = mw::safe_handle(mw::c_create_thread(ThreadFunc));
@@ -21,8 +26,5 @@ void example_3()
 	// 等待线程返回
 	WaitForSingleObject(*thread_handle, INFINITE);
 
-	/*auto hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
-	TextOutW(hdc, 0, 0, _T("新线程返回了~\n"), 9);
-	DeleteDC(hdc);*/
 	std::tcout << _T("新线程返回了~\n");
 }

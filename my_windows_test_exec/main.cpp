@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 
 	//example_1();
 	//example_3();
-	//example_4();
+	example_4();
 
 
 #ifdef _DEBUG

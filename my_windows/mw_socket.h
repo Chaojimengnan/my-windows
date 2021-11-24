@@ -1,5 +1,9 @@
 #pragma once
 
+#include <winsock2.h>
+#include <WS2tcpip.h>
+#include <iphlpapi.h>
+
 #pragma comment(lib, "Ws2_32.lib")
 
 namespace mw {
@@ -10,7 +14,12 @@ namespace socket {
 	/// <param name="major_version">主要版本号，默认为2</param>
 	/// <param name="minor_version">次要版本号，默认为2</param>
 	/// <returns>操作成功返回0！否则返回非0值</returns>
-	MW_API int socket_startup(int major_version = 2, int minor_version = 2);
+	inline int socket_startup(int major_version = 2, int minor_version = 2)
+	{
+		WSADATA data;
+		auto result = WSAStartup(MAKEWORD(major_version, minor_version), &data);
+		return result;
+	}
 
 	/// <summary>
 	/// 调用该函数来终止Winsock 2 DLL的使用(先确认你是否调用socket_startup)
@@ -19,6 +28,11 @@ namespace socket {
 	/// 在多线程环境中， WSACleanup终止所有线程的 Windows Socket操作。
 	/// </remarks>
 	/// <returns>操作成功返回0！否则返回非0值</returns>
-	MW_API int socket_cleanup();
+	inline int socket_cleanup()
+	{
+		return WSACleanup();
+	}
+
+
 };//window
 };//mw

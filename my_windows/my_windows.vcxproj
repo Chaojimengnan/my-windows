@@ -189,6 +189,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="mw_dialog.cpp" />
+    <ClCompile Include="mw_gdi.cpp" />
     <ClCompile Include="mw_job.cpp" />
     <ClCompile Include="mw_resource.cpp" />
     <ClCompile Include="mw_socket.cpp" />
@@ -207,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mw_dialog.h" />
+    <ClInclude Include="mw_gdi.h" />
     <ClInclude Include="mw_job.h" />
     <ClInclude Include="mw_resource.h" />
     <ClInclude Include="mw_socket.h" />

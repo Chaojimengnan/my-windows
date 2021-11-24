@@ -13,3 +13,4 @@
 #include "mw_system.h"			// 系统相关的封装
 #include "mw_resource.h"		// 资源相关的封装
 #include "mw_socket.h"			// 套接字相关的封装
+#include "mw_gdi.h"				// GDI相关的封装
