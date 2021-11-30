@@ -8,7 +8,17 @@ namespace mw {
 	/// <param name="str">待转换的多字节字符串</param>
 	/// <param name="string_code_page">代码页，默认为UTF-8</param>
 	/// <returns>返回对应的Unicode字符串</returns>
-	MW_API std::wstring string_to_wstring(const std::string& str, UINT string_code_page = CP_UTF8);
+	inline std::wstring string_to_wstring(const std::string& str, UINT string_code_page = CP_UTF8)
+	{
+		auto wide_size = MultiByteToWideChar(string_code_page, 0, str.c_str(), -1, nullptr, 0);
+		PWSTR temp_wstr = new WCHAR[wide_size];
+		MultiByteToWideChar(string_code_page, 0, str.c_str(), -1, temp_wstr, wide_size);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		std::wstring wstr(temp_wstr);
+
+		delete[] temp_wstr;
+		return wstr;
+	}
 
 	/// <summary>
 	/// 将Unicode字符串转换为多字节字符串，如果要转换的多字节没有对应的字符，则用default_char填充
@@ -18,8 +28,20 @@ namespace mw {
 	/// <param name="default_char">当转换的多字节字符串没有对应编码时填充该字符(如Unicode汉字转换成ANSI)</param>
 	/// <param name="is_used_def_char">是否使用了default_char填充</param>
 	/// <returns>返回对应的多字节字符串</returns>
-	MW_API std::string wstring_to_string(const std::wstring& wstr,
-		UINT string_code_page = CP_UTF8, char default_char = '?', PBOOL is_used_def_char = nullptr);
+	inline std::string wstring_to_string(const std::wstring& wstr,
+		UINT string_code_page = CP_UTF8, char default_char = '?', PBOOL is_used_def_char = nullptr)
+	{
+		auto str_size = WideCharToMultiByte(string_code_page, 0,
+			wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+		PSTR temp_str = new CHAR[str_size];
+		WideCharToMultiByte(string_code_page, 0, wstr.c_str(),
+			-1, temp_str, str_size, &default_char, is_used_def_char);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		std::string str(temp_str);
+
+		delete[] temp_str;
+		return str;
+	}
 
 	/// <summary>
 	/// 当前缓冲区是否是Unicode字符串(不一定准确)
@@ -38,14 +60,34 @@ namespace mw {
 	/// </summary>
 	/// <param name="kernel_object">内核对象句柄</param>
 	/// <returns>返回被包装后的句柄</returns>
-	MW_API std::shared_ptr<HANDLE> safe_handle(HANDLE kernel_object);
+	inline std::shared_ptr<HANDLE> safe_handle(HANDLE kernel_object)
+	{
+		static auto handle_deleter = [](HANDLE* my_handle) { CloseHandle(*my_handle); delete my_handle; };
+		std::shared_ptr<HANDLE> safe_handle_object(new HANDLE(kernel_object), handle_deleter);
+		return safe_handle_object;
+	}
 
 
 	/// <summary>
 	/// 获取当前线程所在进程的命令行的vector包装
 	/// </summary>
 	/// <returns>返回所在进程命令行的vector包装</returns>
-	MW_API std::vector<std::tstring> get_cmd_vec();
+	inline std::vector<std::tstring> get_cmd_vec()
+	{
+		int argc = 0;
+		auto argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+
+		std::vector<std::tstring> cmd_vec;
+		for (size_t i = 0; i < argc; i++)
+#ifdef UNICODE
+			cmd_vec.push_back(argv[i]);
+#else
+			cmd_vec.push_back(mw::wstring_to_string(argv[i]));
+#endif // UNICODE
+		HeapFree(GetProcessHeap(), 0, argv);
+		return cmd_vec;
+	}
 
 	/// <summary>
 	/// 获取指定的环境变量的值
@@ -53,7 +95,21 @@ namespace mw {
 	/// <param name="var_name">环境变量的名字</param>
 	/// <param name="var_value">[out]环境变量的值</param>
 	/// <returns>操作是否成功(是否被找到)</returns>
-	MW_API bool get_envionment_var(const std::tstring& var_name, std::tstring& var_value);
+	inline bool get_envionment_var(const std::tstring& var_name, std::tstring& var_value)
+	{
+		auto size_of_char = GetEnvironmentVariable(var_name.c_str(), nullptr, 0);
+		auto mybuffer = new TCHAR[size_of_char];
+
+		if (GetEnvironmentVariable(var_name.c_str(), mybuffer, size_of_char))
+		{
+			var_value = mybuffer;
+			delete[] mybuffer;
+			return true;
+		}
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		delete[] mybuffer;
+		return false;
+	}
 	
 	/// <summary>
 	/// 设置指定的环境变量的值
@@ -78,13 +134,31 @@ namespace mw {
 	/// </summary>
 	/// <param name="src">源字符串</param>
 	/// <returns>使用环境变量替换后的字符串</returns>
-	MW_API std::tstring expand_envionment_str(const std::tstring& src);
+	inline std::tstring expand_envionment_str(const std::tstring& src)
+	{
+		auto size_of_char = ExpandEnvironmentStrings(src.c_str(), nullptr, 0);
+		auto mybuffer = new TCHAR[size_of_char];
+		ExpandEnvironmentStrings(src.c_str(), mybuffer, size_of_char);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		std::tstring des_str = mybuffer;
+		delete[] mybuffer;
+		return des_str;
+	}
 
 	/// <summary>
 	/// 获得当前线程所在进程的工作目录
 	/// </summary>
 	/// <returns>返回所在进程的工作目录</returns>
-	MW_API std::tstring get_current_work_dir();
+	inline std::tstring get_current_work_dir()
+	{
+		auto size = GetCurrentDirectory(0, nullptr);
+		TCHAR* temp_str = new TCHAR[size];
+		GetCurrentDirectory(size, temp_str);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		std::tstring dir_str = temp_str;
+		delete[] temp_str;
+		return dir_str;
+	}
 
 	/// <summary>
 	/// 设置当前线程所在进程的工作目录

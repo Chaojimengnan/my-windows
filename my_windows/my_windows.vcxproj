@@ -24,7 +24,7 @@
     <ProjectGuid>{b39786f3-3cf0-4828-be14-c6f2e2e7b67d}</ProjectGuid>
     <RootNamespace>mywindows</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>my_windows_lib</ProjectName>
+    <ProjectName>my_windows_header_only</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -188,17 +188,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="mw_dialog.cpp" />
-    <ClCompile Include="mw_gdi.cpp" />
-    <ClCompile Include="mw_job.cpp" />
-    <ClCompile Include="mw_resource.cpp" />
-    <ClCompile Include="mw_socket.cpp" />
-    <ClCompile Include="mw_process.cpp" />
-    <ClCompile Include="mw_security.cpp" />
-    <ClCompile Include="mw_system.cpp" />
-    <ClCompile Include="mw_thread.cpp" />
-    <ClCompile Include="mw_utility.cpp" />
-    <ClCompile Include="mw_window.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -220,9 +209,6 @@
     <ClInclude Include="my_windows.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="mw_window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

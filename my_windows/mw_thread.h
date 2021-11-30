@@ -311,6 +311,7 @@ namespace mw {
 		return val;
 	}
 
+namespace sync {
 
 	/// <summary>
 	/// 执行两个32位值的原子加法，要对64位值进行操作，请使用InterlockedExchangeAdd64，addend参数指向的变量必须在32位边界上对齐(使用_aligned_malloc)
@@ -440,6 +441,13 @@ namespace mw {
 			T data;
 		};
 
+		interlocked_list(const interlocked_list&) = delete;
+		interlocked_list(interlocked_list&&) = delete;
+		interlocked_list& operator=(const interlocked_list&) = delete;
+		interlocked_list& operator=(interlocked_list&&) = delete;
+
+	public:
+
 		interlocked_list() : list_head(make_aligned_heap<SLIST_HEADER>())
 		{
 			InitializeSListHead(list_head);
@@ -527,10 +535,12 @@ namespace mw {
 	};
 
 	/// <summary>
-	/// 关键段，用于同步访问某个和多个需要同步访问的资源(用于多线程)，它适用于当使用Interlocked系函数无法满足需求的情况
+	/// 关键段，用于同步访问某个和多个需要同步访问的资源(用于多线程)，它适用于当使用Interlocked系函数无法满足需求的情况。不能跨线程共享
 	/// </summary>
 	class critical_section
 	{
+		friend class condition_variable;
+
 	public:
 		/// <summary>
 		/// 关键段构造函数
@@ -580,7 +590,7 @@ namespace mw {
 		}
 
 		/// <summary>
-		/// 模板方法，自动进入关键段并执行指定可调用对象，在函数返回后自动退出关键段
+		/// 模板方法，自动进入关键段并执行指定可调用对象，在可调用对象返回后自动退出关键段
 		/// </summary>
 		/// <param name="fun">指定可调用对象，它应该包含访问与该关键段关联的同步资源的代码</param>
 		/// <param name="...args">转发给可调用对象fun的参数</param>
@@ -593,10 +603,11 @@ namespace mw {
 		}
 
 		/// <summary>
-		/// 模板方法，自动进入关键段并执行指定可调用对象，在函数返回后自动退出关键段，该函数会返回可调用对象的返回值
+		/// 模板方法，自动进入关键段并执行指定可调用对象，在可调用对象返回后自动退出关键段，该函数会返回可调用对象的返回值
 		/// </summary>
 		/// <param name="fun">指定可调用对象，它应该包含访问与该关键段关联的同步资源的代码</param>
 		/// <param name="...args">转发给可调用对象fun的参数</param>
+		/// <returns>指定可调用对象的返回值</returns>
 		template<typename Func, typename... Args>
 		inline auto into_section_return(Func fun, Args&&... args)
 		{
@@ -611,5 +622,250 @@ namespace mw {
 
 	};
 
+	/// <summary>
+	/// Slim读写锁，性能比关键段更强，支持多个读取者线程读取，但是相比于关键段，不能递归获取SRW锁，若能接受该限制，建议使用该同步机制。不能跨线程共享
+	/// </summary>
+	class slimrw_lock
+	{
+		friend class condition_variable;
+
+	public:
+		slimrw_lock()
+		{
+			InitializeSRWLock(&srw);
+		}
+		~slimrw_lock() {}
+
+	public:
+		slimrw_lock(const slimrw_lock&) = delete;
+		slimrw_lock(slimrw_lock&&) = delete;
+		slimrw_lock& operator=(const slimrw_lock&) = delete;
+		slimrw_lock& operator=(slimrw_lock&&) = delete;
+
+	public:
+		/// <summary>
+		/// 获取独占模式的slim读写锁，若该锁正在被独占模式或共享模式占用，调用线程进入等待(适用于写入同步资源)
+		/// </summary>
+		inline void acquire_exclusive()
+		{
+			AcquireSRWLockExclusive(&srw);
+		}
+
+		/// <summary>
+		/// 获取共享模式的slim读写锁，若该锁正在被独占模式占用，调用线程进入等待(适用于读取同步资源)
+		/// </summary>
+		inline void acquire_shared()
+		{
+			AcquireSRWLockShared(&srw);
+		}
+
+		/// <summary>
+		/// 释放独占模式获取的slim读写锁，slim读写锁必须由获取它的同一个线程释放
+		/// </summary>
+		inline void release_exclusive()
+		{
+			ReleaseSRWLockExclusive(&srw);
+		}
+
+		/// <summary>
+		/// 释放共享模式获得的slim读写锁，slim读写锁必须由获取它的同一个线程释放
+		/// </summary>
+		inline void release_shared()
+		{
+			ReleaseSRWLockShared(&srw);
+		}
+
+		/// <summary>
+		/// 尝试获取独占模式的slim读写锁，若该锁正在被独占模式或共享模式占用，则返回false，若成功获取，返回true
+		/// </summary>
+		/// <returns>是否成功获取独占模式的slim读写锁</returns>
+		inline bool try_acquire_exclusive()
+		{
+			return TryAcquireSRWLockExclusive(&srw);
+		}
+
+		/// <summary>
+		/// 尝试获取共享模式的slim读写锁，若该锁正在被独占模式占用，则返回false，若成功获取，返回true
+		/// </summary>
+		/// <returns>是否成功获取共享模式的slim读写锁</returns>
+		inline bool try_acquire_shared()
+		{
+			return TryAcquireSRWLockShared(&srw);
+		}
+
+		/// <summary>
+		/// 模板方法，自动进入独占模式的slim读写锁并执行指定可调用对象，在函数返回后释放独占模式的slim读写锁
+		/// </summary>
+		/// <param name="fun">指定可调用对象，它应该包含写入和访问同步资源的代码</param>
+		/// <param name="...args">转发给可调用对象fun的参数</param>
+		template<typename Func, typename... Args>
+		inline void into_exclusive(Func fun, Args&&... args)
+		{
+			acquire_exclusive();
+			fun(std::move(args)...);
+			release_exclusive();
+		}
+
+		/// <summary>
+		/// 模板方法，自动进入独占模式的slim读写锁并执行指定可调用对象，在函数返回后释放独占模式的slim读写锁，该函数会返回可调用对象的返回值
+		/// </summary>
+		/// <param name="fun">指定可调用对象，它应该包含写入和访问同步资源的代码</param>
+		/// <param name="...args">转发给可调用对象fun的参数</param>
+		/// <returns>指定可调用对象的返回值</returns>
+		template<typename Func, typename... Args>
+		inline auto into_exclusive_return(Func fun, Args&&... args)
+		{
+			acquire_exclusive();
+			auto return_val = fun(std::move(args)...);
+			release_exclusive();
+			return return_val;
+		}
+
+		/// <summary>
+		/// 模板方法，自动进入共享模式的slim读写锁并执行指定可调用对象，在函数返回后释放共享模式的slim读写锁
+		/// </summary>
+		/// <param name="fun">指定可调用对象，它应该包含访问同步资源的代码</param>
+		/// <param name="...args">转发给可调用对象fun的参数</param>
+		template<typename Func, typename... Args>
+		inline void into_shared(Func fun, Args&&... args)
+		{
+			acquire_shared();
+			fun(std::move(args)...);
+			release_shared();
+		}
+
+		/// <summary>
+		/// 模板方法，自动进入共享模式的slim读写锁并执行指定可调用对象，在函数返回后释放共享模式的slim读写锁，该函数会返回可调用对象的返回值
+		/// </summary>
+		/// <param name="fun">指定可调用对象，它应该包含访问同步资源的代码</param>
+		/// <param name="...args">转发给可调用对象fun的参数</param>
+		/// <returns>指定可调用对象的返回值</returns>
+		template<typename Func, typename... Args>
+		inline auto into_shared_return(Func fun, Args&&... args)
+		{
+			acquire_shared();
+			auto return_val = fun(std::move(args)...);
+			release_shared();
+			return return_val;
+		}
+
+	private:
+		SRWLOCK srw;
+
+	};
+
+	/// <summary>
+	/// 条件变量是同步原语，使线程能够等待特定条件发生。条件变量是不能跨进程共享的用户模式对象。
+	/// </summary>
+	class condition_variable
+	{
+	public:
+		condition_variable()
+		{
+			InitializeConditionVariable(&cv);
+		}
+		~condition_variable(){}
+
+	public:
+		condition_variable(const condition_variable&) = delete;
+		condition_variable(condition_variable&&) = delete;
+		condition_variable& operator=(const condition_variable&) = delete;
+		condition_variable& operator=(condition_variable&&) = delete;
+
+	public:
+		/// <summary>
+		/// 调用线程在该条件变量下睡眠，并将指定的关键段作为原子操作释放。另一个线程对该条件变量调用wake或wake_all唤醒线程，线程被唤醒后，重新获取线程进入休眠状态时释放的关键段
+		/// </summary>
+		/// <remarks>
+		/// 条件变量会受到虚假唤醒（那些与显式唤醒无关的唤醒）和被盗唤醒（另一个线程设法在被唤醒线程之前运行）的影响。
+		/// 因此，您应该在睡眠操作返回后重新检查谓词（通常在while循环中）。
+		/// </remarks>
+		/// <param name="cs">指定要释放的关键段，在线程唤醒后又会获取这个被释放的关键段</param>
+		/// <param name="milliseconds_to_wait">超时值，以毫秒为单位，如果超时间隔已过，该函数将重新获取关键段并返回false。可以为INFINITE和0</param>
+		/// <returns>若函数成功，返回true，若函数失败或超时值已过，返回值为false</returns>
+		inline bool sleep_cs(critical_section& cs, DWORD milliseconds_to_wait = INFINITE)
+		{
+			auto val = SleepConditionVariableCS(&cv, &cs.cs, milliseconds_to_wait);
+			GET_ERROR_MSG_OUTPUT(std::tcout);
+			return val;
+		}
+
+		/// <summary>
+		/// 调用线程在该条件变量下睡眠，并将指定的slim读写锁作为原子操作释放。另一个线程对该条件变量调用wake或wake_all唤醒线程，线程被唤醒后，重新获取线程进入休眠状态时释放的slim读写锁
+		/// </summary>
+		/// <remarks>
+		/// 条件变量会受到虚假唤醒（那些与显式唤醒无关的唤醒）和被盗唤醒（另一个线程设法在被唤醒线程之前运行）的影响。
+		/// 因此，您应该在睡眠操作返回后重新检查谓词（通常在while循环中）。注意，调用函数时，必须确保已经获取slim锁了，否则不可预计的后果
+		/// </remarks>
+		/// <param name="srwlock">指定要释放的slim读写锁，在线程唤醒后又会获取这个被释放的slim读写锁，此锁必须以flags参数指定的方式持有</param>
+		/// <param name="flags">默认为独占模式的slim锁，若为CONDITION_VARIABLE_LOCKMODE_SHARED，则指定为共享模式</param>
+		/// <param name="milliseconds_to_wait">超时值，以毫秒为单位，如果超时间隔已过，该函数将重新获取关键段并返回false。可以为INFINITE和0</param>
+		/// <returns>若函数成功，返回true，若函数失败或超时值已过，返回值为false</returns>
+		inline bool sleep_slimrw(slimrw_lock& srwlock, ULONG flags = 0, DWORD milliseconds_to_wait = INFINITE)
+		{
+			auto val = SleepConditionVariableSRW(&cv, &srwlock.srw, milliseconds_to_wait, flags);
+			GET_ERROR_MSG_OUTPUT(std::tcout);
+			return val;
+		}
+
+		/// <summary>
+		/// 唤醒等待该条件变量的单个线程
+		/// </summary>
+		inline void wake()
+		{
+			WakeConditionVariable(&cv);
+		}
+
+		/// <summary>
+		/// 唤醒等待该条件变量的所有线程
+		/// </summary>
+		inline void wake_all()
+		{
+			WakeAllConditionVariable(&cv);
+		}
+
+		/// <summary>
+		/// 针对sleep_cs的包装，比起sleep_cs，当且仅在调用线程被唤醒时，且predicate返回true时，该函数才返回。这样可以避免虚假唤醒和被盗唤醒
+		/// </summary>
+		/// <param name="cs">指定要释放的关键段，在线程唤醒后又会获取这个被释放的关键段</param>
+		/// <param name="predicate">检查谓词，当调用线程被唤醒时，且predicate返回true时，该函数才返回，否则重新进入睡眠</param>
+		/// <param name="...args">转发给检查谓词的参数</param>
+		/// <returns>若函数成功，返回true，若函数失败或超时值已过，返回值为false</returns>
+		template<typename Pred, typename... Args>
+		inline bool sleep_predicate_cs(critical_section& cs, Pred predicate, Args&&... args)
+		{
+			bool val = true;
+			while (!predicate(std::move(args)...))
+			{
+				 val = sleep_cs(cs);
+			}
+			return val;
+		}
+
+		/// <summary>
+		/// 针对sleep_slimrw的包装，比起sleep_slimrw，当且仅在调用线程被唤醒时，且predicate返回true时，该函数才返回。这样可以避免虚假唤醒和被盗唤醒
+		/// </summary>
+		/// <param name="srwlock">指定要释放的slim读写锁，在线程唤醒后又会获取这个被释放的slim读写锁，此锁必须以flags参数指定的方式持有</param>
+		/// <param name="flags">默认为独占模式的slim锁，若为CONDITION_VARIABLE_LOCKMODE_SHARED，则指定为共享模式</param>
+		/// <param name="predicate">检查谓词，当调用线程被唤醒时，且predicate返回true时，该函数才返回，否则重新进入睡眠</param>
+		/// <param name="...args">转发给检查谓词的参数</param>
+		/// <returns>若函数成功，返回true，若函数失败或超时值已过，返回值为false</returns>
+		template<typename Pred, typename... Args>
+		inline bool sleep_predicate_slimrw(slimrw_lock& srwlock, ULONG flags, Pred predicate, Args&&... args)
+		{
+			bool val = true;
+			while (!predicate(std::move(args)...))
+			{
+				val = sleep_slimrw(srwlock, flags);
+			}
+			return val;
+		}
+
+	private:
+		CONDITION_VARIABLE cv;
+
+	};
+
+};//sync
 
 };//mw

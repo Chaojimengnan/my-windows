@@ -15,40 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mw_window.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mw_utility.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mw_security.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mw_process.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mw_job.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mw_system.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mw_socket.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mw_resource.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mw_thread.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mw_dialog.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mw_gdi.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,8 +59,5 @@
     <ClInclude Include="mw_gdi.h">
       <Filter>头文件</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

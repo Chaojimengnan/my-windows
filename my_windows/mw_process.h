@@ -1,5 +1,6 @@
 #pragma once
 #include "mw_utility.h"
+#include "mw_security.h"
 
 namespace mw {
 
@@ -13,7 +14,7 @@ namespace mw {
 	/// <param name="desired_access">复制的新句柄的访问权限</param>
 	/// <param name="options">可选行为</param>
 	/// <returns>复制产生的新句柄</returns>
-	MW_API HANDLE give_handle_to_other_process(HANDLE target_process,
+	inline HANDLE give_handle_to_other_process(HANDLE target_process,
 		HANDLE handle_to_give, bool inherit_handle = FALSE,
 		DWORD desired_access = 0, DWORD options = DUPLICATE_SAME_ACCESS)
 	{
@@ -103,13 +104,32 @@ namespace mw {
 	/// <param name="file">新进程可执行文件的路径</param>
 	/// <param name="command_line">新进程的命令行(不包含可执行文件路径)</param>
 	/// <returns>是否成功</returns>
-	MW_API bool create_process_admin(const std::tstring& file, const std::tstring& command_line = TEXT(""));
+	inline bool create_process_admin(const std::tstring& file, const std::tstring& command_line = TEXT(""))
+	{
+		SHELLEXECUTEINFO sei = { sizeof(SHELLEXECUTEINFO) };
+		sei.lpVerb = _T("runas");
+		sei.lpFile = file.c_str();
+		sei.nShow = SW_SHOWNORMAL;
+		if (command_line != _T(""))
+			sei.lpParameters = command_line.c_str();
+
+		auto val = ShellExecuteEx(&sei);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
 
 	/// <summary>
 	/// 判断当前线程所在进程的令牌是否是管理员组
 	/// </summary>
 	/// <returns>当前进程是否是管理员组</returns>
-	MW_API bool is_current_process_admin();
+	inline bool is_current_process_admin()
+	{
+		auto admin_sid = mw::create_admin_sid();
+		BOOL is_admin;
+		CheckTokenMembership(nullptr, admin_sid.get(), &is_admin);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return is_admin;
+	}
 
 
 	/// <summary>

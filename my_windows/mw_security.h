@@ -1,7 +1,7 @@
 #pragma once
+#include <sddl.h>
 
 namespace mw {
-
 
 	class private_namespace;
 
@@ -11,14 +11,29 @@ namespace mw {
 	/// <param name="inherit_handle">继承开关</param>
 	/// <param name="security_descriptor">安全描述符</param>
 	/// <returns>返回一个安全属性</returns>
-	MW_API std::shared_ptr<SECURITY_ATTRIBUTES> make_security_attribute(bool inherit_handle = false,
-		void* security_descriptor = nullptr);
+	inline std::shared_ptr<SECURITY_ATTRIBUTES> make_security_attribute(bool inherit_handle = false,
+		void* security_descriptor = nullptr)
+	{
+		std::shared_ptr<SECURITY_ATTRIBUTES> security(new SECURITY_ATTRIBUTES());
+		security->nLength = sizeof(SECURITY_ATTRIBUTES);
+		security->bInheritHandle = inherit_handle;
+		security->lpSecurityDescriptor = security_descriptor;
+		return security;
+	}
 
 	/// <summary>
 	/// 创建并返回一个管理员sid
 	/// </summary>
 	/// <returns>返回一个管理员sid</returns>
-	MW_API std::shared_ptr<SID> create_admin_sid();
+	inline std::shared_ptr<SID> create_admin_sid()
+	{
+		std::shared_ptr<SID> admin_sid = std::make_shared<SID>();
+		ZeroMemory(admin_sid.get(), sizeof(admin_sid));
+		DWORD sid_size = sizeof(admin_sid);
+		CreateWellKnownSid(WinBuiltinAdministratorsSid, nullptr, admin_sid.get(), &sid_size);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return admin_sid;
+	}
 
 	/// <summary>
 	/// 创建并返回一个专有空间
@@ -34,15 +49,34 @@ namespace mw {
 	/// <summary>
 	/// 专有空间类，用于创建专有空间，需要管理员权限，不过创建的句柄不会再命名冲突
 	/// </summary>
-	class MW_API private_namespace {
+	class private_namespace {
 	public:
 		/// <summary>
 		/// 专有空间构造函数
 		/// </summary>
 		/// <param name="boundary_name">边界名字</param>
 		/// <param name="namespace_name">专有空间名字</param>
-		private_namespace(const std::tstring& boundary_name, const std::tstring& namespace_name);
-		~private_namespace();
+		private_namespace(const std::tstring& boundary_name, const std::tstring& namespace_name)
+		{
+			boundary_handle = CreateBoundaryDescriptor(boundary_name.c_str(), 0);
+			auto admin_sid = create_admin_sid();
+			AddSIDToBoundaryDescriptor(&boundary_handle, admin_sid.get());
+			GET_ERROR_MSG_OUTPUT(std::tcout);
+			auto security = make_security_attribute();
+			ConvertStringSecurityDescriptorToSecurityDescriptor(
+				_T("D:(A;;GA;;;BA)"),
+				SDDL_REVISION_1, &security.get()->lpSecurityDescriptor, nullptr);
+			GET_ERROR_MSG_OUTPUT(std::tcout);
+
+			namespace_handle = CreatePrivateNamespace(security.get(), boundary_handle, namespace_name.c_str());
+			GET_ERROR_MSG_OUTPUT(std::tcout);
+			LocalFree(security.get()->lpSecurityDescriptor);
+		}
+		~private_namespace()
+		{
+			ClosePrivateNamespace(namespace_handle, 0);
+			DeleteBoundaryDescriptor(boundary_handle);
+		}
 
 		/// <summary>
 		/// 获得边界的句柄

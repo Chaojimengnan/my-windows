@@ -14,11 +14,13 @@ int main(int argc, char* argv[])
 	//example_3();
 	//example_4();
 	//example_3_1();
-	example_3_2();
+	//example_3_2();
 	//example_3_3();
 	//example_3_4();
 	//example_3_5();
 	//example_3_6();
+	//example_3_7();
+	example_3_8();
 
 
 

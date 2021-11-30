@@ -15,3 +15,7 @@ void example_3_4();
 void example_3_5();
 
 void example_3_6();
+
+void example_3_7();
+
+void example_3_8();

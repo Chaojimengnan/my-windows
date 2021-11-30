@@ -24,7 +24,10 @@ namespace mw {
 	/// </summary>
 	/// <param name="bmp_file_name">图片文件路径</param>
 	/// <returns>操作是否成功</returns>
-	MW_API bool set_desktop_wallpaper(const std::tstring& wallpaper_file_name);
+	inline bool set_desktop_wallpaper(const std::tstring& wallpaper_file_name)
+	{
+		return system_parameters(SPI_SETDESKWALLPAPER, 0, const_cast<TCHAR*>(wallpaper_file_name.c_str()));
+	}
 
 
 	/// <summary>

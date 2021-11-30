@@ -1,4 +1,4 @@
-# my_windows {#mainpage}
+# my-windows {#mainpage}
 
 这是我对Win32 API的简单C++封装库，只依赖于Windows系统运行库和C/C++运行库。
 
