@@ -1202,7 +1202,7 @@ namespace user {
 	/// <summary>
 	/// 简单的窗口包装类，里面有一些有用的方法(持续更新)
 	/// </summary>
-	class MW_API window_instance {
+	class window_instance {
 	public:
 		/// <summary>
 		/// 窗口构造函数，默认句柄为NULL

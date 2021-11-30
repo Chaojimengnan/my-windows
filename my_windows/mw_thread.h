@@ -38,6 +38,7 @@ namespace mw {
 	/// 结束该调用线程，C/C++中不要用这个函数，直接线程函数返回，这样才能正确调用析构函数和其他自动清理，就算要用也用_endthreadex。其他事项请看文档
 	/// </summary>
 	/// <param name="exit_code">线程的退出代码</param>
+	[[deprecated(_T("你不应该使用该函数，而是使用c_exit_thread"))]]
 	inline void exit_thread(DWORD exit_code)
 	{
 		ExitThread(exit_code);
@@ -92,6 +93,7 @@ namespace mw {
 	/// <param name="creation_flags">控制线程创建的标志，一般为0，可以为CREATE_SUSPENDED，该标志将在创建完新线程后暂停线程</param>
 	/// <param name="stack_size">堆栈的初始大小，以字节为单位，系统将此值舍入到最近的页面，若为0，则使用可执行程序默认大小</param>
 	/// <returns>若成功，返回值是新线程的句柄，若失败返回NULL</returns>
+	[[deprecated(_T("你不应该使用该函数，而是使用c_create_thread"))]]
 	inline HANDLE create_thread(LPTHREAD_START_ROUTINE thread_function, LPVOID parameter = nullptr, LPDWORD thread_id = nullptr,
 		LPSECURITY_ATTRIBUTES thread_attributes = nullptr, DWORD creation_flags = 0, size_t stack_size = 0)
 	{
@@ -308,5 +310,306 @@ namespace mw {
 		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
+
+
+	/// <summary>
+	/// 执行两个32位值的原子加法，要对64位值进行操作，请使用InterlockedExchangeAdd64，addend参数指向的变量必须在32位边界上对齐(使用_aligned_malloc)
+	/// </summary>
+	/// <param name="addend">[in, out]指向变量的指针，此变量的值将替换为操作的结果</param>
+	/// <param name="value">要添加到addend参数指向的变量的值</param>
+	/// <returns>该函数返回addend参数的初始值</returns>
+	inline LONG interlocked_exchange_add(LONG volatile& addend, LONG value)
+	{
+		return InterlockedExchangeAdd(&addend, value);
+	}
+
+	/// <summary>
+	/// 执行两个64位值的原子加法，要对32位值进行操作，请使用InterlockedExchangeAdd，addend参数指向的变量必须在64位边界上对齐(使用_aligned_malloc)
+	/// </summary>
+	/// <param name="addend">[in, out]指向变量的指针，此变量的值将替换为操作的结果</param>
+	/// <param name="value">要添加到addend参数指向的变量的值</param>
+	/// <returns>该函数返回addend参数的初始值</returns>
+	inline LONG64 interlocked_exchange_add64(LONG64 volatile& addend, LONG64 value)
+	{
+		return InterlockedExchangeAdd64(&addend, value);
+	}
+
+	/// <summary>
+	/// 执行递增（增加一）的原子操作给指定的32位变量的值，要对64位值进行操作，请使用InterlockedIncrement64函数，addend参数指向的变量必须在32位边界上对齐(使用_aligned_malloc)
+	/// </summary>
+	/// <param name="addend">[in, out]指向要递增的变量的指针</param>
+	/// <returns>该函数返回结果递增的值</returns>
+	inline LONG interlocked_increment(LONG volatile& addend)
+	{
+		return InterlockedIncrement(&addend);
+	}
+
+	/// <summary>
+	/// 执行递增（增加一）的原子操作给指定的64位变量的值，要对32位值进行操作，请使用InterlockedIncrement函数，addend参数指向的变量必须在64位边界上对齐(使用_aligned_malloc)
+	/// </summary>
+	/// <param name="addend">[in, out]指向要递增的变量的指针</param>
+	/// <returns>该函数返回结果递增的值</returns>
+	inline LONG64 interlocked_increment64(LONG64 volatile& addend)
+	{
+		return InterlockedIncrement64(&addend);
+	}
+
+	/// <summary>
+	/// 执行将指定32位变量设置为指定值的原子操作
+	/// </summary>
+	/// <param name="target">[in, out]该函数将此变量设置为value，并返回其先前的值</param>
+	/// <param name="value">要设置target的新值</param>
+	/// <returns>返回target参数的初始值</returns>
+	inline LONG interlocked_exchange(LONG volatile& target, LONG value)
+	{
+		return InterlockedExchange(&target, value);
+	}
+
+	/// <summary>
+	/// 执行将指定64位变量设置为指定值的原子操作
+	/// </summary>
+	/// <param name="target">[in, out]该函数将此变量设置为value，并返回其先前的值</param>
+	/// <param name="value">要设置target的新值</param>
+	/// <returns>返回target参数的初始值</returns>
+	inline LONG64 interlocked_exchange64(LONG64 volatile& target, LONG64 value)
+	{
+		return InterlockedExchange64(&target, value);
+	}
+
+	/// <summary>
+	/// 执行将指定指针设置为指定值的原子操作，在64位系统上，参数是64位，并且target参数必须在64位边界上对齐，32位系统同理可得
+	/// </summary>
+	/// <param name="target">[in, out]该函数将此指针变量设置为value，并返回其先前的值</param>
+	/// <param name="value">要设置target的新值</param>
+	/// <returns>返回target参数的初始值</returns>
+	inline PVOID interlocked_exchange_pointer(PVOID volatile& target, PVOID value)
+	{
+		return InterlockedExchangePointer(&target, value);
+	}
+
+	/// <summary>
+	/// 对指定值执行原子比较和赋值操作。该函数比较两个指定的32位值,destination和comparand的值，若相等则destination被另一个32位值exchange赋值。
+	/// </summary>
+	/// <param name="destination">[in, out]指向目标值的指针，该函数的所有参数必须在32位边界上对齐</param>
+	/// <param name="exchange">用于给destination赋值的值</param>
+	/// <param name="comparand">要与destination进行比较的值，若与destination相等，则使用exchange赋值destination，否则不做任何事</param>
+	/// <returns>该函数返回destination参数的初始值</returns>
+	inline LONG interlocked_compare_exchange(LONG volatile& destination, LONG exchange, LONG comparand)
+	{
+		return InterlockedCompareExchange(&destination, exchange, comparand);
+	}
+
+	/// <summary>
+	/// 对指定值执行原子比较和赋值操作。该函数比较两个指定的64位值,destination和comparand的值，若相等则destination被另一个64位值exchange赋值。
+	/// </summary>
+	/// <param name="destination">[in, out]指向目标值的指针，该函数的所有参数必须在64位边界上对齐</param>
+	/// <param name="exchange">用于给destination赋值的值</param>
+	/// <param name="comparand">要与destination进行比较的值，若与destination相等，则使用exchange赋值destination，否则不做任何事</param>
+	/// <returns>该函数返回destination参数的初始值</returns>
+	inline LONG64 interlocked_compare_exchange64(LONG64 volatile& destination, LONG64 exchange, LONG64 comparand)
+	{
+		return InterlockedCompareExchange64(&destination, exchange, comparand);
+	}
+
+	/// <summary>
+	/// 对指定值执行原子比较和赋值操作。该函数比较两个指定的指针值,destination和comparand，若相等则destination被另一个指针exchange赋值。
+	/// </summary>
+	/// <param name="destination">[in, out]目标指针，若是64位程序该函数的所有参数必须在64位边界上对齐，32位同理</param>
+	/// <param name="exchange">用于给destination赋值的值</param>
+	/// <param name="comparand">要与destination进行比较的值，若与destination相等，则使用exchange赋值destination，否则不做任何事</param>
+	/// <returns>该函数返回destination参数的初始值</returns>
+	inline PVOID interlocked_compare_exchange_pointer(PVOID volatile& destination, PVOID exchange, PVOID comparand)
+	{
+		return InterlockedCompareExchangePointer(&destination, exchange, comparand);
+	}
+
+	/// <summary>
+	/// 提供入栈和出栈原子操作的单向链表栈，适用于多线程读写
+	/// </summary>
+	/// <typeparam name="T">任意用户需要的数据类型</typeparam>
+	template<typename T>
+	class interlocked_list
+	{
+	public:
+		/// <summary>
+		/// 一个用于单向链表栈的链表项
+		/// </summary>
+		struct interlocked_list_struct
+		{
+			SLIST_ENTRY item_entry;
+			T data;
+		};
+
+		interlocked_list() : list_head(make_aligned_heap<SLIST_HEADER>())
+		{
+			InitializeSListHead(list_head);
+		}
+
+		~interlocked_list()
+		{
+			PSLIST_ENTRY list_entry = nullptr;
+			while (list_entry = InterlockedPopEntrySList(list_head))
+			{
+				// 为T类型调用析构函数，然后释放内存
+				reinterpret_cast<interlocked_list_struct*>(list_entry)->data.~T();
+				_aligned_free(list_entry);
+			}
+			_aligned_free(list_head);
+		}
+
+		/// <summary>
+		/// 在单向链表的前面压入一个项。对链表的访问在多处理器系统上同步
+		/// </summary>
+		/// <param name="data">指定数据</param>
+		/// <returns>操作是否失败</returns>
+		bool push(const T& data)
+		{
+			interlocked_list_struct* item = make_aligned_heap<interlocked_list_struct>();
+			if (item == nullptr)
+				return false;
+			// 在新申请的内存上构造T类型
+			new(&item->data) T(data);
+			InterlockedPushEntrySList(list_head, &(item->item_entry));
+			return true;
+		}
+
+		/// <summary>
+		/// 在单向链表的前面压入一个项。对链表的访问在多处理器系统上同步
+		/// </summary>
+		/// <param name="data">指定数据</param>
+		/// <returns>操作是否失败</returns>
+		bool push(T&& data)
+		{
+			interlocked_list_struct* item = make_aligned_heap<interlocked_list_struct>();
+			if (item == nullptr)
+				return false;
+			// 在新申请的内存上构造T类型
+			new(&item->data) T(std::move(data));
+			InterlockedPushEntrySList(list_head, &(item->item_entry));
+			return true;
+		}
+
+		/// <summary>
+		/// 从单向链表的前面弹出一个项。对链表的访问在多处理器系统上同步
+		/// </summary>
+		/// <param name="data">[out]用于接收的数据</param>
+		/// <returns>若链表为空，返回false，否则返回true</returns>
+		bool pop(T& data)
+		{
+			PSLIST_ENTRY list_entry = InterlockedPopEntrySList(list_head);
+			if (list_entry == nullptr)
+				return false;
+			interlocked_list_struct* item = reinterpret_cast<interlocked_list_struct*>(list_entry);
+			data = item->data;
+			// 为T类型调用析构函数，然后释放内存
+			item->data.~T();
+			_aligned_free(list_entry);
+			return true;
+		}
+
+		/// <summary>
+		/// 获取该单向链表的项的数量
+		/// </summary>
+		/// <returns>该单向链表的项的数量</returns>
+		USHORT size()
+		{
+			return QueryDepthSList(list_head);
+		}
+
+	private:
+		PSLIST_HEADER list_head;
+
+		template<typename t_type>
+		inline static t_type* make_aligned_heap()
+		{
+			return static_cast<t_type*>(_aligned_malloc(sizeof(t_type), MEMORY_ALLOCATION_ALIGNMENT));
+		}
+	};
+
+	/// <summary>
+	/// 关键段，用于同步访问某个和多个需要同步访问的资源(用于多线程)，它适用于当使用Interlocked系函数无法满足需求的情况
+	/// </summary>
+	class critical_section
+	{
+	public:
+		/// <summary>
+		/// 关键段构造函数
+		/// </summary>
+		/// <param name="is_spin">默认为true，即是否在enter时开启旋转锁轮询，若为false，则在被占用时直接进入等待</param>
+		/// <param name="spin_count">旋转锁循环次数，若is_spin为false，该参数无效</param>
+		critical_section(bool is_spin = true, DWORD spin_count = 4000)
+		{
+			if (!is_spin)
+				spin_count = 0;
+			InitializeCriticalSectionAndSpinCount(&cs, spin_count);
+			GET_ERROR_MSG_OUTPUT(std::tcout);
+		}
+		~critical_section()
+		{
+			DeleteCriticalSection(&cs);
+		}
+
+	public:
+		critical_section(const critical_section&) = delete;
+		critical_section(critical_section&&) = delete;
+		critical_section& operator=(const critical_section&) = delete;
+		critical_section& operator=(critical_section&&) = delete;
+
+	public:
+		/// <summary>
+		/// 尝试进入关键段，若返回值为true，则已进入关键段，你需要在结束访问同步资源之后调用leave函数，退出关键段。若为false则表示该关键段正被占用，你不需要调用leave函数
+		/// </summary>
+		/// <returns>表示是否进入关键段，若为true，你需要在访问同步资源结束后调用leave函数</returns>
+		inline bool try_enter()
+		{
+			return TryEnterCriticalSection(&cs);
+		}
+		/// <summary>
+		/// 进入关键段，若当前关键段正被其他线程占用，若开启旋转锁功能，则进行旋转锁循环，到达指定次数后，进入等待状态(否则直接进入等待)，直到进入关键段之后返回
+		/// </summary>
+		inline void enter()
+		{
+			EnterCriticalSection(&cs);
+		}
+		/// <summary>
+		/// 退出关键段，在调用该函数后，你不能再对关联的同步资源进行访问。注意你调用了几次enter，就要调用几次leave，这样其他线程才能进入关键段
+		/// </summary>
+		inline void leave()
+		{
+			LeaveCriticalSection(&cs);
+		}
+
+		/// <summary>
+		/// 模板方法，自动进入关键段并执行指定可调用对象，在函数返回后自动退出关键段
+		/// </summary>
+		/// <param name="fun">指定可调用对象，它应该包含访问与该关键段关联的同步资源的代码</param>
+		/// <param name="...args">转发给可调用对象fun的参数</param>
+		template<typename Func, typename... Args>
+		inline void into_section(Func fun, Args&&... args)
+		{
+			enter();
+			fun(std::move(args)...);
+			leave();
+		}
+
+		/// <summary>
+		/// 模板方法，自动进入关键段并执行指定可调用对象，在函数返回后自动退出关键段，该函数会返回可调用对象的返回值
+		/// </summary>
+		/// <param name="fun">指定可调用对象，它应该包含访问与该关键段关联的同步资源的代码</param>
+		/// <param name="...args">转发给可调用对象fun的参数</param>
+		template<typename Func, typename... Args>
+		inline auto into_section_return(Func fun, Args&&... args)
+		{
+			enter();
+			auto return_val = fun(std::move(args)...);
+			leave();
+			return return_val;
+		}
+
+	private:
+		CRITICAL_SECTION cs;
+
+	};
+
 
 };//mw

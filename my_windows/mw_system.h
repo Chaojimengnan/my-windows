@@ -87,4 +87,42 @@ namespace mw {
 		return GetTickCount64();
 	}
 
+	/// <summary>
+	/// 获取有关逻辑处理器和相关硬件的信息
+	/// </summary>
+	/// <param name="out_buffer">[out]用于获取数据缓冲区的指针，使用完毕后请用free释放该内存</param>
+	/// <param name="nums">[out]用于获取数据缓冲区结构体的数量</param>
+	/// <returns>操作是否成功</returns>
+	inline bool get_logical_processor_information(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION& out_buffer, DWORD& nums)
+	{
+		DWORD return_length = 0;
+		bool done = false;
+		while (!done)
+		{
+			DWORD rc = GetLogicalProcessorInformation(out_buffer, &return_length);
+
+			if (FALSE == rc) {
+				if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+					if (out_buffer)
+						free(out_buffer);
+
+					out_buffer = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc(
+						return_length);
+
+					if (NULL == out_buffer){
+						GET_ERROR_MSG_OUTPUT(std::tcout);
+						return false;
+					}
+				}
+				else{
+					GET_ERROR_MSG_OUTPUT(std::tcout);
+					return false;
+				}
+			}
+			else done = TRUE;
+		}
+		nums = return_length / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
+		return true;
+	}
+
 }//mw
