@@ -866,6 +866,101 @@ namespace sync {
 
 	};
 
+	// 如上的线程同步机制都是用户模式下的同步机制，其特点是性能较内核模式同步机制快得多，但是除了Interlocked系列外均只能对一个进程下的所有线程进行同步
+	// 而Interlocked系列同步机制只能同步简单数据，无法满足复杂需求。当我们需要同步不同进程的线程时，并且同步复杂数据时，需要使用内核模式下的同步机制
+	// 下面是内核模式下的同步机制
+
+	/// <summary>
+	/// 等待指定内核对象处于触发状态，一个I/O完成例程或异步过程调用(APC)在线程队列中，或超时值已过，这三种情况时返回(根据参数不同)
+	/// </summary>
+	/// <remarks>
+	/// 注意创建窗口的线程不要调用该函数和multiple版本，可能会导致死锁！因为创建窗口的线程要处理窗口消息。
+	/// 使用MsgWaitFor*，而不是WaitFor*系函数。
+	/// </remarks>
+	/// <param name="object_handle">指定内核对象的句柄(支持类型查看文档)，该句柄必须具有SYNCHRONIZE访问权限，若句柄在等待时关闭，函数行为未定义</param>
+	/// <param name="milliseconds_to_wait">超时值，可以为0或INFINITE，若为INFINITE，不会因为超时值而返回</param>
+	/// <param name="alertable">若为true，一个I/O完成例程或异步过程调用(APC)在线程队列中时返回并执行他们，否则不返回，并且不会执行完成例程或 APC 函数</param>
+	/// <returns>返回以WAIT_开头的宏，用于指示调用线程为什么继续执行</returns>
+	inline DWORD wait_for_single_object(HANDLE object_handle, DWORD milliseconds_to_wait = INFINITE, bool alertable = false)
+	{
+		auto val = WaitForSingleObjectEx(object_handle, milliseconds_to_wait, alertable);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 等待指定一个或所有内核对象处于触发状态，一个I/O完成例程或异步过程调用(APC)在线程队列中，或超时值已过，这三种情况时返回(根据参数不同)
+	/// </summary>
+	/// <remarks>
+	/// 注意创建窗口的线程不要调用该函数和single版本，可能会导致死锁！因为创建窗口的线程要处理窗口消息。
+	/// 使用MsgWaitFor*，而不是WaitFor*系函数。
+	/// </remarks>
+	/// <param name="counts">内核句柄数组的数量，它不应该超过MAXIMUM_WAIT_OBJECTS，不能为0</param>
+	/// <param name="object_handles">对象句柄数组,该数组可以是不同类型对象句柄(支持类型查看文档)。该句柄必须有SYNCHRONIZE访问权限，若句柄在等待时关闭，函数行为未定义</param>
+	/// <param name="wait_all">若为false，则内核句柄数组其中一个触发时就返回，若为true，则所有内核句柄触发才返回</param>
+	/// <param name="milliseconds_to_wait">超时值，可以为0或INFINITE，若为INFINITE，不会因为超时值而返回</param>
+	/// <param name="alertable">若为true，一个I/O完成例程或异步过程调用(APC)在线程队列中时返回并执行他们，否则不返回，并且不会执行完成例程或 APC 函数</param>
+	/// <returns>返回以WAIT_开头的宏，用于指示调用线程为什么继续执行</returns>
+	inline DWORD wait_for_multiple_object(DWORD counts, const HANDLE* object_handles, bool wait_all = true , DWORD milliseconds_to_wait = INFINITE, bool alertable = false)
+	{
+		auto val = WaitForMultipleObjectsEx(counts, object_handles, wait_all, milliseconds_to_wait, alertable);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 创建或打开命名或未命名的事件内核对象并返回内核对象的句柄
+	/// </summary>
+	/// <param name="flags">它可以是CREATE_EVENT_INITIAL_SET和CREATE_EVENT_MANUAL_RESET的组合，前者指示初始触发还是不触发，后者指示手动还是自动</param>
+	/// <param name="desired_access">返回的句柄具有的访问权限，它是EVENT_开头的宏</param>
+	/// <param name="event_name">事件的名字，该名称限制为MAX_PATH个字符，区分大小写，可以为nullptr，即未命名的内核对象</param>
+	/// <param name="event_attributes">事件的安全属性</param>
+	/// <returns>函数成功返回事件对象的句柄，若失败返回NULL，若命名的事件对象在函数调用之前存在,则函数返回现有对象的句柄</returns>
+	inline HANDLE create_event(DWORD flags = 0, DWORD desired_access = EVENT_MODIFY_STATE, const std::tstring& event_name = _T(""), LPSECURITY_ATTRIBUTES event_attributes = nullptr)
+	{
+		auto val = CreateEventEx(event_attributes, tstring_to_pointer(event_name), flags, desired_access);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 将指定的事件对象设置为触发状态，对于自动事件，被某一等待该事件的线程捕获后自动变为未触发状态，而手动事件除非调用ResetEvent，会保持触发状态
+	/// </summary>
+	/// <param name="event_handle">指定事件对象的句柄，句柄必须具有 EVENT_MODIFY_STATE 访问权限</param>
+	/// <returns>操作是否成功</returns>
+	inline bool set_event(HANDLE event_handle)
+	{
+		auto val = SetEvent(event_handle);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 将指定的事件对象设置为未触发状态，该函数主要用于手动重置事件对象，自动事件被某一等待该事件的线程捕获后自动变为未触发状态
+	/// </summary>
+	/// <param name="event_handle">指定事件对象的句柄，句柄必须具有 EVENT_MODIFY_STATE 访问权限</param>
+	/// <returns>操作是否成功</returns>
+	inline bool reset_event(HANDLE event_handle)
+	{
+		auto val = ResetEvent(event_handle);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 打开现有的命名事件对象
+	/// </summary>
+	/// <param name="event_name">要打开的事件的名称。名称比较区分大小写，此函数可以打开私有命名空间中的对象</param>
+	/// <param name="inherit_handle">如果此值为TRUE，则此进程创建的子进程将继承句柄。否则，子进程不会继承这个句柄</param>
+	/// <param name="desired_access">返回的句柄具有的访问权限，它是EVENT_开头的宏</param>
+	/// <returns>函数成功，则返回值是事件对象的句柄。如果函数失败，则返回值为NULL</returns>
+	inline HANDLE open_event(const std::tstring& event_name, bool inherit_handle = false, DWORD desired_access = EVENT_MODIFY_STATE)
+	{
+		auto val = OpenEvent(desired_access, inherit_handle, event_name.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
 };//sync
 
 };//mw

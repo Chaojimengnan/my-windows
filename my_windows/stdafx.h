@@ -17,7 +17,7 @@
 #ifdef _DEBUG
 #define GET_ERROR_MSG_OUTPUT(output_stream) {auto my_error_code = GetLastError();\
 		if (my_error_code != 0){\
-		output_stream << __FUNCTION__ << _T("  (")  << my_error_code << _T(")")<< mw::formate_error_code(my_error_code)\
+		output_stream << _T("thread(") << GetCurrentThreadId()  << _T(")：") << __FUNCTION__ << _T("  (")  << my_error_code << _T(")")<< mw::formate_error_code(my_error_code)\
 					<< __FILE__ << _T(":") << __LINE__  << _T("\n\n")\
 					;SetLastError(0);}}
 #else
@@ -28,7 +28,7 @@
 #ifdef _DEBUG
 #define GET_ERROR_MSG_OUTPUT_NORMAL(output_stream, value, error_value) {\
 		if (value == error_value){\
-		output_stream << __FUNCTION__  << _T("  函数失败\n")\
+		output_stream << _T("thread(") << GetCurrentThreadId()  << _T(")：")  << __FUNCTION__  << _T("  函数失败\n")\
 					<< __FILE__ << _T(":") << __LINE__  << _T("\n\n")\
 					;}}
 #else

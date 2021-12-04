@@ -27,7 +27,7 @@ void example_4()
 	mw::create_process(mymy, _T("cmd"));
 	mw::set_process_affinity_mask(mw::get_current_process(), 0x1);*/
 	
-	TEXTMETRIC mymy = {0};
+	/*TEXTMETRIC mymy = {0};
 	auto device_handle = mw::gdi::get_dc(NULL);
 	mw::gdi::get_text_metrics(device_handle, &mymy);
 	mw::gdi::set_text_align(device_handle, TA_RIGHT);
@@ -36,7 +36,15 @@ void example_4()
 	mw::gdi::release_dc(NULL, device_handle);
 	
 
-	std::cout << "123";
+	std::cout << "123";*/
 
+	auto screen_dc = mw::gdi::create_dc();
+	auto screen_slot_handle = mw::gdi::get_current_object(screen_dc, OBJ_BITMAP);
+
+	std::shared_ptr<void> screen_slot;
+	auto size = mw::gdi::get_object(screen_slot_handle, screen_slot);
+
+	BITMAP* data = static_cast<BITMAP*>(screen_slot.get());
+	
 
 }

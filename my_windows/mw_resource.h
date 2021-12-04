@@ -4,7 +4,8 @@ namespace mw {
 namespace user {
 
 	/// <summary>
-	/// 从模块内部获取加载一个图像，并返回其资源句柄(该函数有点问题，等封装了绘制函数再测试)
+	/// 从模块内部获取加载一个
+	/// ，并返回其资源句柄(该函数有点问题，等封装了绘制函数再测试)
 	/// </summary>
 	/// <remarks>封装自LoadImageA</remarks>
 	/// <param name="handle_modlue">模块的实例句柄</param>

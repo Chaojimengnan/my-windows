@@ -19,3 +19,7 @@ void example_3_6();
 void example_3_7();
 
 void example_3_8();
+
+void example_3_9();
+
+void example_3_10();

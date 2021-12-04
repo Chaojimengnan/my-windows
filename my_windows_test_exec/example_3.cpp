@@ -626,3 +626,129 @@ void example_3_8()
 	}
 
 }
+
+
+void example_3_9()
+{
+	//auto my_handle = mw::safe_handle(mw::c_create_thread(ThreadFunc));
+	//
+	//DWORD dw = mw::sync::wait_for_single_object(*my_handle, 500);
+
+	//switch (dw)
+	//{
+	//case WAIT_OBJECT_0:
+	//	// 线程已终止
+	//	break;
+	//case WAIT_TIMEOUT:
+	//	// 在500毫秒内，指定线程并未终止
+	//	break;
+	//case WAIT_FAILED:
+	//	// 调用失败(不合法的句柄？)
+	//	break;
+	//default:
+	//	break;
+	//}
+
+	std::vector<HANDLE> handles_vec;
+	for (size_t i = 0; i < 3; i++)
+		handles_vec.push_back(mw::c_create_thread(ThreadFunc));
+
+	DWORD dw = mw::sync::wait_for_multiple_object(handles_vec.size(), handles_vec.data(), false, 500);
+
+	switch (dw)
+	{
+	case WAIT_FAILED:
+		// 调用失败(不合法的句柄？)
+		break;
+	case WAIT_TIMEOUT:
+		// 在500毫秒内，没有一个指定线程并未终止
+		break;
+	case WAIT_OBJECT_0 + 0:
+		// 线程[0]终止
+		break;
+	case WAIT_OBJECT_0 + 1:
+		// 线程[1]终止
+		break;
+	case WAIT_OBJECT_0 + 2:
+		// 线程[2]终止
+		break;
+	}
+
+	for (auto& i : handles_vec)
+		CloseHandle(i);
+
+}
+
+
+DWORD WINAPI word_count(PVOID pvParam);
+DWORD WINAPI spell_check(PVOID pvParam);
+DWORD WINAPI grammar_check(PVOID pvParam);
+
+HANDLE event_file_ready = nullptr;
+
+void example_3_10()
+{
+	// 创建一个手动重置，初始未触发的事件
+	event_file_ready = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	if (!event_file_ready) return;
+
+	// 生成三个新线程
+	std::vector<HANDLE> handle_list;
+	handle_list.push_back(mw::c_create_thread(word_count));
+	handle_list.push_back(mw::c_create_thread(spell_check));
+	handle_list.push_back(mw::c_create_thread(grammar_check));
+
+	// 打开文件，并将内容读入内存
+	std::cout << "正在读入文件\n";
+
+	// 触发事件，表示文件内容已经读入内存，使得三个线程能够行动
+	std::cout << "文件读入完成，触发事件！\n";
+
+	SetEvent(event_file_ready);
+
+	mw::sync::wait_for_multiple_object(handle_list.size(), handle_list.data());
+	std::cout << "所有进程执行完成！\n";
+
+	CloseHandle(event_file_ready);
+
+	for (auto&& i : handle_list)
+	{
+		CloseHandle(i);
+	}
+
+}
+
+
+
+DWORD WINAPI word_count(PVOID pvParam)
+{
+	// 等待文件数据进入内存
+	mw::sync::wait_for_single_object(event_file_ready);
+
+	std::cout << "word_count访问内存块\n";
+
+	return 0;
+}
+
+DWORD WINAPI spell_check(PVOID pvParam)
+{
+	// 等待文件数据进入内存
+	mw::sync::wait_for_single_object(event_file_ready);
+
+	// 访问内存块
+	std::cout << "spell_check访问内存块\n";
+
+	return 0;
+}
+
+DWORD WINAPI grammar_check(PVOID pvParam)
+{
+	// 等待文件数据进入内存
+	mw::sync::wait_for_single_object(event_file_ready);
+
+	// 访问内存块
+	std::cout << "grammar_check访问内存块\n";
+
+	return 0;
+}
