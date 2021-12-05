@@ -32,7 +32,7 @@
 					<< __FILE__ << _T(":") << __LINE__  << _T("\n\n")\
 					;}}
 #else
-#define GET_ERROR_MSG_OUTPUT_NORMAL(output_stream, bool_value)
+#define GET_ERROR_MSG_OUTPUT_NORMAL(output_stream, value, error_value)
 #endif
 
 // 适用于Windows Socket 2的错误输出宏
@@ -43,7 +43,7 @@
 					<< __FILE__ << _T(":") << __LINE__  << _T("\n\n")\
 					;WSASetLastError(0);}}
 #else
-#define GET_ERROR_MSG_OUTPUT_NORMAL(output_stream, bool_value)
+#define GET_ERROR_MSG_OUTPUT_SOCKET(output_stream)
 #endif
 
 #ifdef UNICODE
