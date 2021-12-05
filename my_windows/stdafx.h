@@ -35,6 +35,17 @@
 #define GET_ERROR_MSG_OUTPUT_NORMAL(output_stream, bool_value)
 #endif
 
+// 适用于Windows Socket 2的错误输出宏
+#ifdef _DEBUG
+#define GET_ERROR_MSG_OUTPUT_SOCKET(output_stream) {auto my_error_code = WSAGetLastError();\
+		if (my_error_code != 0){\
+		output_stream << _T("thread(") << GetCurrentThreadId()  << _T(")：") << __FUNCTION__ << _T("  (")  << my_error_code << _T(")")<< mw::formate_error_code(my_error_code)\
+					<< __FILE__ << _T(":") << __LINE__  << _T("\n\n")\
+					;WSASetLastError(0);}}
+#else
+#define GET_ERROR_MSG_OUTPUT_NORMAL(output_stream, bool_value)
+#endif
+
 #ifdef UNICODE
 #define tstring wstring
 #define tcout wcout

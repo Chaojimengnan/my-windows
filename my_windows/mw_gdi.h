@@ -89,7 +89,7 @@ namespace gdi {
 	/// <param name="pdm">包含设备驱动程序的特定于设备的初始化数据的DEVMODE结构的指针，若driver_name为DISPLAY，该参数必须为nullptr</param>
 	/// <returns>若函数成功，则返回值是指定设备的DC的句柄</returns>
 	inline HDC create_dc(const std::tstring& device_name = _T(""),
-		const std::tstring& driver_name = _T("DISPLAY"), const DEVMODEW* pdm = nullptr)
+		const std::tstring& driver_name = _T("DISPLAY"), const DEVMODE* pdm = nullptr)
 	{
 		auto val = CreateDC(tstring_to_pointer(driver_name), tstring_to_pointer(device_name), nullptr, pdm);
 		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
@@ -129,7 +129,7 @@ namespace gdi {
 	/// <param name="pdm">包含设备驱动程序的特定于设备的初始化数据的DEVMODE结构的指针，若driver_name为DISPLAY，该参数必须为nullptr</param>
 	/// <returns>若函数成功，则返回值是指定设备的IC句柄</returns>
 	inline HDC create_ic(const std::tstring& device_name = _T(""),
-		const std::tstring& driver_name = _T(""), const DEVMODEW* pdm = nullptr)
+		const std::tstring& driver_name = _T(""), const DEVMODE* pdm = nullptr)
 	{
 		auto val = CreateIC(tstring_to_pointer(driver_name), tstring_to_pointer(device_name), nullptr, pdm);
 		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);

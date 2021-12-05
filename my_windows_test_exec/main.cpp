@@ -2,6 +2,7 @@
 #include "example_2.h"
 #include "example_3.h"
 #include "example_4.h"
+#include "example_5.h"
 
 
 int main(int argc, char* argv[])
@@ -12,7 +13,7 @@ int main(int argc, char* argv[])
 
 	//example_1();
 	//example_3();
-	example_4();
+	//example_4();
 	//example_3_1();
 	//example_3_2();
 	//example_3_3();
@@ -23,8 +24,11 @@ int main(int argc, char* argv[])
 	//example_3_8();
 	//example_3_9();
 	//example_3_10();
+	//example_5();
+	//example_5_server();
+	example_5_client();
 
-
+	std::cin.get();
 
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
