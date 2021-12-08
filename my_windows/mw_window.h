@@ -1243,51 +1243,7 @@ namespace user {
 	/// 回调函数模板工具类，使用字典查询关键字调用相应函数的模式，适用于所有的Windows回调函数。dict_depth表示关键字的个数，或字典嵌套的深度。
 	/// </summary>
 	/// <remarks>
-	/// 如我们想要用该模板实例化一个窗口过程，可以这么写：
-	/// ```cpp
-	/// // 先写一个类型别名，由于窗口过程需要两个关键字，一个是窗口句柄HWND，一个是消息标识符UINT。
-	/// // 没有句柄就无法找到指定窗口的处理函数字典，没有消息标识符就无法找到指定窗口的指定消息的处理函数
-	/// // 所以应该使用一个嵌套字典，其深度为2，即如下指定。我们还需要一个默认处理函数，所以我们使用
-	/// // decltype(mw::user::default_window_procedure)来指定默认处理函数的类型
-	/// using window_dict = mw::user::procedure_dict_tools<2,
-	/// std::unordered_map<HWND, std::unordered_map<UINT, std::function<bool(LRESULT&, HWND, UINT, WPARAM, LPARAM)>>>,
-	/// 	decltype(mw::user::default_window_procedure)> ;
-	/// 
-	/// // 然后我们需要将默认函数的指针传进去
-	/// window_dict::set_default_process_function(mw::user::default_window_procedure);
-	/// 
-	/// // 使用包装函数注册一个窗口类，并将我们的实例化的模板函数传进去，注意，由于是模板，所以
-	/// // 实例化代码是放在你的程序的，若你想将其放在DLL中，那么就在DLL中实例化模板
-	/// mw::user::register_window_class(window_dict::callback_function<LRESULT, HWND, UINT, WPARAM, LPARAM>, "my_class");
-	/// 
-	/// // 现在我们需要创建子字典，该字典用于指定特定窗口的消息字典
-	/// window_dict::dict_value_type my_event;
-	/// 
-	/// // 注意，最终调用的函数的第一个参数，类型必须是LRESULT的引用，窗口用这个值来返回，
-	/// // 且返回值必须是布尔值，若返回true，系统将不调用默认处理函数，否则将调用，且用它的返回值返回
-	/// my_event[WM_PAINT] = [](LRESULT&, HWND hwnd, UINT, WPARAM, LPARAM)->bool {
-	///		PAINTSTRUCT ps;
-	///		HDC hdc = BeginPaint(hwnd, &ps);
-	///
-	///		MoveToEx(hdc, 30, 10, nullptr);
-	///		LineTo(hdc, 20, 50);
-	///		LineTo(hdc, 50, 20);
-	///		LineTo(hdc, 10, 20);
-	///		LineTo(hdc, 40, 50);
-	///		LineTo(hdc, 30, 10);
-	///
-	///		EndPaint(hwnd, &ps);
-	///		return true;
-	/// };
-	/// 
-	/// // 然后我们创建一个窗口，并将它的句柄和我们之前写的消息子字典一起添加进字典，这样字典上就登记了这个窗口句柄以及它对应的消息字典了。
-	/// // 这样当模板回调函数被系统调用时，通过查询传入的句柄，就能找到我们写的消息字典，从而实现了我们的自定义消息操作
-	/// // 注意，由于是先创建窗口，才能获得句柄，才能将句柄拿去注册字典，在这段时间中，可能已经错过了WM_CREATE等消息
-	/// // 你若必须要在接收WM_CREATE时进行一些操作，那么你可以定义一个你自己的回调函数，然后自己捕获WM_CREATE等消息，然后其他消息传给
-	/// // 模板回调函数即可，就像默认处理函数那样用。
-	/// mw::user::window_instance dada(mw::user::create_window("my_class"));
-	/// window_dict::add_item_to_dict(dada.get_handle(), my_event);
-	/// ```
+	/// 该模板已经被弃用，不要再使用它
 	/// </remarks>
 	/// <typeparam name="dict_type">字典类型，这应该是一个完整的字典类型</typeparam>
 	/// <typeparam name="default_process_function_type">默认处理函数的类型，当查询不到关键字对应的值时调用进行默认处理</typeparam>
@@ -1522,12 +1478,12 @@ namespace user {
 	};
 
 	// 针对窗口的实例化
-	using window_dict = mw::user::procedure_dict_tools<2,
+	using window_dict [[deprecated]] = mw::user::procedure_dict_tools<2,
 		std::unordered_map<HWND, std::unordered_map<UINT, std::function<bool(LRESULT&, HWND, UINT, WPARAM, LPARAM)>>>,
 		decltype(mw::user::default_window_procedure)>;
 
 	// 针对对话框的实例化
-	using dialog_dict = mw::user::procedure_dict_tools<2,
+	using dialog_dict [[deprecated]] = mw::user::procedure_dict_tools<2,
 		std::unordered_map<HWND, std::unordered_map<UINT, std::function<bool(INT_PTR&, HWND, UINT, WPARAM, LPARAM)>>>,
 		INT_PTR(HWND, UINT, WPARAM, LPARAM)>;
 

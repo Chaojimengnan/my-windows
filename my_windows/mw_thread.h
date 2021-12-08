@@ -916,7 +916,7 @@ namespace sync {
 	/// <param name="event_name">事件的名字，该名称限制为MAX_PATH个字符，区分大小写，可以为nullptr，即未命名的内核对象</param>
 	/// <param name="event_attributes">事件的安全属性</param>
 	/// <returns>函数成功返回事件对象的句柄，若失败返回NULL，若命名的事件对象在函数调用之前存在,则函数返回现有对象的句柄</returns>
-	inline HANDLE create_event(DWORD flags = 0, DWORD desired_access = EVENT_MODIFY_STATE, const std::tstring& event_name = _T(""), LPSECURITY_ATTRIBUTES event_attributes = nullptr)
+	inline HANDLE create_event(DWORD flags = 0, DWORD desired_access = EVENT_ALL_ACCESS, const std::tstring& event_name = _T(""), LPSECURITY_ATTRIBUTES event_attributes = nullptr)
 	{
 		auto val = CreateEventEx(event_attributes, tstring_to_pointer(event_name), flags, desired_access);
 		GET_ERROR_MSG_OUTPUT(std::tcout);
@@ -954,11 +954,83 @@ namespace sync {
 	/// <param name="inherit_handle">如果此值为TRUE，则此进程创建的子进程将继承句柄。否则，子进程不会继承这个句柄</param>
 	/// <param name="desired_access">返回的句柄具有的访问权限，它是EVENT_开头的宏</param>
 	/// <returns>函数成功，则返回值是事件对象的句柄。如果函数失败，则返回值为NULL</returns>
-	inline HANDLE open_event(const std::tstring& event_name, bool inherit_handle = false, DWORD desired_access = EVENT_MODIFY_STATE)
+	inline HANDLE open_event(const std::tstring& event_name, bool inherit_handle = false, DWORD desired_access = EVENT_ALL_ACCESS)
 	{
 		auto val = OpenEvent(desired_access, inherit_handle, event_name.c_str());
 		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
+	}
+
+	/// <summary>
+	/// 创建或打开命名或未命名的可等待计时器(waitable_timer)内核对象并返回内核对象的句柄
+	/// </summary>
+	/// <param name="flags">它可以是0或者CREATE_WAITABLE_TIMER_MANUAL_RESET，后者标识这个计时器必须手动重置，否则是自动重置</param>
+	/// <param name="desired_access">返回的句柄具有的访问权限，它是TIMER_开头的宏</param>
+	/// <param name="waitable_timer_name">计时器的名字，该名称限制为MAX_PATH个字符，区分大小写，可以为nullptr，即未命名的内核对象</param>
+	/// <param name="waitable_timer_attributes">计时器的安全属性</param>
+	/// <returns>函数成功返回计时器对象的句柄，若失败返回NULL，若命名的计时器对象在函数调用之前存在,则函数返回现有对象的句柄</returns>
+	inline HANDLE create_waitable_timer(DWORD flags = 0, DWORD desired_access = TIMER_ALL_ACCESS,
+		const std::tstring& waitable_timer_name = _T(""), LPSECURITY_ATTRIBUTES waitable_timer_attributes = nullptr)
+	{
+		auto val = CreateWaitableTimerEx(waitable_timer_attributes, tstring_to_pointer(waitable_timer_name), flags, desired_access);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 激活或设置指定可等待计时器，当due_time到期时，该计时器将被触发，并且设置计时器的线程调用可选的完成例程(如果有的话)
+	/// </summary>
+	/// <remarks>使用CancelWaitableTimer函数取消计时器,使用SetWaitableTimer重置计时器</remarks>
+	/// <param name="waitable_timer">计时器对象的句柄，该句柄必须具有TIMER_MODIFY_STATE访问权限</param>
+	/// <param name="due_time">计时器触发时的时间，以百纳秒为单位，正值表示绝对时间，请务必使用基于UTC的绝对时间。负值表示相对时间</param>
+	/// <param name="cycle_time">计时器的周期，以毫秒为单位，若为0，则计时器只发送一次信号，若大于0，则计时器是周期性的</param>
+	/// <param name="completion_rountine">[opt]可选的完成例程指针，当计时器触发时执行</param>
+	/// <param name="arg_to_completion_rountine">[opt]可选的指针参数，用于传给完成例程</param>
+	/// <param name="resume">一般为false，若为true，则当系统在挂起的节能模式时，并且计时器触发，则系统从挂起中恢复</param>
+	/// <returns>操作是否成功</returns>
+	inline bool set_waitable_timer(HANDLE waitable_timer, const LARGE_INTEGER* due_time, LONG cycle_time,
+		PTIMERAPCROUTINE completion_rountine = nullptr, LPVOID arg_to_completion_rountine = nullptr, bool resume = false)
+	{
+		auto val = SetWaitableTimer(waitable_timer, due_time, cycle_time, completion_rountine, arg_to_completion_rountine, resume);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 将指定可等待计时器设置为未激活状态
+	/// </summary>
+	/// <param name="waitable_timer">计时器对象的句柄，该句柄必须具有TIMER_MODIFY_STATE访问权限</param>
+	/// <returns>操作是否成功</returns>
+	inline bool cancel_waitable_timer(HANDLE waitable_timer)
+	{
+		auto val = CancelWaitableTimer(waitable_timer);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 打开现有的命名可等待计时器对象
+	/// </summary>
+	/// <param name="waitable_timer_name">要打开的计时器的名称。名称比较区分大小写，此函数可以打开私有命名空间中的对象</param>
+	/// <param name="inherit_handle">如果此值为TRUE，则此进程创建的子进程将继承句柄。否则，子进程不会继承这个句柄</param>
+	/// <param name="desired_access">返回的句柄具有的访问权限，它是TIMER_开头的宏</param>
+	/// <returns>函数成功，则返回值是计时器对象的句柄。如果函数失败，则返回值为NULL</returns>
+	inline HANDLE open_waitable_timer(const std::tstring& waitable_timer_name, bool inherit_handle = false, DWORD desired_access = TIMER_MODIFY_STATE)
+	{
+		auto val = OpenWaitableTimer(desired_access, inherit_handle, waitable_timer_name.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 挂起当前线程，直到调用I/O完成回调函数，异步过程调用 (APC) 排队等待线程或超时间隔已过
+	/// </summary>
+	/// <param name="milliseconds">挂起的时间，若为0(调用线程上没有挂起的用户 APC)，则表示调用线程放弃当前时间片(系统直接调度其他线程)，若为INFINITE，则直接挂起</param>
+	/// <param name="alertable">若为true，则调用I/O完成回调函数，异步过程调用 (APC) 排队等待线程时返回</param>
+	/// <returns>若指定时间到期，返回0，若是 I/O 完成回调函数返回，返回WAIT_IO_COMPLETION</returns>
+	inline DWORD sleep_alertable(DWORD milliseconds = INFINITE, bool alertable = true)
+	{
+		return SleepEx(milliseconds, alertable);
 	}
 
 };//sync

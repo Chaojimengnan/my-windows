@@ -684,12 +684,14 @@ DWORD WINAPI word_count(PVOID pvParam);
 DWORD WINAPI spell_check(PVOID pvParam);
 DWORD WINAPI grammar_check(PVOID pvParam);
 
+
+
 HANDLE event_file_ready = nullptr;
 
 void example_3_10()
 {
 	// 创建一个手动重置，初始未触发的事件
-	event_file_ready = CreateEvent(NULL, TRUE, FALSE, NULL);
+	event_file_ready = mw::sync::create_event();
 
 	if (!event_file_ready) return;
 
@@ -705,7 +707,7 @@ void example_3_10()
 	// 触发事件，表示文件内容已经读入内存，使得三个线程能够行动
 	std::cout << "文件读入完成，触发事件！\n";
 
-	SetEvent(event_file_ready);
+	mw::sync::set_event(event_file_ready);
 
 	mw::sync::wait_for_multiple_object(handle_list.size(), handle_list.data());
 	std::cout << "所有进程执行完成！\n";
@@ -751,4 +753,72 @@ DWORD WINAPI grammar_check(PVOID pvParam)
 	std::cout << "grammar_check访问内存块\n";
 
 	return 0;
+}
+
+
+HANDLE waitable_timer = nullptr;
+
+
+DWORD WINAPI another_thread_wait_timer(PVOID pvParam)
+{
+	while (true)
+	{
+		// 等待计时器触发
+		mw::sync::wait_for_single_object(waitable_timer);
+
+		// 访问内存块
+		std::cout << "线程被计时器激活！\n";
+	}
+	
+
+	return 0;
+}
+
+/// <summary>
+/// 将秒数转换为对应的百纳秒数，即1秒为10'000'000百纳秒，计时器以百纳秒为基本单位
+/// </summary>
+/// <param name="val">对应的秒数</param>
+/// <returns>返回对应的纳秒数</returns>
+constexpr long long operator"" _second_units(unsigned long long val)
+{
+	return long long(val * 10'000'000);
+}
+
+
+/// <summary>
+/// 测试可等待计时器内核对象
+/// </summary>
+void example_3_11()
+{
+
+	SYSTEMTIME st = {0};
+	FILETIME local_time = {0}, utc_time = {0};
+	LARGE_INTEGER larget_utc_time = { 0 };
+
+	waitable_timer = mw::sync::create_waitable_timer(0, TIMER_ALL_ACCESS);
+
+	//st.wYear = 2021;	// 年份
+	//st.wMonth = 12;		// 十二月
+	//st.wDayOfWeek = 0;	// 忽略
+	//st.wDay = 6;		// 十二月第六天
+	//st.wHour = 10;		// 上午10点
+	//st.wMinute = 16;
+	//st.wSecond = 0;
+	//st.wMilliseconds = 0;
+
+	//SystemTimeToFileTime(&st, &local_time);
+	//LocalFileTimeToFileTime(&local_time, &utc_time);
+
+	//larget_utc_time.LowPart = utc_time.dwLowDateTime;
+	//larget_utc_time.HighPart = utc_time.dwHighDateTime;
+
+	auto thread_handle = mw::safe_handle(mw::c_create_thread(another_thread_wait_timer));
+
+	larget_utc_time.QuadPart = -5_second_units;
+
+	if (waitable_timer)										// 第三个参数是6小时循环触发一次
+		mw::sync::set_waitable_timer(waitable_timer, &larget_utc_time, 6 * 60 * 60 * 1000);
+
+	std::cin.get();
+
 }

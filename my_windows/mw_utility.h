@@ -274,6 +274,35 @@ namespace user {
 		input_pointer->hi.wParamH = wParamH;
 		return true;
 	}
+
+	/// <summary>
+	/// 定义系统范围的热键，如果为热键指定的击键已被另一个热键注册将失败
+	/// </summary>
+	/// <param name="window_handle">指定窗口，它将接收热键生成的WM_HOTKEY消息，若为NULL，则投递到调用线程的消息队列中，并在消息循环中处理</param>
+	/// <param name="hotkey_id">热键的标识符，若已经存在相同window_handle和id，则它将与新热键一起维护</param>
+	/// <param name="virtual_key">热键的虚拟键码，请看文档</param>
+	/// <param name="combination_keys">与热键一起的组合键，它是以MOD_开头的宏的组合，比如shift+A，shift就是组合键</param>
+	/// <returns>操作是否成功</returns>
+	inline bool register_hotkey(HWND window_handle, int hotkey_id, UINT virtual_key, UINT combination_keys = 0)
+	{
+		auto val = RegisterHotKey(window_handle, hotkey_id, combination_keys, virtual_key);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 释放先前由调用线程注册的热键
+	/// </summary>
+	/// <param name="window_handle">与要释放的热键关联的窗口的句柄。如果热键与窗口无关，则此参数应为NULL</param>
+	/// <param name="hotkey_id">要释放的热键的标识符</param>
+	/// <returns>操作是否成功</returns>
+	inline bool unregister_hotkey(HWND window_handle, int hotkey_id)
+	{
+		auto val = UnregisterHotKey(window_handle, hotkey_id);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
 };//user
 
 }//mw

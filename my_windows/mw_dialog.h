@@ -1,4 +1,5 @@
 #pragma once
+#include <sstream>
 
 namespace mw {
 namespace user {
@@ -268,6 +269,27 @@ namespace user {
 		auto val = SendDlgItemMessage(dialog_handle, control_id, Msg, wParam, lParam);
 		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
+	}
+
+	/// <summary>
+	/// 为编辑控件添加指定文本
+	/// </summary>
+	/// <param name="window_handle">包含指定编辑控件的窗口或对话框句柄</param>
+	/// <param name="control_id">编辑控件的ID</param>
+	/// <param name="text">指定要加入的文本</param>
+	/// <param name="max_text_nums">编辑控件容纳文本的最大值，以字为单位</param>
+	/// <returns>操作是否成功</returns>
+	inline bool edit_box_add_string(HWND window_handle, int control_id, const std::tstring& text, size_t max_text_nums)
+	{
+		std::tstring temp;
+		std::tostringstream o;
+		bool is_ok1 = mw::user::get_dialog_item_text(window_handle, control_id, temp);
+		o << temp;	// 先打印之前的内容
+		o << text;	// 加入新文本
+		temp = o.str();
+		auto x = (temp.size() <= max_text_nums) ? 0 : temp.size() - max_text_nums;	// 如果超过最大字符数了，就截断
+		bool is_ok2 = mw::user::set_dialog_item_text(window_handle, control_id, temp.substr(x));	// 发送给编辑控件
+		return is_ok1 && is_ok2;
 	}
 
 };//user

@@ -24,11 +24,13 @@ int main(int argc, char* argv[])
 	//example_3_8();
 	//example_3_9();
 	//example_3_10();
+	//example_3_11();
 	//example_5();
 	//example_5_server();
-	example_5_client();
+	//example_5_client();
+	example_2();
 
-	std::cin.get();
+	//std::cin.get();
 
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);

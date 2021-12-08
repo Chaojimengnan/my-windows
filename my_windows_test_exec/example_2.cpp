@@ -19,7 +19,9 @@ bool cmd(INT_PTR& return_value, HWND hwnd, UINT msg, WPARAM w, LPARAM l)
 		mw::user::set_dialog_radio_button_check_state(hwnd, IDC_RADIO1, IDC_RADIO2, IDC_RADIO2);
 		//mw::user::set_dialog_button_check_state(hwnd, IDC_RADIO2, BST_CHECKED);
 		mw::user::set_dialog_item_text(hwnd, IDC_STATIC1, _T("妈的，你点击了取消按钮！"));
-		mw::user::set_dialog_item_text(hwnd, IDC_EDIT1, _T("你说你妈呢"));
+		//mw::user::set_dialog_item_text(hwnd, IDC_EDIT1, _T("你说你妈呢"));
+		mw::user::edit_box_add_string(hwnd, IDC_EDIT1, _T("你说你妈呢"), 512);
+		mw::user::unregister_hotkey(hwnd, 10086);
 		break;
 
 	default:
@@ -71,11 +73,21 @@ void example_2()
 	dialog_event_dict[WM_COMMAND] = cmd;
 	dialog_event_dict[WM_CLOSE] = close;
 	dialog_event_dict[WM_DESTROY] = destroy;
+	dialog_event_dict[WM_HOTKEY] = [](INT_PTR& return_value, HWND hwnd, UINT msg, WPARAM w, LPARAM l) ->bool
+	{
+		std::tostringstream s;
+		s << _T("你按下了热键");
+
+		mw::user::set_dialog_item_text(hwnd, IDC_STATIC1, s.str());
+		return true;
+	};
 	//dialog_event_dict[WM_MOUSEMOVE] = mouse_move;
 
 	// 创建一个非模态对话框并注册进入字典
 	auto dialog_handle = mw::user::dialog_dict::create_key_and_add(dialog_event_dict,
 		mw::user::create_modeless_dialog, IDD_DIALOG1, mw::user::dialog_dict::callback_function<INT_PTR, HWND, UINT, WPARAM, LPARAM>, nullptr, 0, nullptr);
+
+	mw::user::register_hotkey(dialog_handle, 10086, 'B', MOD_CONTROL | MOD_SHIFT);
 
 	mw::user::show_window(dialog_handle);
 
