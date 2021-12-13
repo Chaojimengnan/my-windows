@@ -196,6 +196,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="mw_device.h" />
     <ClInclude Include="mw_dialog.h" />
     <ClInclude Include="mw_gdi.h" />
     <ClInclude Include="mw_job.h" />

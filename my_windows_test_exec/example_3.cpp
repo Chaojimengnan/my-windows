@@ -785,6 +785,16 @@ constexpr long long operator"" _second_units(unsigned long long val)
 }
 
 
+void APIENTRY TimerAPCRoutine(
+	LPVOID lpArgToCompletionRoutine,
+	DWORD dwTimerLowValue,
+	DWORD dwTimerHighValue
+)
+{
+	std::cout << "mother funker~\n";
+}
+
+
 /// <summary>
 /// 测试可等待计时器内核对象
 /// </summary>
@@ -812,13 +822,17 @@ void example_3_11()
 	//larget_utc_time.LowPart = utc_time.dwLowDateTime;
 	//larget_utc_time.HighPart = utc_time.dwHighDateTime;
 
-	auto thread_handle = mw::safe_handle(mw::c_create_thread(another_thread_wait_timer));
+	//auto thread_handle = mw::safe_handle(mw::c_create_thread(another_thread_wait_timer));
 
-	larget_utc_time.QuadPart = -5_second_units;
+	larget_utc_time.QuadPart = -1_second_units;
 
 	if (waitable_timer)										// 第三个参数是6小时循环触发一次
-		mw::sync::set_waitable_timer(waitable_timer, &larget_utc_time, 6 * 60 * 60 * 1000);
+		mw::sync::set_waitable_timer(waitable_timer, &larget_utc_time,5000, TimerAPCRoutine);
 
-	std::cin.get();
+	mw::sync::sleep_alertable();
 
+	if(waitable_timer)
+		CloseHandle(waitable_timer);
+	//std::cin.get();
+	
 }

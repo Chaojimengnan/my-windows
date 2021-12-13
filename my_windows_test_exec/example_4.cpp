@@ -1,50 +1,72 @@
 #include "example_4.h"
 
 
+void my_completion_routine(DWORD error_code, DWORD number_of_byte_transfered, LPOVERLAPPED overlapped)
+{
+	std::cout << error_code << "\n";
+	std::cout << number_of_byte_transfered << "\n\n\n";
+}
+
+/// <summary>
+/// 异步
+/// </summary>
 void example_4()
 {
-	/*INPUT msg_input = { 0 };
-	
-	for (size_t i = 0; i < 10; i++)
-	{
-		mw::user::write_mouse_event(&msg_input, (i + 1) * 100, (i + 1) * 100 , MOUSEEVENTF_MOVE|MOUSEEVENTF_ABSOLUTE|MOUSEEVENTF_VIRTUALDESK);
-		mw::user::send_input(&msg_input, 1);
-		std::tcout << _T("鼠标移动：" << (i + 1) * 100) << _T("\r\n");
-		mw::sleep(1000);
-	}*/
-	
-	/*BOOL is_ok = false;
-	mw::get_priority_class_boost(mw::get_current_process(), is_ok);
-	std::tcout << is_ok << _T("\n");
-	mw::set_priority_class_boost(mw::get_current_process(), true);
-	mw::get_priority_class_boost(mw::get_current_process(), is_ok);
-	std::tcout << is_ok << _T("\n");
-	mw::set_priority_class_boost(mw::get_current_process(), false);
-	mw::get_priority_class_boost(mw::get_current_process(), is_ok);
-	std::tcout << is_ok << _T("\n");*/
+	auto file_handle = mw::create_file(_T("../temp/123.txt"),GENERIC_READ|GENERIC_WRITE, OPEN_EXISTING, 0);
 
-	/*mw::process_info mymy;
-	mw::create_process(mymy, _T("cmd"));
-	mw::set_process_affinity_mask(mw::get_current_process(), 0x1);*/
-	
-	/*TEXTMETRIC mymy = {0};
-	auto device_handle = mw::gdi::get_dc(NULL);
-	mw::gdi::get_text_metrics(device_handle, &mymy);
-	mw::gdi::set_text_align(device_handle, TA_RIGHT);
-	mw::gdi::text_out(device_handle, 100, 100, _T("猛得要死"));
+	char* buffer = new char[100]{0};
 
-	mw::gdi::release_dc(NULL, device_handle);
+	OVERLAPPED write_ol = { 0 };
+	OVERLAPPED read_ol = { 0 };
+	LARGE_INTEGER kaka = {0};
+	/*kaka.QuadPart = 5;
+	ol.Offset = kaka.LowPart;
+	ol.OffsetHigh = kaka.HighPart;*/
+	std::string tata = "Fucking those shit!";
+	std::string tat1 = "Oh My Lady GAGA!";
+	
+	//write_ol.Offset = tata.size();
+	write_ol.Offset = -1;
+	write_ol.OffsetHigh = -1;
+	mw::write_file_async(file_handle, tata.c_str(), tata.size(), &write_ol, my_completion_routine);
 	
 
-	std::cout << "123";*/
+	mw::write_file_async(file_handle, tat1.c_str(), tat1.size(), &write_ol, my_completion_routine);
 
-	auto screen_dc = mw::gdi::create_dc();
-	auto screen_slot_handle = mw::gdi::get_current_object(screen_dc, OBJ_BITMAP);
+	mw::read_file_async(file_handle, buffer, 100, &read_ol, my_completion_routine);
 
-	std::shared_ptr<void> screen_slot;
-	auto size = mw::gdi::get_object(screen_slot_handle, screen_slot);
 
-	BITMAP* data = static_cast<BITMAP*>(screen_slot.get());
-	
+	mw::sync::sleep_alertable();
+
+	std::cout << buffer << "\n";
+
+}
+
+/// <summary>
+/// 同步
+/// </summary>
+void example_4_1()
+{
+	auto file_handle = mw::create_file(_T("../temp/123.txt"),
+		GENERIC_READ | GENERIC_WRITE, OPEN_EXISTING, 0, FILE_FLAG_SEQUENTIAL_SCAN | FILE_ATTRIBUTE_NORMAL);
+
+	char* buffer = new char[100]{ 0 };
+
+	std::string tata = "Fucking those shit!";
+	DWORD li = 0;
+
+	mw::set_file_pointer(file_handle, {0}, FILE_END);
+
+	mw::write_file(file_handle, tata.c_str(), tata.size(), &li);
+
+	std::cout << li << "\n";
+
+	mw::set_file_pointer(file_handle, { 0 }, FILE_BEGIN);
+
+	mw::read_file(file_handle, buffer, 100, &li);
+
+	std::cout << li << "\n";
+
+	std::cout << buffer << "\n";
 
 }

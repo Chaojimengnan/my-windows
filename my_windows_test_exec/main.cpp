@@ -10,10 +10,9 @@ int main(int argc, char* argv[])
 #ifdef UNICODE
 	std::wcout.imbue(std::locale(""));
 #endif // UNICODE
-
-	//example_1();
 	//example_3();
 	//example_4();
+	example_4_1();
 	//example_3_1();
 	//example_3_2();
 	//example_3_3();
@@ -28,7 +27,7 @@ int main(int argc, char* argv[])
 	//example_5();
 	//example_5_server();
 	//example_5_client();
-	example_2();
+	//example_2();
 
 	//std::cin.get();
 

@@ -59,5 +59,8 @@
     <ClInclude Include="mw_gdi.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mw_device.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -908,6 +908,26 @@ namespace sync {
 		return val;
 	}
 
+
+	/// <summary>
+	/// 等待指定一个或所有对象处于触发状态，一个I/O完成例程或异步过程调用(APC)在线程队列中，或超时值已过。使用wake_mask可以包含输入事件。创建窗口的线程应该使用该函数等待
+	/// </summary>
+	/// <param name="counts">内核句柄数组的数量，它不应该超过MAXIMUM_WAIT_OBJECTS，若为0，则该函数仅等待输入事件</param>
+	/// <param name="object_handles">对象句柄数组,该数组可以是不同类型对象句柄(支持类型查看文档)。该句柄必须有SYNCHRONIZE访问权限，若句柄在等待时关闭，函数行为未定义</param>
+	/// <param name="flags">指定等待类型，它可以是0，或者MWMO_开头的宏的组合</param>
+	/// <param name="milliseconds">超时值，可以为0或INFINITE，若为INFINITE，不会因为超时值而返回</param>
+	/// <param name="wake_mask">要包含的输入事件类型，它是QS_开头的宏的组合</param>
+	/// <returns>返回以WAIT_开头的宏，用于指示调用线程为什么继续执行</returns>
+	inline DWORD msg_wait_for_multiple_objects(DWORD counts, const HANDLE* object_handles, 
+		DWORD flags = MWMO_ALERTABLE| MWMO_INPUTAVAILABLE| MWMO_WAITALL, DWORD milliseconds = INFINITE, DWORD wake_mask = QS_ALLINPUT)
+	{
+		auto val = MsgWaitForMultipleObjectsEx(counts, object_handles, milliseconds, wake_mask, flags);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+
+
 	/// <summary>
 	/// 创建或打开命名或未命名的事件内核对象并返回内核对象的句柄
 	/// </summary>
@@ -1031,6 +1051,125 @@ namespace sync {
 	inline DWORD sleep_alertable(DWORD milliseconds = INFINITE, bool alertable = true)
 	{
 		return SleepEx(milliseconds, alertable);
+	}
+
+	/// <summary>
+	/// 创建或打开命名或未命名的信号量(semaphore)内核对象并返回内核对象的句柄，该内核对象在当前资源计数为0时不触发，大于0时触发
+	/// </summary>
+	/// <remarks>当使用等待函数等待该信号量时，若成功等待信号量触发，则信号量当前资源计数减1，可以使用ReleaseSemaphore增加当前资源计数</remarks>
+	/// <param name="maxnum_count">信号量对象的最大资源计数，该值必须大于0</param>
+	/// <param name="initial_count">信号量对象的初始资源计数，该值必须大于等于0，并且小于等于maxnum_count</param>
+	/// <param name="desired_access">返回的句柄具有的访问权限，它是SEMAPHORE_开头的宏</param>
+	/// <param name="semaphore_attributes">信号量的安全属性</param>
+	/// <param name="semaphore_name">信号量的名字，该名称限制为MAX_PATH个字符，区分大小写，可以为nullptr，即未命名的内核对象</param>
+	/// <returns>函数成功返回信号量对象的句柄，若失败返回NULL，若命名的信号量对象在函数调用之前存在,则函数返回现有对象的句柄</returns>
+	inline HANDLE create_semaphore(LONG maxnum_count, LONG initial_count = 0, DWORD desired_access = SEMAPHORE_ALL_ACCESS,
+		LPSECURITY_ATTRIBUTES semaphore_attributes = nullptr, const std::tstring& semaphore_name = _T(""))
+	{
+		auto val = CreateSemaphoreEx(semaphore_attributes, initial_count, maxnum_count, 
+			tstring_to_pointer(semaphore_name), 0, desired_access);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 打开现有的命名信号量对象
+	/// </summary>
+	/// <param name="semaphore_name">要打开的信号量的名称。名称比较区分大小写，此函数可以打开私有命名空间中的对象</param>
+	/// <param name="inherit_handle">如果此值为TRUE，则此进程创建的子进程将继承句柄。否则，子进程不会继承这个句柄</param>
+	/// <param name="desired_access">返回的句柄具有的访问权限，它是SEMAPHORE_开头的宏</param>
+	/// <returns>函数成功，则返回值是信号量对象的句柄。如果函数失败，则返回值为NULL</returns>
+	inline HANDLE open_semaphore(const std::tstring& semaphore_name, bool inherit_handle = false, 
+		DWORD desired_access = SEMAPHORE_ALL_ACCESS)
+	{
+		auto val = OpenSemaphore(desired_access, inherit_handle, semaphore_name.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 为指定信号量对象增加指定数量的当前资源计数
+	/// </summary>
+	/// <param name="semaphore_handle">指定信号量句柄，该句柄必须具有SEMAPHORE_MODIFY_STATE访问权限</param>
+	/// <param name="release_count">要为当前资源计数增加的量，该值必须大于0，若指定的数量会导致信号量的计数超过最大计数，则不会更改并返回FALSE</param>
+	/// <param name="previous_count">[out,opt]接收信号量的先前计数的变量，若不需要可以为NULL</param>
+	/// <returns>操作是否成功</returns>
+	inline bool release_semaphore(HANDLE semaphore_handle, LONG release_count, LPLONG previous_count = nullptr)
+	{
+		auto val = ReleaseSemaphore(semaphore_handle, release_count, previous_count);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 创建或打开命名或未命名的互斥量(mutex)内核对象并返回内核对象的句柄，互斥量当不被任何线程占有时触发，当被线程占有时未触发
+	/// </summary>
+	/// <param name="mutex_name">互斥量的名字，该名称限制为MAX_PATH个字符，区分大小写，可以为nullptr，即未命名的内核对象</param>
+	/// <param name="flags">可以为0或CREATE_MUTEX_INITIAL_OWNER，前者表示初始没有任何线程占有该互斥量，后者表示调用线程初始占有该互斥量</param>
+	/// <param name="desired_access">返回的句柄具有的访问权限，它是MUTEX_开头的宏</param>
+	/// <param name="mutex_attributes">互斥量的安全属性</param>
+	/// <returns>函数成功返回互斥量对象的句柄，若失败返回NULL，若命名的信号量对象在函数调用之前存在,则函数返回现有对象的句柄</returns>
+	inline HANDLE create_mutex(const std::tstring& mutex_name = _T(""), DWORD flags = 0,
+		DWORD desired_access = MUTEX_ALL_ACCESS, LPSECURITY_ATTRIBUTES mutex_attributes = nullptr)
+	{
+		auto val = CreateMutexEx(mutex_attributes, tstring_to_pointer(mutex_name), desired_access, desired_access);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 打开现有的命名互斥量对象
+	/// </summary>
+	/// <param name="mutex_name">要打开的互斥量的名称。名称比较区分大小写，此函数可以打开私有命名空间中的对象</param>
+	/// <param name="inherit_handle">如果此值为TRUE，则此进程创建的子进程将继承句柄。否则，子进程不会继承这个句柄</param>
+	/// <param name="desired_access">返回的句柄具有的访问权限，它是MUTEX_开头的宏</param>
+	/// <returns>函数成功，则返回值是互斥量对象的句柄。如果函数失败，则返回值为NULL</returns>
+	inline HANDLE open_mutex(const std::tstring& mutex_name, bool inherit_handle = false,
+		DWORD desired_access = MUTEX_ALL_ACCESS)
+	{
+		auto val = OpenMutex(desired_access, inherit_handle, mutex_name.c_str());
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 调用线程释放对指定互斥量的占有，若你是递归的占有互斥量(多次调用等待函数获取同一个互斥量)，那么你也要调用该函数相同的次数，使得互斥量解除占有
+	/// </summary>
+	/// <param name="mutex_handle">互斥量句柄</param>
+	/// <returns>操作是否成功</returns>
+	inline bool release_mutex(HANDLE mutex_handle)
+	{
+		auto val = ReleaseMutex(mutex_handle);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 等待指定进程，直到该进程创建第一个窗口的线程中没有待处理的输入为止，一般用于父进程等待子进程初始化完毕
+	/// </summary>
+	/// <param name="process_handle">指定进程的句柄，若该进程是控制台程序或没有消息队列，该函数立即返回</param>
+	/// <param name="milliseconds">超时值，以毫秒为单位，可以为INFINITE</param>
+	/// <returns>若返回0，则函数成功，若超时，返回WAIT_TIMEOUT，若出现错误，返回WAIT_FAILED</returns>
+	inline DWORD wait_for_input_idle(HANDLE process_handle, DWORD milliseconds = INFINITE)
+	{
+		auto val = WaitForInputIdle(process_handle, milliseconds);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 以原子方式触发指定内核对象，然后等待另一个指定内核对象
+	/// </summary>
+	/// <param name="object_to_signal">要触发的内核对象，该对象可以是信号量、互斥量或事件，并且要具有对应的权限，请看文档</param>
+	/// <param name="object_to_wait_on">要等待的对象的句柄，该句柄需要具有SYNCHRONIZE访问权限</param>
+	/// <param name="milliseconds">超时值，以毫秒为单位，可以为INFINITE</param>
+	/// <param name="alertable">若为true，一个I/O完成例程或异步过程调用(APC)在线程队列中时返回并执行他们，否则不返回，并且不会执行完成例程或 APC 函数</param>
+	/// <returns>返回以WAIT_开头的宏，用于指示调用线程为什么继续执行</returns>
+	inline DWORD signal_object_and_wait(HANDLE object_to_signal, HANDLE object_to_wait_on, DWORD milliseconds = INFINITE, bool alertable = true)
+	{
+		auto val = SignalObjectAndWait(object_to_signal, object_to_wait_on, milliseconds, alertable);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
 	}
 
 };//sync

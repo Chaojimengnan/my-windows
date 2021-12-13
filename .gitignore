@@ -366,3 +366,4 @@ FodyWeavers.xsd
 # user setting
 /doxygen_doc
 /output/my_windows
+/temp
