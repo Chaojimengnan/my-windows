@@ -12,7 +12,13 @@ int main(int argc, char* argv[])
 #endif // UNICODE
 	//example_3();
 	//example_4();
-	example_4_1();
+	//example_4_1();
+	//example_4_2();
+	/*auto bf = mw::get_system_time();
+	example_4_3();
+	auto af = mw::get_system_time();
+
+	std::cout << af - bf;*/
 	//example_3_1();
 	//example_3_2();
 	//example_3_3();
@@ -24,6 +30,7 @@ int main(int argc, char* argv[])
 	//example_3_9();
 	//example_3_10();
 	//example_3_11();
+	example_3_12();
 	//example_5();
 	//example_5_server();
 	//example_5_client();

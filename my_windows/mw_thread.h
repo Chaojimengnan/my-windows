@@ -311,6 +311,80 @@ namespace mw {
 		return val;
 	}
 
+	/// <summary>
+	/// 将用户模式异步过程调用(APC) 对象添加到指定线程的 APC 队列，可以将APC加入其他进程的线程，但是并不推荐，建议只用于本进程的线程
+	/// </summary>
+	/// <remarks>当指定线程处于可提醒状态时，将执行指定的APC，若线程不处于，则被添加到指定线程的APC队列中</remarks>
+	/// <param name="thread_handle">线程的句柄。句柄必须具有THREAD_SET_CONTEXT访问权限</param>
+	/// <param name="func_APC">指向应用程序提供的 APC 函数的指针，当指定的线程处于可提醒状态时将调用该函数</param>
+	/// <param name="data">该参数将传递给APC函数</param>
+	/// <returns>操作是否成功</returns>
+	inline DWORD queue_user_APC(HANDLE thread_handle, PAPCFUNC func_APC, ULONG_PTR data = 0)
+	{
+		auto val = QueueUserAPC(func_APC, thread_handle, data);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 请求线程池工作线程调用指定的回调函数
+	/// </summary>
+	/// <param name="func">指定回调函数，它将被推送到队列中，然后被线程池中的一个线程执行</param>
+	/// <param name="param">与回调函数配套的参数，它将被传入回调函数的参数中</param>
+	/// <param name="pcbe">一个指向TP_CALLBACK_ENVIRON结构的指针，该结构定义了执行回调函数的环境，若为NULL，在默认回调环境中执行</param>
+	/// <returns>操作是否成功</returns>
+	inline BOOL try_submit_threadpool_callback(PTP_SIMPLE_CALLBACK func, PVOID param = nullptr, 
+		PTP_CALLBACK_ENVIRON pcbe = nullptr)
+	{
+		auto val = TrySubmitThreadpoolCallback(func, param, pcbe);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 在用户模式内存中创建一个线程池工作项结构体，并将其结构体指针返回，你可以使用SubmitThreadpoolWork来提交这个工作项来让线程池来处理
+	/// </summary>
+	/// <param name="func_work">指定回调函数，每次你调用SubmitThreadpoolWork推送该工作项时，工作线程就会调用此回调</param>
+	/// <param name="param">与回调函数配套的参数，它将被传入回调函数的参数中</param>
+	/// <param name="pcbe">一个指向TP_CALLBACK_ENVIRON结构的指针，该结构定义了执行回调函数的环境，若为NULL，在默认回调环境中执行</param>
+	/// <returns>若成功返回工作项结构的指针，不要修改此结构的成员，若失败返回NULL</returns>
+	inline PTP_WORK create_threadpool_work(PTP_WORK_CALLBACK func_work, PVOID param = nullptr, 
+		PTP_CALLBACK_ENVIRON pcbe = nullptr)
+	{
+		auto val = CreateThreadpoolWork(func_work, param, pcbe);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 释放指定工作项结构体，若没有未完成的回调，则立即释放工作对象；否则，工作对象将在未完成的回调完成后异步释放
+	/// </summary>
+	/// <param name="work_item">指向工作项结构的指针，它应该是调用CreateThreadpoolWork的返回值</param>
+	inline void close_threadpool_work(PTP_WORK work_item)
+	{
+		CloseThreadpoolWork(work_item);
+	}
+
+	/// <summary>
+	/// 将指定工作项推送到线程池中，工作线程会调用工作项中的回调函数，你可以一次或多次推送同一个工作项，而无须等待先前的回调完成，回调将并行执行
+	/// </summary>
+	/// <param name="work_item">指向工作项结构的指针，它应该是调用CreateThreadpoolWork的返回值</param>
+	inline void submit_threadpool_work(PTP_WORK work_item)
+	{
+		SubmitThreadpoolWork(work_item);
+	}
+
+	/// <summary>
+	/// 等待未完成的工作回调完成并可选择取消尚未开始执行的挂起回调
+	/// </summary>
+	/// <param name="work_item">指向工作项结构的指针，它应该是调用CreateThreadpoolWork的返回值</param>
+	/// <param name="cancel_pending_callbacks">是否取消尚未开始执行的排队回调，若为TRUE，除了正在执行的回调，其他指定工作项回调将被取消</param>
+	inline void wait_for_threadpool_work_callbacks(PTP_WORK work_item, BOOL cancel_pending_callbacks = false)
+	{
+		WaitForThreadpoolWorkCallbacks(work_item, cancel_pending_callbacks);
+	}
+
+
 namespace sync {
 
 	/// <summary>
@@ -1046,7 +1120,7 @@ namespace sync {
 	/// 挂起当前线程，直到调用I/O完成回调函数，异步过程调用 (APC) 排队等待线程或超时间隔已过
 	/// </summary>
 	/// <param name="milliseconds">挂起的时间，若为0(调用线程上没有挂起的用户 APC)，则表示调用线程放弃当前时间片(系统直接调度其他线程)，若为INFINITE，则直接挂起</param>
-	/// <param name="alertable">若为true，则调用I/O完成回调函数，异步过程调用 (APC) 排队等待线程时返回</param>
+	/// <param name="alertable">若为true，则调用I/O完成回调函数，异步过程调用 (APC) 排队等待线程时自动处理所有在队列的APC然后返回</param>
 	/// <returns>若指定时间到期，返回0，若是 I/O 完成回调函数返回，返回WAIT_IO_COMPLETION</returns>
 	inline DWORD sleep_alertable(DWORD milliseconds = INFINITE, bool alertable = true)
 	{

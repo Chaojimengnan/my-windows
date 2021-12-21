@@ -5,7 +5,10 @@ namespace mw {
 	/// <summary>
 	/// 创建或打开文件或I/O设备，如文件、文件流、目录、物理磁盘、卷、控制台缓冲区、磁带驱动器、通信资源、邮槽和管道
 	/// </summary>
-	/// <remarks>使用前请务必查看文档</remarks>
+	/// <remarks>
+	/// 使用前请务必查看文档
+	/// creation_disposition可为CREATE_ALWAYS，CREATE_NEW，OPEN_ALWAYS，OPEN_EXISTING，TRUNCATE_EXISTING
+	/// </remarks>
 	/// <param name="file_name">要创建或打开的文件或设备的名称。您可以在此名称中使用正斜杠(/)或反斜杠(\),在UNICODE版本可以超过MAX_PATH个字符(看文档)</param>
 	/// <param name="desired_access">请求的对文件或设备的访问权限，可以是GENERIC_READ和GENERIC_WRITE或它们的组合，若为0则表示只想改变设备的属性和配置</param>
 	/// <param name="creation_disposition">对存在或不存在的文件或设备采取的操作，对于不是文件的设备，该参数通常置为OPEN_EXISTING，其可选值请看文档</param>
@@ -238,5 +241,81 @@ namespace mw {
 		GET_ERROR_MSG_OUTPUT(std::tcout);
 		return val;
 	}
+	
+	/// <summary>
+	/// 创建一个尚未与文件句柄关联的I/O完成端口，或创建一个I/O完成端口并与指定文件句柄关联，或使指定存在的I/O完成端口与指定文件句柄关联
+	/// </summary>
+	/// <remarks>
+	/// 将打开的文件句柄的实例与 I/O 完成端口相关联允许进程接收涉及该文件句柄的异步 I/O 操作完成的通知。
+	/// 注意，文件不仅仅可以是磁盘上的文件，可以是任何支持重叠I/O的系统对象(如TCP套接字，命名管道和邮件槽等等..)
+	/// </remarks>
+	/// <param name="file_handle">可以是以重叠I/O打开的设备句柄，或者INVALID_HANDLE_VALUE，前者将与指定完成端口关联，后者不关联</param>
+	/// <param name="existing_completion_port">现有I/O完成端口或nullptr，后者将创建一个新I/O完成端口，若file_handle不为INVALID_HANDLE_VALUE则与其关联</param>
+	/// <param name="completion_key">用户定义的完成键，包含在指定文件句柄的每个 I/O 完成数据包中</param>
+	/// <param name="number_of_concurrent_threads">允许并发处理I/O完成端口最大线程数，若为0则允许与系统中处理器数量相同的值，若existing_completion_port不为nullptr，则忽略该参数</param>
+	/// <returns>若成功，返回值是I/O完成端口的句柄(新创建的或已经存在的)，若失败返回NULL</returns>
+	inline HANDLE create_io_completion_port(HANDLE file_handle = INVALID_HANDLE_VALUE, 
+		HANDLE existing_completion_port = nullptr, ULONG_PTR completion_key = 0 , DWORD number_of_concurrent_threads = 0)
+	{
+		auto val = CreateIoCompletionPort(file_handle, existing_completion_port, completion_key, number_of_concurrent_threads);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+
+	/// <summary>
+	/// 尝试从指定的 I/O 完成端口弹出一个 I/O 完成数据包。如果没有完成数据包排队，该函数将等待与完成端口关联的 I/O 操作完成
+	/// </summary>
+	/// <param name="completion_port">要监视的完成端口的句柄</param>
+	/// <param name="bytes_to_transferred">[out]用于接收完成的 I/O 操作中传输的字节数</param>
+	/// <param name="completion_key">[out]用于接收在完成端口与指定设备关联时指定的完成键(用它可以辨识是哪一个设备的I/O操作完成了)</param>
+	/// <param name="overlapped">[out]接收在I/O操作开始时指定的OVERLAPPED结构体的指针(将hEvent低位设为1可以防止I/O完成后插入完成端口队列中)</param>
+	/// <param name="milliseconds">调用线程愿意等待完成数据包出现在完成端口的毫秒数，若超时，返回FALSE，并将overlapped设为NULL，可以是INFINITE</param>
+	/// <returns>操作是否成功</returns>
+	inline BOOL get_queued_completion_status(HANDLE completion_port, 
+		DWORD& bytes_to_transferred, ULONG_PTR& completion_key, OVERLAPPED*& overlapped, DWORD milliseconds = INFINITE)
+	{
+		auto val = GetQueuedCompletionStatus(completion_port, &bytes_to_transferred, &completion_key, &overlapped, milliseconds);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+
+	/// <summary>
+	/// 同时弹出多个完成端口数据包。它等待与指定完成端口关联的 I/O 操作完成。若要一次一个弹出，使用非ex版本
+	/// </summary>
+	/// <param name="completion_port">要监视的完成端口的句柄</param>
+	/// <param name="completion_port_entries">[out]它应该是一个预先分配的OVERLAPPED_ENTRY结构数组，用于接收多个完成端口数据包</param>
+	/// <param name="count">该值可以小于等于completion_port_entries数组的长度，即指定要弹出的最大数量</param>
+	/// <param name="num_entries_removed">[out]用于接收实际弹出的数据包数量</param>
+	/// <param name="milliseconds">调用线程愿意等待完成数据包出现在完成端口的毫秒数，若超时，返回FALSE，并将overlapped设为NULL，可以是INFINITE</param>
+	/// <param name="alertable">是否是可警告的(可提醒的)，若为TRUE，当I/O完成例程或APC排队到线程时，线程返回</param>
+	/// <returns>操作是否成功</returns>
+	inline BOOL get_queued_completion_status_ex(HANDLE completion_port, LPOVERLAPPED_ENTRY completion_port_entries, 
+		ULONG count, ULONG& num_entries_removed, DWORD milliseconds = INFINITE, BOOL alertable = true)
+	{
+		auto val = GetQueuedCompletionStatusEx(completion_port, completion_port_entries,
+			count, &num_entries_removed, milliseconds, alertable);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+	/// <summary>
+	/// 投递一个 I/O 完成数据包给指定的 I/O 完成端口，该函数可用于模拟一条已完成的I/O请求，以实现对线程池线程的通信
+	/// </summary>
+	/// <param name="completion_port">要投递的指定 I/O 完成端口句柄，指定数据包将发送到该端口</param>
+	/// <param name="bytes_to_transferred">它将是GetQueuedCompletionStatus的bytes_to_transferred参数</param>
+	/// <param name="completion_key">它将是GetQueuedCompletionStatus的completion_key参数</param>
+	/// <param name="overlapped">它将是GetQueuedCompletionStatus的overlapped参数</param>
+	/// <returns>操作是否成功</returns>
+	inline BOOL post_queued_completion_status(HANDLE completion_port, DWORD bytes_to_transferred = 0, 
+		ULONG_PTR completion_key = 0, LPOVERLAPPED overlapped = nullptr)
+	{
+		auto val = PostQueuedCompletionStatus(completion_port, bytes_to_transferred, completion_key, overlapped);
+		GET_ERROR_MSG_OUTPUT(std::tcout);
+		return val;
+	}
+
+
 
 };//mw

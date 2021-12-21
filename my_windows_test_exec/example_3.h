@@ -25,3 +25,5 @@ void example_3_9();
 void example_3_10();
 
 void example_3_11();
+
+void example_3_12();

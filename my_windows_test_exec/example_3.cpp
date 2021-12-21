@@ -836,3 +836,46 @@ void example_3_11()
 	//std::cin.get();
 	
 }
+
+volatile LONG index = 0;
+
+VOID CALLBACK work_callback(
+	PTP_CALLBACK_INSTANCE Instance,
+	PVOID                 Context,
+	PTP_WORK              Work
+)
+{
+	auto _index = mw::sync::interlocked_increment(index);
+	//std::cout << "猛男归来!" << _index <<  "\n";
+	printf_s("猛男归来!%d\n", _index);
+
+	mw::sleep(1000 * _index);
+
+	//std::cout << "完成！" << _index << "\n";
+	printf_s("完成!%d\n", _index);
+}
+
+/// <summary>
+/// 测试线程池工作项，即异步调用函数
+/// </summary>
+void example_3_12()
+{
+	// 创建工作项
+	auto work_item = mw::create_threadpool_work(work_callback);
+
+	// 提交工作项
+	mw::submit_threadpool_work(work_item);
+	mw::submit_threadpool_work(work_item);
+	mw::submit_threadpool_work(work_item);
+	mw::submit_threadpool_work(work_item);
+
+	// 等待完成
+	mw::wait_for_threadpool_work_callbacks(work_item);
+
+
+	//std::cout << "所有提交工作项已经完成！\n";
+	printf_s("所有提交工作项已经完成！\n");
+
+	// 释放工作项资源
+	mw::close_threadpool_work(work_item);
+}
