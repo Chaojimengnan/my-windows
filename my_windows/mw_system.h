@@ -15,7 +15,7 @@ namespace mw {
 	{
 		auto val = SystemParametersInfo(action_type,
 			extra_param, extra_pointer, update_and_broadcast_option);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -38,7 +38,7 @@ namespace mw {
 	inline int get_system_metrics(int index)
 	{
 		auto val = GetSystemMetrics(index);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -50,7 +50,7 @@ namespace mw {
 	inline DWORD get_system_color(int index)
 	{
 		auto val = GetSysColor(index);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -64,7 +64,7 @@ namespace mw {
 	inline bool set_system_color(int index_nums, const INT* index_array, const COLORREF* color_array)
 	{
 		auto val = SetSysColors(index_nums, index_array, color_array);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -77,7 +77,7 @@ namespace mw {
 	inline HBRUSH get_system_color_brush(int index)
 	{
 		auto val = GetSysColorBrush(index);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -113,12 +113,12 @@ namespace mw {
 						return_length);
 
 					if (NULL == out_buffer){
-						GET_ERROR_MSG_OUTPUT(std::tcout);
+						GET_ERROR_MSG_OUTPUT();
 						return false;
 					}
 				}
 				else{
-					GET_ERROR_MSG_OUTPUT(std::tcout);
+					GET_ERROR_MSG_OUTPUT();
 					return false;
 				}
 			}

@@ -17,7 +17,7 @@ namespace user {
 		const std::tstring& text, UINT type = MB_OK, HWND parent_window = nullptr, WORD language_id = 0)
 	{
 		auto val = MessageBoxEx(parent_window, text.c_str(), caption.c_str(), type, language_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -41,7 +41,7 @@ namespace user {
 		LPARAM init_param = 0 , HINSTANCE module_instance = nullptr)
 	{
 		auto val = DialogBoxParam(module_instance, MAKEINTRESOURCE(dialog_id), parent_handle, dialog_procedure, init_param);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -62,7 +62,7 @@ namespace user {
 		LPARAM init_param = 0, HINSTANCE module_instance = nullptr)
 	{
 		auto val = DialogBoxIndirectParam(module_instance, dialog_template, parent_handle, dialog_procedure, init_param);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -76,7 +76,7 @@ namespace user {
 	inline bool end_modal_dialog(HWND dialog_handle, INT_PTR result)
 	{
 		auto val = EndDialog(dialog_handle, result);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -98,7 +98,7 @@ namespace user {
 		LPARAM init_param = 0, HINSTANCE module_instance = nullptr)
 	{
 		auto val = CreateDialogParam(module_instance, MAKEINTRESOURCE(dialog_id), parent_handle, dialog_procedure, init_param);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -119,7 +119,7 @@ namespace user {
 		LPARAM init_param = 0, HINSTANCE module_instance = nullptr)
 	{
 		auto val = CreateDialogIndirectParam(module_instance, dialog_template, parent_handle, dialog_procedure, init_param);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -133,7 +133,7 @@ namespace user {
 	inline bool is_dialog_message(HWND dialog_handle, MSG& msg)
 	{
 		auto val = IsDialogMessage(dialog_handle, &msg);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -146,7 +146,7 @@ namespace user {
 	inline bool map_dialog_rect(HWND dialog_handle, RECT& rect)
 	{
 		auto val = MapDialogRect(dialog_handle, &rect);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -160,7 +160,7 @@ namespace user {
 	inline bool set_dialog_item_text(HWND dialog_handle, int control_id, const std::tstring& text)
 	{
 		auto val = SetDlgItemText(dialog_handle, control_id, text.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -175,7 +175,7 @@ namespace user {
 	{
 		TCHAR temp_str[MW_MAX_TEXT] = { 0 };
 		auto val = GetDlgItemText(dialog_handle, control_id, temp_str, MW_MAX_TEXT);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		text = temp_str;
 		return val;
 	}
@@ -191,7 +191,7 @@ namespace user {
 	{
 		BOOL is_ok;
 		UINT _val = GetDlgItemInt(dialog_handle, control_id, &is_ok, true);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		the_val = (int)_val;
 		return is_ok;
 	}
@@ -206,7 +206,7 @@ namespace user {
 	inline bool set_dialog_item_int(HWND dialog_handle, int control_id, int the_val)
 	{
 		auto val = SetDlgItemInt(dialog_handle, control_id, the_val, true);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -221,7 +221,7 @@ namespace user {
 	inline bool set_dialog_button_check_state(HWND dialog_handle, int button_id, UINT check_flag = BST_CHECKED)
 	{
 		auto val = CheckDlgButton(dialog_handle, button_id, check_flag);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -238,7 +238,7 @@ namespace user {
 		int first_radio_button_id, int last_radio_button_id, int check_radio_button_id)
 	{
 		auto val = CheckRadioButton(dialog_handle, first_radio_button_id, last_radio_button_id, check_radio_button_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -251,7 +251,7 @@ namespace user {
 	inline UINT is_dialog_button_checked(HWND dialog_handle, int button_id)
 	{
 		auto val = IsDlgButtonChecked(dialog_handle, button_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -267,7 +267,7 @@ namespace user {
 	inline LRESULT send_dialog_item_message(HWND dialog_handle, int control_id, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
 		auto val = SendDlgItemMessage(dialog_handle, control_id, Msg, wParam, lParam);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 

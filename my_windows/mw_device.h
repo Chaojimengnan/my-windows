@@ -24,7 +24,7 @@ namespace mw {
 	{
 		auto val = CreateFile(file_name.c_str(), desired_access, share_mode, 
 			file_attributes, creation_disposition, flags_and_attributes, template_file);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -37,7 +37,7 @@ namespace mw {
 	inline DWORD get_file_type(HANDLE file_handle) 
 	{
 		auto val = GetFileType(file_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -50,7 +50,7 @@ namespace mw {
 	inline BOOL get_file_size(HANDLE file_handle, LARGE_INTEGER& file_size)
 	{
 		auto val = GetFileSizeEx(file_handle, &file_size);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -63,7 +63,7 @@ namespace mw {
 	{
 		ULARGE_INTEGER temp = {0};
 		temp.LowPart = GetCompressedFileSize(file_name.c_str(), &temp.HighPart);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return temp;
 	}
 
@@ -80,7 +80,7 @@ namespace mw {
 	inline BOOL read_file(HANDLE file_handle, LPVOID buffer, DWORD bytes_to_read, LPDWORD bytes_read, LPOVERLAPPED overlapped = nullptr)
 	{
 		auto val = ReadFile(file_handle, buffer, bytes_to_read, bytes_read, overlapped);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -106,7 +106,7 @@ namespace mw {
 		LPOVERLAPPED overlapped, LPOVERLAPPED_COMPLETION_ROUTINE completion_routine)
 	{
 		auto val = ReadFileEx(file_handle, buffer, bytes_to_read, overlapped, completion_routine);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -123,7 +123,7 @@ namespace mw {
 	inline BOOL write_file(HANDLE file_handle, LPCVOID buffer, DWORD bytes_to_write, LPDWORD bytes_written, LPOVERLAPPED overlapped = nullptr)
 	{
 		auto val = WriteFile(file_handle, buffer, bytes_to_write, bytes_written, overlapped);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -152,7 +152,7 @@ namespace mw {
 		LPOVERLAPPED overlapped, LPOVERLAPPED_COMPLETION_ROUTINE completion_routine)
 	{
 		auto val = WriteFileEx(file_handle, buffer, bytes_to_write, overlapped, completion_routine);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -168,7 +168,7 @@ namespace mw {
 	inline BOOL set_file_pointer(HANDLE file_handle, LARGE_INTEGER distance_to_move, DWORD move_method, PLARGE_INTEGER new_file_pointer = nullptr)
 	{
 		auto val = SetFilePointerEx(file_handle, distance_to_move, new_file_pointer, move_method);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -180,7 +180,7 @@ namespace mw {
 	inline BOOL set_end_of_file(HANDLE file_handle)
 	{
 		auto val = SetEndOfFile(file_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -199,7 +199,7 @@ namespace mw {
 	inline BOOL flush_file_buffers(HANDLE file_handle)
 	{
 		auto val = FlushFileBuffers(file_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -211,7 +211,7 @@ namespace mw {
 	inline BOOL cancle_synchronous_io(HANDLE thread_handle)
 	{
 		auto val = CancelSynchronousIo(thread_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -224,7 +224,7 @@ namespace mw {
 	inline BOOL cancle_io(HANDLE file_handle)
 	{
 		auto val = CancelIo(file_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -238,7 +238,7 @@ namespace mw {
 	inline BOOL cancle_io_ex(HANDLE file_handle, LPOVERLAPPED overlapped = nullptr)
 	{
 		auto val = CancelIoEx(file_handle, overlapped);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 	
@@ -258,7 +258,7 @@ namespace mw {
 		HANDLE existing_completion_port = nullptr, ULONG_PTR completion_key = 0 , DWORD number_of_concurrent_threads = 0)
 	{
 		auto val = CreateIoCompletionPort(file_handle, existing_completion_port, completion_key, number_of_concurrent_threads);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -276,7 +276,7 @@ namespace mw {
 		DWORD& bytes_to_transferred, ULONG_PTR& completion_key, OVERLAPPED*& overlapped, DWORD milliseconds = INFINITE)
 	{
 		auto val = GetQueuedCompletionStatus(completion_port, &bytes_to_transferred, &completion_key, &overlapped, milliseconds);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -296,7 +296,7 @@ namespace mw {
 	{
 		auto val = GetQueuedCompletionStatusEx(completion_port, completion_port_entries,
 			count, &num_entries_removed, milliseconds, alertable);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -312,7 +312,7 @@ namespace mw {
 		ULONG_PTR completion_key = 0, LPOVERLAPPED overlapped = nullptr)
 	{
 		auto val = PostQueuedCompletionStatus(completion_port, bytes_to_transferred, completion_key, overlapped);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 

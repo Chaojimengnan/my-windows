@@ -32,7 +32,7 @@ namespace user {
 			flag |= LR_DEFAULTSIZE;
 
 		auto resource_handle = LoadImage(handle_modlue, MAKEINTRESOURCE(resource_id), type, image_x, image_y, flag);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return resource_handle;
 	}
 
@@ -65,7 +65,7 @@ namespace user {
 		flag |= LR_LOADFROMFILE;
 
 		auto resource_handle = LoadImage(NULL, file_path.c_str(), type, image_x, image_y, flag);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return resource_handle;
 	}
 

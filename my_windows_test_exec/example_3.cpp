@@ -730,6 +730,8 @@ DWORD WINAPI word_count(PVOID pvParam)
 
 	std::cout << "word_count访问内存块\n";
 
+	mw::sync::set_event(event_file_ready);
+
 	return 0;
 }
 
@@ -741,6 +743,8 @@ DWORD WINAPI spell_check(PVOID pvParam)
 	// 访问内存块
 	std::cout << "spell_check访问内存块\n";
 
+	mw::sync::set_event(event_file_ready);
+
 	return 0;
 }
 
@@ -751,6 +755,8 @@ DWORD WINAPI grammar_check(PVOID pvParam)
 
 	// 访问内存块
 	std::cout << "grammar_check访问内存块\n";
+
+	mw::sync::set_event(event_file_ready);
 
 	return 0;
 }

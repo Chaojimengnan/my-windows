@@ -13,37 +13,38 @@
 #include <functional>
 
 
-/// 获取错误代码,如果是非0值则将对应文本输入到output_stream中
+/// 获取错误代码,如果是非0值则将对应文本输入到流中
 #ifdef _DEBUG
-#define GET_ERROR_MSG_OUTPUT(output_stream) {auto my_error_code = GetLastError();\
+#define GET_ERROR_MSG_OUTPUT() {auto my_error_code = GetLastError();\
 		if (my_error_code != 0){\
-		output_stream << _T("thread(") << GetCurrentThreadId()  << _T(")：") << __FUNCTION__ << _T("  (")  << my_error_code << _T(")")<< mw::formate_error_code(my_error_code)\
-					<< __FILE__ << _T(":") << __LINE__  << _T("\n\n")\
-					;SetLastError(0);}}
+		_tprintf_s(_T("thread(%d): %s (%d) %s%s : %d \n\n"), GetCurrentThreadId(),\
+		_T(__FUNCTION__), my_error_code, mw::formate_error_code(my_error_code).c_str(), _T(__FILE__), __LINE__); \
+					SetLastError(0);}}
 #else
-#define GET_ERROR_MSG_OUTPUT(output_stream)
+#define GET_ERROR_MSG_OUTPUT()
 #endif
 
-// 判断函数返回值，若为error_value，则输入到output_stream中(适用于没有错误代码和对应文本的函数)
+
+// 判断函数返回值，若为error_value，则输入到流中(适用于没有错误代码和对应文本的函数)
 #ifdef _DEBUG
-#define GET_ERROR_MSG_OUTPUT_NORMAL(output_stream, value, error_value) {\
+#define GET_ERROR_MSG_OUTPUT_NORMAL(value, error_value) {\
 		if (value == error_value){\
-		output_stream << _T("thread(") << GetCurrentThreadId()  << _T(")：")  << __FUNCTION__  << _T("  函数失败\n")\
-					<< __FILE__ << _T(":") << __LINE__  << _T("\n\n")\
+		_tprintf_s(_T("thread(%d): %s : function fails\n%s : %d \n\n"), GetCurrentThreadId(),\
+			_T(__FUNCTION__), _T(__FILE__), __LINE__)\
 					;}}
 #else
-#define GET_ERROR_MSG_OUTPUT_NORMAL(output_stream, value, error_value)
+#define GET_ERROR_MSG_OUTPUT_NORMAL(value, error_value)
 #endif
 
 // 适用于Windows Socket 2的错误输出宏
 #ifdef _DEBUG
-#define GET_ERROR_MSG_OUTPUT_SOCKET(output_stream) {auto my_error_code = WSAGetLastError();\
+#define GET_ERROR_MSG_OUTPUT_SOCKET() {auto my_error_code = WSAGetLastError();\
 		if (my_error_code != 0){\
-		output_stream << _T("thread(") << GetCurrentThreadId()  << _T(")：") << __FUNCTION__ << _T("  (")  << my_error_code << _T(")")<< mw::formate_error_code(my_error_code)\
-					<< __FILE__ << _T(":") << __LINE__  << _T("\n\n")\
-					;WSASetLastError(0);}}
+		_tprintf_s(_T("thread(%d): %s (%d) %s%s : %d \n\n"), GetCurrentThreadId(),\
+		_T(__FUNCTION__), my_error_code, mw::formate_error_code(my_error_code).c_str(), _T(__FILE__), __LINE__); \
+		WSASetLastError(0);}}
 #else
-#define GET_ERROR_MSG_OUTPUT_SOCKET(output_stream)
+#define GET_ERROR_MSG_OUTPUT_SOCKET()
 #endif
 
 #ifdef UNICODE
@@ -82,9 +83,10 @@ namespace mw {
 			FORMAT_MESSAGE_IGNORE_INSERTS,
 			nullptr,
 			error_code,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
 			(LPTSTR) & error_text,
 			0, nullptr);
+
 		std::tstring error_str(error_text);
 		LocalFree(error_text);
 		return error_str;

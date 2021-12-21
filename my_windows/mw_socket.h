@@ -45,7 +45,7 @@ namespace socket {
 	inline INT get_address_info(const std::tstring& node_name, const std::tstring& service_name, const ADDRINFOT& hints, ADDRINFOT*& result)
 	{
 		auto val = GetAddrInfo(node_name.c_str(), service_name.c_str(), &hints, &result);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 
@@ -72,7 +72,7 @@ namespace socket {
 	inline SOCKET create_socket(int address_family = AF_INET | AF_INET6, int socket_type = SOCK_STREAM, int protocol = IPPROTO_TCP)
 	{
 		auto val = WSASocketW(address_family, socket_type, protocol, nullptr, 0, WSA_FLAG_OVERLAPPED);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 
@@ -84,7 +84,7 @@ namespace socket {
 	inline int close_socket(SOCKET socket)
 	{
 		auto val = closesocket(socket);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 
@@ -98,7 +98,7 @@ namespace socket {
 	inline int socket_connect(SOCKET socket, const sockaddr* address, int address_len)
 	{
 		auto val = connect(socket, address, address_len);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 
@@ -113,7 +113,7 @@ namespace socket {
 	inline int socket_send(SOCKET socket, const char* buffer, int buffer_len, int flags = 0)
 	{
 		auto val = send(socket, buffer, buffer_len, flags);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 
@@ -131,7 +131,7 @@ namespace socket {
 	inline int socket_recv(SOCKET socket, char* buffer, int buffer_len, int flags = 0)
 	{
 		auto val = recv(socket, buffer, buffer_len, flags);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 
@@ -144,7 +144,7 @@ namespace socket {
 	inline int socket_shutdown(SOCKET socket, int how = SD_SEND)
 	{
 		auto val = shutdown(socket, how);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 
@@ -158,7 +158,7 @@ namespace socket {
 	inline int socket_bind(SOCKET socket, const sockaddr* address, int address_len)
 	{
 		auto val = bind(socket, address, address_len);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 
@@ -171,7 +171,7 @@ namespace socket {
 	inline int socket_listen(SOCKET socket, int backlog = SOMAXCONN)
 	{
 		auto val = listen(socket, backlog);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 
@@ -185,7 +185,7 @@ namespace socket {
 	inline SOCKET socket_accept(SOCKET socket, sockaddr* address = nullptr, int* address_len = nullptr)
 	{
 		auto val = accept(socket, address, address_len);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 
@@ -211,7 +211,7 @@ namespace socket {
 		LPWSABUF user_data_to_dest = nullptr, LPWSABUF user_data_from_dest = nullptr, LPQOS lpSQOS = nullptr)
 	{
 		auto val = WSAConnect(socket, address, address_len, user_data_to_dest, user_data_from_dest, lpSQOS, nullptr);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 	/// <summary>
@@ -235,7 +235,7 @@ namespace socket {
 	{
 		auto val = WSASend(socket, buffers_to_send, buffers_array_counts, 
 			number_of_bytes_sent, flags, overlapped, completion_routine);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 	/// <summary>
@@ -255,7 +255,7 @@ namespace socket {
 	{
 		auto val = WSARecv(socket, buffers_to_receive, buffers_array_counts,
 			&number_of_bytes_received, &flags, overlapped, completion_routine);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 	/// <summary>
@@ -267,7 +267,7 @@ namespace socket {
 	inline int socket_send_disconnect(SOCKET socket, LPWSABUF disconnect_data_out = nullptr)
 	{
 		auto val = WSASendDisconnect(socket, disconnect_data_out);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
 	/// <summary>
@@ -279,7 +279,7 @@ namespace socket {
 	inline int socket_receive_disconnect(SOCKET socket, LPWSABUF disconnect_data_in = nullptr)
 	{
 		auto val = WSARecvDisconnect(socket, disconnect_data_in);
-		GET_ERROR_MSG_OUTPUT_SOCKET(std::tcout);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}*/
 

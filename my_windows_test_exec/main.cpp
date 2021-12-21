@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 	//example_3_9();
 	//example_3_10();
 	//example_3_11();
-	example_3_12();
+	//example_3_12();
 	//example_5();
 	//example_5_server();
 	//example_5_client();

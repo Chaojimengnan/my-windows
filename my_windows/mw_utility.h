@@ -13,7 +13,7 @@ namespace mw {
 		auto wide_size = MultiByteToWideChar(string_code_page, 0, str.c_str(), -1, nullptr, 0);
 		PWSTR temp_wstr = new WCHAR[wide_size];
 		MultiByteToWideChar(string_code_page, 0, str.c_str(), -1, temp_wstr, wide_size);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		std::wstring wstr(temp_wstr);
 
 		delete[] temp_wstr;
@@ -36,7 +36,7 @@ namespace mw {
 		PSTR temp_str = new CHAR[str_size];
 		WideCharToMultiByte(string_code_page, 0, wstr.c_str(),
 			-1, temp_str, str_size, &default_char, is_used_def_char);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		std::string str(temp_str);
 
 		delete[] temp_str;
@@ -76,7 +76,7 @@ namespace mw {
 	{
 		int argc = 0;
 		auto argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 
 		std::vector<std::tstring> cmd_vec;
 		for (size_t i = 0; i < argc; i++)
@@ -106,7 +106,7 @@ namespace mw {
 			delete[] mybuffer;
 			return true;
 		}
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		delete[] mybuffer;
 		return false;
 	}
@@ -125,7 +125,7 @@ namespace mw {
 	inline bool set_envionment_var(const std::tstring& var_name, const std::tstring& var_value)
 	{
 		auto val = SetEnvironmentVariable(var_name.c_str(), var_value.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -139,7 +139,7 @@ namespace mw {
 		auto size_of_char = ExpandEnvironmentStrings(src.c_str(), nullptr, 0);
 		auto mybuffer = new TCHAR[size_of_char];
 		ExpandEnvironmentStrings(src.c_str(), mybuffer, size_of_char);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		std::tstring des_str = mybuffer;
 		delete[] mybuffer;
 		return des_str;
@@ -154,7 +154,7 @@ namespace mw {
 		auto size = GetCurrentDirectory(0, nullptr);
 		TCHAR* temp_str = new TCHAR[size];
 		GetCurrentDirectory(size, temp_str);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		std::tstring dir_str = temp_str;
 		delete[] temp_str;
 		return dir_str;
@@ -168,7 +168,7 @@ namespace mw {
 	inline bool set_current_work_dir(const std::tstring& work_dir)
 	{
 		auto val = SetCurrentDirectory(work_dir.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -207,7 +207,7 @@ namespace user {
 	inline UINT send_input(LPINPUT input_array, UINT input_struct_nums = 1)
 	{
 		auto val = SendInput(input_struct_nums, input_array, sizeof(INPUT));
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -286,7 +286,7 @@ namespace user {
 	inline bool register_hotkey(HWND window_handle, int hotkey_id, UINT virtual_key, UINT combination_keys = 0)
 	{
 		auto val = RegisterHotKey(window_handle, hotkey_id, combination_keys, virtual_key);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -299,7 +299,7 @@ namespace user {
 	inline bool unregister_hotkey(HWND window_handle, int hotkey_id)
 	{
 		auto val = UnregisterHotKey(window_handle, hotkey_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 

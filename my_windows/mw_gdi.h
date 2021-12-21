@@ -21,7 +21,7 @@ namespace gdi {
 	inline HDC begin_paint(HWND window_handle, PAINTSTRUCT& paint_struct)
 	{
 		auto val = BeginPaint(window_handle, &paint_struct);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -47,7 +47,7 @@ namespace gdi {
 	inline HDC get_dc(HWND window_handle)
 	{
 		auto val = GetDC(window_handle);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -59,7 +59,7 @@ namespace gdi {
 	inline HDC get_window_dc(HWND window_handle)
 	{
 		auto val = GetWindowDC(window_handle);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -76,7 +76,7 @@ namespace gdi {
 	inline int release_dc(HWND window_handle, HDC device_context)
 	{
 		auto val = ReleaseDC(window_handle, device_context);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -92,7 +92,7 @@ namespace gdi {
 		const std::tstring& driver_name = _T("DISPLAY"), const DEVMODE* pdm = nullptr)
 	{
 		auto val = CreateDC(tstring_to_pointer(driver_name), tstring_to_pointer(device_name), nullptr, pdm);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -104,7 +104,7 @@ namespace gdi {
 	inline bool delete_dc(HDC device_context)
 	{
 		auto val = DeleteDC(device_context);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -117,7 +117,7 @@ namespace gdi {
 	inline HDC create_compatible_dc(HDC device_context = nullptr)
 	{
 		auto val = CreateCompatibleDC(device_context);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -132,7 +132,7 @@ namespace gdi {
 		const std::tstring& driver_name = _T(""), const DEVMODE* pdm = nullptr)
 	{
 		auto val = CreateIC(tstring_to_pointer(driver_name), tstring_to_pointer(device_name), nullptr, pdm);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -145,7 +145,7 @@ namespace gdi {
 	inline HGDIOBJ get_current_object(HDC device_handle, UINT type)
 	{
 		auto val = GetCurrentObject(device_handle, type);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -162,7 +162,7 @@ namespace gdi {
 			_aligned_free(p);
 			});
 		auto val = GetObject(graphics_object, size, buffer.get());
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -175,7 +175,7 @@ namespace gdi {
 	inline HGDIOBJ select_object(HDC device_handle, HGDIOBJ graphics_object)
 	{
 		auto val = SelectObject(device_handle, graphics_object);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -187,7 +187,7 @@ namespace gdi {
 	inline bool delete_object(HGDIOBJ graphics_object)
 	{
 		auto val = DeleteObject(graphics_object);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -199,7 +199,7 @@ namespace gdi {
 	inline HGDIOBJ get_stock_object(int index)
 	{
 		auto val = GetStockObject(index);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -211,7 +211,7 @@ namespace gdi {
 	inline COLORREF get_dc_pen_color(HDC device_handle)
 	{
 		auto val = GetDCPenColor(device_handle);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, CLR_INVALID);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, CLR_INVALID);
 		return val;
 	}
 
@@ -224,7 +224,7 @@ namespace gdi {
 	inline COLORREF set_dc_pen_color(HDC device_handle, COLORREF pen_color)
 	{
 		auto val = SetDCPenColor(device_handle, pen_color);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, CLR_INVALID);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, CLR_INVALID);
 		return val;
 	}
 
@@ -236,7 +236,7 @@ namespace gdi {
 	inline COLORREF get_dc_brush_color(HDC device_handle)
 	{
 		auto val = GetDCBrushColor(device_handle);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, CLR_INVALID);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, CLR_INVALID);
 		return val;
 	}
 
@@ -249,7 +249,7 @@ namespace gdi {
 	inline COLORREF set_dc_brush_color(HDC device_handle, COLORREF brush_color)
 	{
 		auto val = SetDCBrushColor(device_handle, brush_color);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, CLR_INVALID);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, CLR_INVALID);
 		return val;
 	}
 
@@ -264,7 +264,7 @@ namespace gdi {
 	inline int draw_text(HDC device_context, const std::tstring& text, RECT& text_rect, UINT format = DT_CENTER)
 	{
 		auto val = DrawText(device_context, text.c_str(), -1, &text_rect, format);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -279,7 +279,7 @@ namespace gdi {
 	inline bool text_out(HDC device_context, int x, int y, const std::tstring& text)
 	{
 		auto val = TextOut(device_context, x, y, text.c_str(), text.size());
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -292,7 +292,7 @@ namespace gdi {
 	inline bool get_text_metrics(HDC device_context, LPTEXTMETRIC text_metric)
 	{
 		auto val = GetTextMetrics(device_context, text_metric);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -305,7 +305,7 @@ namespace gdi {
 	inline UINT set_text_align(HDC device_context, UINT text_align)
 	{
 		auto val = SetTextAlign(device_context, text_align);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, GDI_ERROR);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, GDI_ERROR);
 		return val;
 	}
 
@@ -317,7 +317,7 @@ namespace gdi {
 	inline UINT get_text_alian(HDC device_context)
 	{
 		auto val = GetTextAlign(device_context);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, GDI_ERROR);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, GDI_ERROR);
 		return val;
 	}
 
@@ -332,7 +332,7 @@ namespace gdi {
 	inline UINT set_pixel(HDC device_context, int x, int y, COLORREF color)
 	{
 		auto val = SetPixel(device_context, x, y, color);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, -1);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, -1);
 		return val;
 	}
 
@@ -347,7 +347,7 @@ namespace gdi {
 	inline bool set_pixel_v(HDC device_context, int x, int y, COLORREF color)
 	{
 		auto val = SetPixelV(device_context, x, y, color);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, 0);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
 		return val;
 	}
 
@@ -361,7 +361,7 @@ namespace gdi {
 	inline COLORREF get_pixel(HDC device_context, int x, int y)
 	{
 		auto val = GetPixel(device_context, x, y);
-		GET_ERROR_MSG_OUTPUT_NORMAL(std::tcout, val, CLR_INVALID);
+		GET_ERROR_MSG_OUTPUT_NORMAL(val, CLR_INVALID);
 		return val;
 	}
 

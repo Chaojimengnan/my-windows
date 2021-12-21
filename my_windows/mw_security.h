@@ -31,7 +31,7 @@ namespace mw {
 		ZeroMemory(admin_sid.get(), sizeof(admin_sid));
 		DWORD sid_size = sizeof(admin_sid);
 		CreateWellKnownSid(WinBuiltinAdministratorsSid, nullptr, admin_sid.get(), &sid_size);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return admin_sid;
 	}
 
@@ -61,15 +61,15 @@ namespace mw {
 			boundary_handle = CreateBoundaryDescriptor(boundary_name.c_str(), 0);
 			auto admin_sid = create_admin_sid();
 			AddSIDToBoundaryDescriptor(&boundary_handle, admin_sid.get());
-			GET_ERROR_MSG_OUTPUT(std::tcout);
+			GET_ERROR_MSG_OUTPUT();
 			auto security = make_security_attribute();
 			ConvertStringSecurityDescriptorToSecurityDescriptor(
 				_T("D:(A;;GA;;;BA)"),
 				SDDL_REVISION_1, &security.get()->lpSecurityDescriptor, nullptr);
-			GET_ERROR_MSG_OUTPUT(std::tcout);
+			GET_ERROR_MSG_OUTPUT();
 
 			namespace_handle = CreatePrivateNamespace(security.get(), boundary_handle, namespace_name.c_str());
-			GET_ERROR_MSG_OUTPUT(std::tcout);
+			GET_ERROR_MSG_OUTPUT();
 			LocalFree(security.get()->lpSecurityDescriptor);
 		}
 		~private_namespace()

@@ -21,7 +21,7 @@ namespace mw {
 		HANDLE target_process_handle = nullptr;
 		DuplicateHandle(GetCurrentProcess(), handle_to_give, target_process,
 			&target_process_handle, desired_access, inherit_handle, options);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return target_process_handle;
 	}
 
@@ -34,7 +34,7 @@ namespace mw {
 	inline HMODULE get_module_handle(const std::tstring& module_name = _T(""))
 	{
 		auto val = GetModuleHandle(tstring_to_pointer(module_name));
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -87,7 +87,7 @@ namespace mw {
 		auto is_ok = CreateProcess(nullptr, temp_str, process_attributes,
 			thread_attributes, inherit_handle, creation_flags,
 			environment, tstring_to_pointer(process_work_dir), startup_info, &proc);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		delete[] temp_str;
 
 		new_process_info.process_handle = mw::safe_handle(proc.hProcess);
@@ -114,7 +114,7 @@ namespace mw {
 			sei.lpParameters = command_line.c_str();
 
 		auto val = ShellExecuteEx(&sei);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -127,7 +127,7 @@ namespace mw {
 		auto admin_sid = mw::create_admin_sid();
 		BOOL is_admin;
 		CheckTokenMembership(nullptr, admin_sid.get(), &is_admin);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return is_admin;
 	}
 
@@ -158,7 +158,7 @@ namespace mw {
 	inline DWORD get_process_id(HANDLE target_process)
 	{
 		auto val = GetProcessId(target_process);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -170,7 +170,7 @@ namespace mw {
 	inline DWORD get_process_id_from_thread(HANDLE thread_handle)
 	{
 		auto val = GetProcessIdOfThread(thread_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -183,7 +183,7 @@ namespace mw {
 	inline bool get_process_exit_code(HANDLE target_process, DWORD& exit_code)
 	{
 		auto val = GetExitCodeProcess(target_process, &exit_code);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -197,7 +197,7 @@ namespace mw {
 	inline bool terminate_process(HANDLE target_process, UINT exit_code)
 	{
 		auto val = TerminateProcess(target_process, exit_code);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -220,7 +220,7 @@ namespace mw {
 	inline HANDLE open_process(DWORD process_id, bool inherit_handle = false, DWORD desired_access = 0)
 	{
 		auto val = OpenProcess(desired_access, inherit_handle, process_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -237,7 +237,7 @@ namespace mw {
 		FILETIME& exit_time, FILETIME& kernel_time, FILETIME& user_time)
 	{
 		auto val = GetProcessTimes(process_handle, &creation_time, &exit_time, &kernel_time, &user_time);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -250,7 +250,7 @@ namespace mw {
 	inline bool set_priority_class(HANDLE process_handle, DWORD priority_class  = NORMAL_PRIORITY_CLASS)
 	{
 		auto val = SetPriorityClass(process_handle, priority_class);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -262,7 +262,7 @@ namespace mw {
 	inline DWORD get_priority_class(HANDLE process_handle)
 	{
 		auto val = GetPriorityClass(process_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -275,7 +275,7 @@ namespace mw {
 	inline bool set_priority_class_boost(HANDLE process_handle, BOOL is_disable_priority_boost)
 	{
 		auto val = SetProcessPriorityBoost(process_handle, is_disable_priority_boost);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -288,7 +288,7 @@ namespace mw {
 	inline bool get_priority_class_boost(HANDLE process_handle, BOOL& is_disable_priority_boost)
 	{
 		auto val = GetProcessPriorityBoost(process_handle, &is_disable_priority_boost);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -302,7 +302,7 @@ namespace mw {
 	inline bool set_process_affinity_mask(HANDLE process_handle, DWORD_PTR process_affinity_mask)
 	{
 		auto val = SetProcessAffinityMask(process_handle, process_affinity_mask);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -317,7 +317,7 @@ namespace mw {
 	inline bool get_process_affinity_mask(HANDLE process_handle, DWORD_PTR& process_affinity_mask, DWORD_PTR& system_affinity_mask)
 	{
 		auto val = GetProcessAffinityMask(process_handle, &process_affinity_mask, &system_affinity_mask);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 

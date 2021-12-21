@@ -30,7 +30,7 @@ namespace mw {
 	inline DWORD get_thread_id(HANDLE target_thread)
 	{
 		auto val = GetThreadId(target_thread);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -53,7 +53,7 @@ namespace mw {
 	inline bool terminate_thread(HANDLE thread_handle, DWORD exit_code)
 	{
 		auto val = TerminateThread(thread_handle, exit_code);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -66,7 +66,7 @@ namespace mw {
 	inline DWORD resume_thread(HANDLE thread_handle)
 	{
 		auto val = ResumeThread(thread_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -79,7 +79,7 @@ namespace mw {
 	inline bool get_thread_exit_code(HANDLE target_thread, DWORD& exit_code)
 	{
 		auto val = GetExitCodeThread(target_thread, &exit_code);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -98,7 +98,7 @@ namespace mw {
 		LPSECURITY_ATTRIBUTES thread_attributes = nullptr, DWORD creation_flags = 0, size_t stack_size = 0)
 	{
 		auto val = CreateThread(thread_attributes, stack_size, thread_function, parameter, creation_flags, thread_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -117,7 +117,7 @@ namespace mw {
 	{
 		auto val = (HANDLE)_beginthreadex((void*)thread_attributes, (unsigned int)stack_size, 
 			(_beginthreadex_proc_type)thread_function, (void*)parameter, (unsigned int)creation_flags, (unsigned int*)thread_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -144,7 +144,7 @@ namespace mw {
 	inline DWORD suspend_thread(HANDLE thread_handle)
 	{
 		auto val = SuspendThread(thread_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -158,7 +158,7 @@ namespace mw {
 	inline HANDLE open_thread(DWORD thread_id, bool inherit_handle = false, DWORD desired_access = 0)
 	{
 		auto val = OpenThread(desired_access, inherit_handle, thread_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -202,7 +202,7 @@ namespace mw {
 		FILETIME& exit_time, FILETIME& kernel_time, FILETIME& user_time)
 	{
 		auto val = GetThreadTimes(thread_handle, &creation_time, &exit_time, &kernel_time, &user_time);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -217,7 +217,7 @@ namespace mw {
 	{
 		context.ContextFlags = context_flags;
 		auto val = GetThreadContext(thread_handle, &context);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -230,7 +230,7 @@ namespace mw {
 	inline bool set_thread_context(HANDLE thread_handle, const CONTEXT& context)
 	{
 		auto val = SetThreadContext(thread_handle, &context);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -243,7 +243,7 @@ namespace mw {
 	inline bool set_thread_priority(HANDLE thread_handle, int priority = THREAD_PRIORITY_NORMAL)
 	{
 		auto val = SetThreadPriority(thread_handle, priority);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -255,7 +255,7 @@ namespace mw {
 	inline int get_thread_priority(HANDLE thread_handle)
 	{
 		auto val = GetThreadPriority(thread_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -268,7 +268,7 @@ namespace mw {
 	inline bool set_thread_priority_boost(HANDLE thread_handle, BOOL is_disable_priority_boost)
 	{
 		auto val = SetThreadPriorityBoost(thread_handle, is_disable_priority_boost);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -281,7 +281,7 @@ namespace mw {
 	inline bool get_thread_priority_boost(HANDLE thread_handle, BOOL& is_disable_priority_boost)
 	{
 		auto val = GetThreadPriorityBoost(thread_handle, &is_disable_priority_boost);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -294,7 +294,7 @@ namespace mw {
 	inline DWORD_PTR set_thread_affinity_mask(HANDLE thread_handle, DWORD_PTR thread_affinity_mask)
 	{
 		auto val = SetThreadAffinityMask(thread_handle, thread_affinity_mask);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -307,7 +307,7 @@ namespace mw {
 	inline DWORD set_thread_ideal_processor(HANDLE thread_handle, DWORD ideal_processor)
 	{
 		auto val = SetThreadIdealProcessor(thread_handle, ideal_processor);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -322,7 +322,7 @@ namespace mw {
 	inline DWORD queue_user_APC(HANDLE thread_handle, PAPCFUNC func_APC, ULONG_PTR data = 0)
 	{
 		auto val = QueueUserAPC(func_APC, thread_handle, data);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -337,7 +337,7 @@ namespace mw {
 		PTP_CALLBACK_ENVIRON pcbe = nullptr)
 	{
 		auto val = TrySubmitThreadpoolCallback(func, param, pcbe);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -352,7 +352,7 @@ namespace mw {
 		PTP_CALLBACK_ENVIRON pcbe = nullptr)
 	{
 		auto val = CreateThreadpoolWork(func_work, param, pcbe);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -626,7 +626,7 @@ namespace sync {
 			if (!is_spin)
 				spin_count = 0;
 			InitializeCriticalSectionAndSpinCount(&cs, spin_count);
-			GET_ERROR_MSG_OUTPUT(std::tcout);
+			GET_ERROR_MSG_OUTPUT();
 		}
 		~critical_section()
 		{
@@ -860,7 +860,7 @@ namespace sync {
 		inline bool sleep_cs(critical_section& cs, DWORD milliseconds_to_wait = INFINITE)
 		{
 			auto val = SleepConditionVariableCS(&cv, &cs.cs, milliseconds_to_wait);
-			GET_ERROR_MSG_OUTPUT(std::tcout);
+			GET_ERROR_MSG_OUTPUT();
 			return val;
 		}
 
@@ -878,7 +878,7 @@ namespace sync {
 		inline bool sleep_slimrw(slimrw_lock& srwlock, ULONG flags = 0, DWORD milliseconds_to_wait = INFINITE)
 		{
 			auto val = SleepConditionVariableSRW(&cv, &srwlock.srw, milliseconds_to_wait, flags);
-			GET_ERROR_MSG_OUTPUT(std::tcout);
+			GET_ERROR_MSG_OUTPUT();
 			return val;
 		}
 
@@ -958,7 +958,7 @@ namespace sync {
 	inline DWORD wait_for_single_object(HANDLE object_handle, DWORD milliseconds_to_wait = INFINITE, bool alertable = false)
 	{
 		auto val = WaitForSingleObjectEx(object_handle, milliseconds_to_wait, alertable);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -978,7 +978,7 @@ namespace sync {
 	inline DWORD wait_for_multiple_object(DWORD counts, const HANDLE* object_handles, bool wait_all = true , DWORD milliseconds_to_wait = INFINITE, bool alertable = false)
 	{
 		auto val = WaitForMultipleObjectsEx(counts, object_handles, wait_all, milliseconds_to_wait, alertable);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -996,7 +996,7 @@ namespace sync {
 		DWORD flags = MWMO_ALERTABLE| MWMO_INPUTAVAILABLE| MWMO_WAITALL, DWORD milliseconds = INFINITE, DWORD wake_mask = QS_ALLINPUT)
 	{
 		auto val = MsgWaitForMultipleObjectsEx(counts, object_handles, milliseconds, wake_mask, flags);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1013,7 +1013,7 @@ namespace sync {
 	inline HANDLE create_event(DWORD flags = 0, DWORD desired_access = EVENT_ALL_ACCESS, const std::tstring& event_name = _T(""), LPSECURITY_ATTRIBUTES event_attributes = nullptr)
 	{
 		auto val = CreateEventEx(event_attributes, tstring_to_pointer(event_name), flags, desired_access);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1025,7 +1025,7 @@ namespace sync {
 	inline bool set_event(HANDLE event_handle)
 	{
 		auto val = SetEvent(event_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1037,7 +1037,7 @@ namespace sync {
 	inline bool reset_event(HANDLE event_handle)
 	{
 		auto val = ResetEvent(event_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1051,7 +1051,7 @@ namespace sync {
 	inline HANDLE open_event(const std::tstring& event_name, bool inherit_handle = false, DWORD desired_access = EVENT_ALL_ACCESS)
 	{
 		auto val = OpenEvent(desired_access, inherit_handle, event_name.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1067,7 +1067,7 @@ namespace sync {
 		const std::tstring& waitable_timer_name = _T(""), LPSECURITY_ATTRIBUTES waitable_timer_attributes = nullptr)
 	{
 		auto val = CreateWaitableTimerEx(waitable_timer_attributes, tstring_to_pointer(waitable_timer_name), flags, desired_access);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1086,7 +1086,7 @@ namespace sync {
 		PTIMERAPCROUTINE completion_rountine = nullptr, LPVOID arg_to_completion_rountine = nullptr, bool resume = false)
 	{
 		auto val = SetWaitableTimer(waitable_timer, due_time, cycle_time, completion_rountine, arg_to_completion_rountine, resume);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1098,7 +1098,7 @@ namespace sync {
 	inline bool cancel_waitable_timer(HANDLE waitable_timer)
 	{
 		auto val = CancelWaitableTimer(waitable_timer);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1112,7 +1112,7 @@ namespace sync {
 	inline HANDLE open_waitable_timer(const std::tstring& waitable_timer_name, bool inherit_handle = false, DWORD desired_access = TIMER_MODIFY_STATE)
 	{
 		auto val = OpenWaitableTimer(desired_access, inherit_handle, waitable_timer_name.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1142,7 +1142,7 @@ namespace sync {
 	{
 		auto val = CreateSemaphoreEx(semaphore_attributes, initial_count, maxnum_count, 
 			tstring_to_pointer(semaphore_name), 0, desired_access);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1157,7 +1157,7 @@ namespace sync {
 		DWORD desired_access = SEMAPHORE_ALL_ACCESS)
 	{
 		auto val = OpenSemaphore(desired_access, inherit_handle, semaphore_name.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1171,7 +1171,7 @@ namespace sync {
 	inline bool release_semaphore(HANDLE semaphore_handle, LONG release_count, LPLONG previous_count = nullptr)
 	{
 		auto val = ReleaseSemaphore(semaphore_handle, release_count, previous_count);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1187,7 +1187,7 @@ namespace sync {
 		DWORD desired_access = MUTEX_ALL_ACCESS, LPSECURITY_ATTRIBUTES mutex_attributes = nullptr)
 	{
 		auto val = CreateMutexEx(mutex_attributes, tstring_to_pointer(mutex_name), desired_access, desired_access);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1202,7 +1202,7 @@ namespace sync {
 		DWORD desired_access = MUTEX_ALL_ACCESS)
 	{
 		auto val = OpenMutex(desired_access, inherit_handle, mutex_name.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1214,7 +1214,7 @@ namespace sync {
 	inline bool release_mutex(HANDLE mutex_handle)
 	{
 		auto val = ReleaseMutex(mutex_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1227,7 +1227,7 @@ namespace sync {
 	inline DWORD wait_for_input_idle(HANDLE process_handle, DWORD milliseconds = INFINITE)
 	{
 		auto val = WaitForInputIdle(process_handle, milliseconds);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1242,7 +1242,7 @@ namespace sync {
 	inline DWORD signal_object_and_wait(HANDLE object_to_signal, HANDLE object_to_wait_on, DWORD milliseconds = INFINITE, bool alertable = true)
 	{
 		auto val = SignalObjectAndWait(object_to_signal, object_to_wait_on, milliseconds, alertable);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 

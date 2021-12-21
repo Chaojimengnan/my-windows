@@ -27,7 +27,7 @@ namespace user {
 	inline bool get_window_rect(HWND window_handle, RECT& window_rect)
 	{
 		auto val = GetWindowRect(window_handle, &window_rect);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -42,7 +42,7 @@ namespace user {
 	{
 		RECT tmp{ 0 };
 		auto val = GetClientRect(window_handle, &tmp);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		width = tmp.right, height = tmp.bottom;
 		return val;
 	}
@@ -58,7 +58,7 @@ namespace user {
 	{
 		POINT tmp{ point_x, point_y };
 		auto val = ScreenToClient(window_handle, &tmp);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		point_x = tmp.x, point_y = tmp.y;
 		return val;
 	}
@@ -81,7 +81,7 @@ namespace user {
 	inline bool client_size_to_window_size(RECT& rect, DWORD style = 0, bool has_menu = false, DWORD exstyle = 0)
 	{
 		auto val = AdjustWindowRectEx(&rect, style, has_menu, exstyle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -94,7 +94,7 @@ namespace user {
 	inline HWND find_window(const std::tstring& class_name = _T(""), const std::tstring& window_name = _T(""))
 	{
 		auto val = FindWindow( tstring_to_pointer(class_name), tstring_to_pointer(window_name));
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -111,7 +111,7 @@ namespace user {
 	{
 		auto val = FindWindowEx( parent_window, child_after,
 			tstring_to_pointer(class_name), tstring_to_pointer(window_name));
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -125,7 +125,7 @@ namespace user {
 	{
 		TCHAR temp_str[MW_MAX_TEXT] = { 0 };
 		auto is_ok = GetClassName( window_handle, temp_str, MAX_PATH);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		class_name = temp_str;
 		return is_ok;
 	}
@@ -140,7 +140,7 @@ namespace user {
 	{
 		TCHAR temp_str[MW_MAX_TEXT] = { 0 };
 		auto is_ok = RealGetWindowClass( window_handle, temp_str, MAX_PATH);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		class_name = temp_str;
 		return is_ok;
 	}
@@ -155,7 +155,7 @@ namespace user {
 	{
 		TCHAR temp_str[MW_MAX_TEXT] = { 0 };
 		auto is_ok = GetWindowText( window_handle, temp_str, MW_MAX_TEXT);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		text = temp_str;
 		return is_ok;
 	}
@@ -171,7 +171,7 @@ namespace user {
 	inline bool set_window_text(HWND window_handle, const std::tstring& text)
 	{
 		auto val = SetWindowText( window_handle, text.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -190,7 +190,7 @@ namespace user {
 	{
 		auto val = SetWindowLongPtr(window_handle, index, new_attribute);
 		SetLastError(0);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -208,7 +208,7 @@ namespace user {
 	inline ULONG_PTR set_window_class_attribute(HWND window_handle, int index, LONG_PTR new_attribute)
 	{
 		auto val = SetClassLongPtr(window_handle, index, new_attribute);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -223,7 +223,7 @@ namespace user {
 		WNDCLASSEX& output_window_class, HINSTANCE instance = nullptr)
 	{
 		auto val = GetClassInfoEx(instance, window_class_name.c_str(), &output_window_class);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -242,7 +242,7 @@ namespace user {
 	inline LONG_PTR get_window_attribute(HWND window_handle, int index)
 	{
 		auto val = GetWindowLongPtr( window_handle, index);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -259,7 +259,7 @@ namespace user {
 	inline ULONG_PTR get_window_class_attribute(HWND window_handle, int index)
 	{
 		auto val = GetClassLongPtr(window_handle, index);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -283,7 +283,7 @@ namespace user {
 	inline bool is_window_handle_vaild(HWND window_handle)
 	{
 		auto val = IsWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -298,7 +298,7 @@ namespace user {
 	inline HWND get_window_from_screen_point(int point_x, int point_y)
 	{
 		auto val = WindowFromPoint( POINT{ point_x, point_y });
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -315,7 +315,7 @@ namespace user {
 		int point_y, UINT flags = CWP_SKIPDISABLED | CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT)
 	{
 		auto val = ChildWindowFromPointEx( parent_window, POINT{ point_x, point_y }, flags);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -328,7 +328,7 @@ namespace user {
 	inline HWND get_child_winodw_from_id(HWND parent_window, int child_id)
 	{
 		auto val = GetDlgItem(parent_window, child_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -340,7 +340,7 @@ namespace user {
 	inline int get_child_window_id(HWND control_handle)
 	{
 		auto val = GetDlgCtrlID(control_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -433,7 +433,7 @@ namespace user {
 		win_class.lpfnWndProc = procedure;
 
 		auto val = RegisterClassEx(&win_class);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -465,7 +465,7 @@ namespace user {
 		auto my_hwnd = CreateWindowEx(ex_style, window_class_name.c_str(),
 			window_name.c_str(), style, x, y, width, height,
 			window_parent, menu, get_module_handle(), lParam);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return my_hwnd;
 	}
 
@@ -479,7 +479,7 @@ namespace user {
 	inline bool unregister_window_class(const std::tstring& window_class_name, HINSTANCE ins)
 	{
 		auto val = UnregisterClass(window_class_name.c_str(), ins);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -497,7 +497,7 @@ namespace user {
 	inline bool enum_window(WNDENUMPROC enum_procedure, LPARAM lParam = 0)
 	{
 		auto val = EnumWindows(enum_procedure, lParam);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -511,7 +511,7 @@ namespace user {
 	inline bool enum_thread_window(DWORD thread_id, WNDENUMPROC enum_procedure, LPARAM lParam = 0)
 	{
 		auto val = EnumThreadWindows(thread_id, enum_procedure, lParam);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -539,7 +539,7 @@ namespace user {
 	inline DWORD get_thread_process_id_from_window(HWND window_handle, LPDWORD process_id = nullptr)
 	{
 		auto val = GetWindowThreadProcessId(window_handle, process_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -552,7 +552,7 @@ namespace user {
 	inline bool show_window(HWND window_handle, int cmd_show = 1)
 	{
 		auto val = ShowWindow(window_handle, cmd_show);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -565,7 +565,7 @@ namespace user {
 	inline bool show_window_async(HWND window_handle, int cmd_show)
 	{
 		auto val = ShowWindowAsync(window_handle, cmd_show);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -579,7 +579,7 @@ namespace user {
 	inline HWND set_parent(HWND child_handle, HWND new_parent_handle = nullptr)
 	{
 		auto val = SetParent(child_handle, new_parent_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -592,7 +592,7 @@ namespace user {
 	inline HWND get_window(HWND window_handle, UINT cmd)
 	{
 		auto val = GetWindow(window_handle, cmd);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -605,7 +605,7 @@ namespace user {
 	inline HWND get_ancestor(HWND window_handle, UINT flags = GA_PARENT)
 	{
 		auto val = GetAncestor(window_handle, flags);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -618,7 +618,7 @@ namespace user {
 	inline bool is_child(HWND parent_handle, HWND window_handle)
 	{
 		auto val = IsChild(parent_handle, window_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -631,7 +631,7 @@ namespace user {
 	inline bool is_window_visible(HWND window_handle)
 	{
 		auto val = IsWindowVisible(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -643,7 +643,7 @@ namespace user {
 	inline bool is_window_enabled(HWND window_handle)
 	{
 		auto val = IsWindowEnabled(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -657,7 +657,7 @@ namespace user {
 	inline bool enable_window(HWND window_handle, bool is_enable)
 	{
 		auto val = EnableWindow(window_handle, is_enable);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -670,7 +670,7 @@ namespace user {
 	inline bool show_owned_popups(HWND window_handle, bool is_show)
 	{
 		auto val = ShowOwnedPopups(window_handle, is_show);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -693,7 +693,7 @@ namespace user {
 	inline bool set_foreground_window(HWND window_handle)
 	{
 		auto val = SetForegroundWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -705,7 +705,7 @@ namespace user {
 	inline bool lock_set_foreground_window(UINT lock_code = LSFW_LOCK)
 	{
 		auto val = LockSetForegroundWindow(lock_code);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -717,7 +717,7 @@ namespace user {
 	inline bool bring_window_to_top(HWND window_handle)
 	{
 		auto val = BringWindowToTop(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -729,7 +729,7 @@ namespace user {
 	inline HWND get_top_window(HWND window_handle)
 	{
 		auto val = GetTopWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -749,7 +749,7 @@ namespace user {
 	inline bool set_window_pos(HWND window_handle, UINT flags = SWP_NOMOVE|SWP_NOSIZE, int offset_x = 0, int offset_y = 0, int width = 0, int height = 0,  HWND insert_after = HWND_TOP)
 	{
 		auto val = SetWindowPos(window_handle, insert_after, offset_x, offset_y, width, height, flags);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -761,7 +761,7 @@ namespace user {
 	inline HWND set_active_window(HWND window_handle)
 	{
 		auto val = SetActiveWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -783,7 +783,7 @@ namespace user {
 	inline bool destroy_window(HWND window_handle)
 	{
 		auto val = DestroyWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -797,7 +797,7 @@ namespace user {
 	inline bool animate_window(HWND window_handle, DWORD time = 200, DWORD flags = AW_BLEND)
 	{
 		auto val = AnimateWindow(window_handle, time, flags);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -809,7 +809,7 @@ namespace user {
 	inline bool update_window(HWND window_handle)
 	{
 		auto val = UpdateWindow(window_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -832,7 +832,7 @@ namespace user {
 	inline UINT register_window_message(const std::tstring& message_str)
 	{
 		auto val = RegisterWindowMessage(message_str.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -849,7 +849,7 @@ namespace user {
 	inline bool post_message(HWND window_handle, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
 		auto val = PostMessage(window_handle, Msg, wParam, lParam);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -867,7 +867,7 @@ namespace user {
 	inline bool post_thread_message(DWORD thread_id, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
 		auto val = PostThreadMessage(thread_id, Msg, wParam, lParam);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -883,7 +883,7 @@ namespace user {
 	inline BOOL get_message(MSG& msg, HWND window_handle = nullptr, int msg_filter_min = 0, int msg_filter_max = 0)
 	{
 		auto val = GetMessage(&msg, window_handle, msg_filter_min, msg_filter_max);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -901,7 +901,7 @@ namespace user {
 		UINT remove_msg = PM_REMOVE, int msg_filter_min = 0, int msg_filter_max = 0)
 	{
 		auto val = PeekMessage(&msg, window_handle, msg_filter_min, msg_filter_max, remove_msg);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -951,7 +951,7 @@ namespace user {
 	inline LRESULT send_message(HWND window_handle, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
 		auto val = SendMessage(window_handle, Msg, wParam, lParam);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -972,7 +972,7 @@ namespace user {
 		SENDASYNCPROC callback_function, ULONG_PTR data = 0)
 	{
 		auto val = SendMessageCallback(window_handle, Msg, wParam, lParam, callback_function, data);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -988,7 +988,7 @@ namespace user {
 	inline bool send_notify_message(HWND window_handle, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
 		auto val = SendNotifyMessage(window_handle, Msg, wParam, lParam);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1007,7 +1007,7 @@ namespace user {
 		UINT flags, UINT timeout, PDWORD_PTR result = nullptr)
 	{
 		auto val = SendMessageTimeout(window_handle, Msg, wParam, lParam, flags, timeout, result);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1025,7 +1025,7 @@ namespace user {
 		LPDWORD info = nullptr, PBSMINFO sm_info = nullptr)
 	{
 		auto val = BroadcastSystemMessageEx(flags, info , Msg, wParam, lParam, sm_info);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1079,7 +1079,7 @@ namespace user {
 	inline UINT_PTR set_timer(HWND window_handle, UINT_PTR timer_id, UINT time_out_val)
 	{
 		auto val = SetTimer(window_handle, timer_id, time_out_val, nullptr);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1092,7 +1092,7 @@ namespace user {
 	inline bool kill_timer(HWND window_handle, UINT_PTR timer_id)
 	{
 		auto val = KillTimer(window_handle, timer_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1107,7 +1107,7 @@ namespace user {
 	inline bool set_prop(HWND window_handle, const std::tstring& prop_name, HANDLE data)
 	{
 		auto val = SetProp(window_handle, prop_name.c_str(), data);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1120,7 +1120,7 @@ namespace user {
 	inline HANDLE remove_prop(HWND window_handle, const std::tstring& prop_name)
 	{
 		auto val = RemoveProp(window_handle, prop_name.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1133,7 +1133,7 @@ namespace user {
 	inline HANDLE get_prop(HWND window_handle, const std::tstring& prop_name)
 	{
 		auto val = GetProp(window_handle, prop_name.c_str());
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1149,7 +1149,7 @@ namespace user {
 	inline int enum_props(HWND window_handle, PROPENUMPROCEX enum_function, LPARAM lParam = 0)
 	{
 		auto val = EnumPropsEx(window_handle, enum_function, lParam);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1166,7 +1166,7 @@ namespace user {
 	inline HHOOK set_windows_hook(int hook_type, HOOKPROC hook_procedure, HINSTANCE module_handle, DWORD thread_id)
 	{
 		auto val = SetWindowsHookEx(hook_type, hook_procedure, module_handle, thread_id);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 
@@ -1195,7 +1195,7 @@ namespace user {
 	inline bool remove_windows_hook(HHOOK hook_handle)
 	{
 		auto val = UnhookWindowsHookEx(hook_handle);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}
 

@@ -13,7 +13,7 @@ namespace mw {
 	{
 		BOOL is_in_job = FALSE;
 		IsProcessInJob(GetCurrentProcess(), nullptr, &is_in_job);
-		GET_ERROR_MSG_OUTPUT(std::tcout);
+		GET_ERROR_MSG_OUTPUT();
 		return is_in_job;
 	}
 
@@ -35,7 +35,7 @@ namespace mw {
 	{
 	public:
 		job() :job_handle(nullptr){}
-		~job() { CloseHandle(job_handle); GET_ERROR_MSG_OUTPUT(std::tcout);}
+		~job() { CloseHandle(job_handle); GET_ERROR_MSG_OUTPUT();}
 
 	public:
 		job(const job&) = delete;
@@ -58,7 +58,7 @@ namespace mw {
 			{
 				job_handle = CreateJobObject(security_attribute,
 					tstring_to_pointer(job_name));
-				GET_ERROR_MSG_OUTPUT(std::tcout);
+				GET_ERROR_MSG_OUTPUT();
 				return job_handle;
 			}
 			else {
@@ -80,7 +80,7 @@ namespace mw {
 			{
 				job_handle = OpenJobObject(desired_access,
 					inherit_handle, job_name.c_str());
-				GET_ERROR_MSG_OUTPUT(std::tcout);
+				GET_ERROR_MSG_OUTPUT();
 				return job_handle;
 			}
 			else {
@@ -102,7 +102,7 @@ namespace mw {
 		bool assign_process(HANDLE process)
 		{
 			auto val = AssignProcessToJobObject(job_handle, process);
-			GET_ERROR_MSG_OUTPUT(std::tcout);
+			GET_ERROR_MSG_OUTPUT();
 			return val;
 		}
 
@@ -118,7 +118,7 @@ namespace mw {
 		{
 			auto val = SetInformationJobObject(job_handle, information_type,
 				job_information, size_of_information);
-			GET_ERROR_MSG_OUTPUT(std::tcout);
+			GET_ERROR_MSG_OUTPUT();
 			return val;
 		}
 
@@ -134,7 +134,7 @@ namespace mw {
 		{
 			auto val = QueryInformationJobObject(job_handle,
 				information_type, output_job_information, size_of_information, nullptr);
-			GET_ERROR_MSG_OUTPUT(std::tcout);
+			GET_ERROR_MSG_OUTPUT();
 			return val;
 		}
 
@@ -146,7 +146,7 @@ namespace mw {
 		bool kill_all_process_in_job(UINT exit_code)
 		{
 			auto val = TerminateJobObject(job_handle, exit_code);
-			GET_ERROR_MSG_OUTPUT(std::tcout);
+			GET_ERROR_MSG_OUTPUT();
 			return val;
 		}
 
