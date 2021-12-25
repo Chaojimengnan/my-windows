@@ -15,3 +15,5 @@
 #include "mw_socket.h"			// 套接字相关的封装
 #include "mw_gdi.h"				// GDI相关的封装
 #include "mw_device.h"			// I/O设备相关的封装
+#include "mw_fiber.h"			// 纤程相关的封装
+#include "mw_memory.h"			// 内存相关的封装

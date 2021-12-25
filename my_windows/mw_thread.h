@@ -384,6 +384,402 @@ namespace mw {
 		WaitForThreadpoolWorkCallbacks(work_item, cancel_pending_callbacks);
 	}
 
+	/// <summary>
+	/// 在用户模式内存中创建一个线程池计时器结构体，并将其结构体指针返回，使用SetThreadpoolTimer在线程池中注册该计时器并指定推送时间和周期
+	/// </summary>
+	/// <param name="func_timer">指定回调函数，当计时器到期时，工作线程就会调用此回调</param>
+	/// <param name="param">与回调函数配套的参数，它将被传入回调函数的参数中</param>
+	/// <param name="pcbe">一个指向TP_CALLBACK_ENVIRON结构的指针，该结构定义了执行回调函数的环境，若为NULL，在默认回调环境中执行</param>
+	/// <returns>若成功返回计时器结构的指针，不要修改此结构的成员，若失败返回NULL</returns>
+	inline PTP_TIMER create_threadpool_timer(PTP_TIMER_CALLBACK func_timer, PVOID param = nullptr,
+		PTP_CALLBACK_ENVIRON pcbe = nullptr)
+	{
+		auto val = CreateThreadpoolTimer(func_timer, param, pcbe);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 释放指定计时器结构体，若没有未完成的回调，则立即释放计时器对象；否则，计时器对象将在未完成的回调完成后异步释放
+	/// </summary>
+	/// <remarks>
+	/// 为了避免回调函数在调用Close函数之后运行，先使用SetThreadpoolTimer将DueTime设为NULL，
+	/// 并将msPeriod和msWindowLength参数设置为 0。然后调用WaitForThreadpoolTimerCallbacks，
+	/// 最后调用CloseThreadpoolTimer
+	/// </remarks>
+	/// <param name="timer">指向计时器结构的指针，它应该是调用CreateThreadpoolTimer的返回值</param>
+	inline void close_threadpool_timer(PTP_TIMER timer)
+	{
+		CloseThreadpoolTimer(timer);
+	}
+
+	/// <summary>
+	/// 设置计时器对象，替换之前的计时器（如果有）。工作线程在指定的超时值(timeout)到期后调用计时器对象的回调。
+	/// </summary>
+	/// <param name="timer">指向计时器结构的指针，它应该是调用CreateThreadpoolTimer的返回值</param>
+	/// <param name="due_time">若为正数或0，则表示1601.1.1以来的绝对时间(100纳秒为单位)，若为负数则是相对于当前时间的等待量，若为NULL则计时器停止推送到队列</param>
+	/// <param name="period">计时器周期，以毫秒为单位，若该参数为0，则只发送一次信号，若此参数大于0，则是周期性的。</param>
+	/// <param name="window_length">以毫秒为单位，系统在调用计时器回调之前可以延迟的最长时间。如果设置此参数，系统可以批量调用以节省资源</param>
+	inline void set_threadpool_timer(PTP_TIMER timer, PFILETIME due_time, DWORD period = 0, DWORD window_length = 0)
+	{
+		SetThreadpoolTimer(timer, due_time, period, window_length);
+	}
+
+	/// <summary>
+	/// 确认指定计时器对象当前是否被设置了(即due_time是否为非NULL)
+	/// </summary>
+	/// <param name="timer">指向计时器结构的指针，它应该是调用CreateThreadpoolTimer的返回值</param>
+	/// <returns>如果设置了返回TRUE，否则返回FALSE，实际上就是due_time参数是否设置为了非NULL</returns>
+	inline BOOL is_threadpool_timer_set(PTP_TIMER timer)
+	{
+		return IsThreadpoolTimerSet(timer);
+	}
+
+	/// <summary>
+	/// 等待未完成的计时器回调完成并可选择取消尚未开始执行的挂起回调。
+	/// </summary>
+	/// <param name="timer">指向计时器结构的指针，它应该是调用CreateThreadpoolTimer的返回值</param>
+	/// <param name="cancel_pending_callbacks">是否取消尚未开始执行的排队回调，若为TRUE，除了正在执行的回调，其他指定工作项回调将被取消</param>
+	inline void wait_for_threadpool_timer_callbacks(PTP_TIMER timer, BOOL cancel_pending_callbacks = false)
+	{
+		WaitForThreadpoolTimerCallbacks(timer, cancel_pending_callbacks);
+	}
+
+	/// <summary>
+	/// 在用户模式内存中创建一个线程池等待结构体，并将其结构体指针返回
+	/// </summary>
+	/// <param name="func_wait">指定回调函数，当等待完成(指定等待内核对象触发)或超时时线程池调用回调函数</param>
+	/// <param name="param">与回调函数配套的参数，它将被传入回调函数的参数中</param>
+	/// <param name="pcbe">一个指向TP_CALLBACK_ENVIRON结构的指针，该结构定义了执行回调函数的环境，若为NULL，在默认回调环境中执行</param>
+	/// <returns>若成功返回等待结构的指针，不要修改此结构的成员，若失败返回NULL</returns>
+	inline PTP_WAIT create_threadpool_wait(PTP_WAIT_CALLBACK func_wait, PVOID param = nullptr,
+		PTP_CALLBACK_ENVIRON pcbe = nullptr)
+	{
+		auto val = CreateThreadpoolWait(func_wait, param, pcbe);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 释放指定等待结构体，若没有未完成的回调，则立即释放等待对象；否则，等待对象将在未完成的回调完成后异步释放
+	/// </summary>
+	/// <remarks>
+	/// 为了避免回调函数在调用Close函数之后运行，先使用SetThreadpoolWait将h设为NULL，
+	/// 。然后调用WaitForThreadpoolWaitCallbacks，最后调用CloseThreadpoolWait
+	/// </remarks>
+	/// <param name="wait">指向等待结构的指针，它应该是调用CreateThreadpoolWait的返回值</param>
+	inline void close_threadpool_wait(PTP_WAIT wait)
+	{
+		CloseThreadpoolWait(wait);
+	}
+
+	/// <summary>
+	/// 设置等待对象，替换之前的等待对象（如果有）。在句柄发出信号后或指定的超时到期后，工作线程调用等待对象的回调函数。
+	/// </summary>
+	/// <remarks>一个等待对象只能等待一个句柄。设置等待对象的句柄会替换之前的句柄（如果有）。
+	/// 您必须在每次发送信号以触发等待回调之前使用等待对象重新注册该事件。
+	/// (即当指定对象触发后，并且调用了对应的回调之后，你必须再次注册一次，否则对象再次触发也不会调用回调了)</remarks>
+	/// <param name="wait">指向等待结构的指针，它应该是调用CreateThreadpoolWait的返回值</param>
+	/// <param name="object_to_wait">它是一个内核对象句柄，若为NULL，则停止推送到队列中，若不为NULL，它应该是一个有效的可等待对象(若句柄在等待时关闭，函数未定义)</param>
+	/// <param name="timeout">若为正数或0，则表示1601.1.1以来的绝对时间(100纳秒为单位)，若为负数则是相对于当前时间的等待量，若为NULL则等待不会超时</param>
+	inline void set_threadpool_wait(PTP_WAIT wait, HANDLE object_to_wait, PFILETIME timeout = nullptr)
+	{
+		SetThreadpoolWait(wait, object_to_wait, timeout);
+	}
+
+	/// <summary>
+	/// 等待未完成的等待回调完成，并可选择取消尚未开始执行的挂起回调。
+	/// </summary>
+	/// <param name="wait">指向等待结构的指针，它应该是调用CreateThreadpoolWait的返回值</param>
+	/// <param name="cancel_pending_callbacks">是否取消尚未开始执行的排队回调，若为TRUE，除了正在执行的回调，其他指定工作项回调将被取消</param>
+	inline void wait_for_threadpool_wait_callbakcs(PTP_WAIT wait, BOOL cancel_pending_callbacks = false)
+	{
+		WaitForThreadpoolWaitCallbacks(wait, cancel_pending_callbacks);
+	}
+
+	/// <summary>
+	/// 在用户模式内存中创建一个线程池I/O完成结构体，并将其结构体指针返回
+	/// </summary>
+	/// <param name="file_handle">一个文件或设备句柄(它应该是OVERLAPPED打开的)，它将绑定到这个I/O完成结构体中</param>
+	/// <param name="func_io">每次文件或设备完成重叠I/O操作时线程池调用的回调函数</param>
+	/// <param name="param">与回调函数配套的参数，它将被传入回调函数的参数中</param>
+	/// <param name="pcbe">一个指向TP_CALLBACK_ENVIRON结构的指针，该结构定义了执行回调函数的环境，若为NULL，在默认回调环境中执行</param>
+	/// <returns>若成功返回I/O完成结构的指针，不要修改此结构的成员，若失败返回NULL</returns>
+	inline PTP_IO create_threadpool_io(HANDLE file_handle, PTP_WIN32_IO_CALLBACK func_io, PVOID param = nullptr,
+		PTP_CALLBACK_ENVIRON pcbe = nullptr)
+	{
+		auto val = CreateThreadpoolIo(file_handle, func_io, param, pcbe);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 释放指定io完成结构体，若没有未完成的回调，则立即释放等待对象；否则，等待对象将在未完成的回调完成后异步释放
+	/// </summary>
+	/// <remarks>
+	/// 在调用此函数之前，您应该关闭关联的文件句柄并等待所有未完成的重叠 I/O 操作完成。调用此函数后，
+	/// 您不能再导致发生任何重叠的 I/O 操作。
+	/// 
+	/// 可能需要取消线程池 I/O 通知以防止内存泄漏，参阅CancelThreadpoolIo
+	/// </remarks>
+	/// <param name="io">指向io完成结构的指针，它应该是调用CreateThreadpoolIo的返回值</param>
+	inline void close_threadpool_io(PTP_IO io)
+	{
+		CloseThreadpoolIo(io);
+	}
+
+	/// <summary>
+	/// 通知线程池，指定I/O完成结构体绑定的I/O操作可能已经开始。当I/O操作完成时，工作线程将调用绑定的回调函数。注意，每一次异步IO之前都要调用该函数
+	/// </summary>
+	/// <remarks>
+	/// 您必须在对绑定到 I/O 完成对象的文件句柄启动 *每个* 异步 I/O 操作之前调用此函数。如果不这样做，
+	/// 将导致线程池在完成时忽略 I/O 操作并导致内存损坏。
+	/// 
+	/// 如果 I/O 操作失败，则调用CancelThreadpoolIo函数取消此通知。
+	/// 
+	/// 如果绑定到 I/O 完成对象的文件句柄具有通知模式 FILE_SKIP_COMPLETION_PORT_ON_SUCCESS 
+	/// 并且异步 I/O 操作成功立即返回，则不会调用该对象的 I/O 完成回调函数，并且必须取消线程池 I/O 通知
+	/// (使用CancelThreadpoolIo)
+	/// </remarks>
+	/// <param name="io">指向io完成结构的指针，它应该是调用CreateThreadpoolIo的返回值</param>
+	inline void start_threadpool_io(PTP_IO io)
+	{
+		StartThreadpoolIo(io);
+	}
+
+	/// <summary>
+	/// 取消来自StartThreadpoolIo函数的通知，注意，若异步IO失败(调用write和read失败并不是997)，你需要调用该函数
+	/// </summary>
+	/// <remarks>
+	/// 为了防止内存泄漏，您必须为以下任一场景调用CancelThreadpoolIo函数：
+	/// - 重叠（异步） I/O 操作失败（即异步 I/O 函数调用返回失败，错误代码不是 ERROR_IO_PENDING）。
+	/// - 异步 I/O 操作立即成功返回，并且与 I/O 完成对象关联的文件句柄具有通知模式 FILE_SKIP_COMPLETION_PORT_ON_SUCCESS。
+	/// 文件句柄不会通知 I/O 完成端口，也不会调用相关的 I/O 回调函数。
+	/// </remarks>
+	/// <param name="io">指向io完成结构的指针，它应该是调用CreateThreadpoolIo的返回值</param>
+	inline void cancel_threadpool_io(PTP_IO io)
+	{
+		CancelThreadpoolIo(io);
+	}
+
+	/// <summary>
+	/// 等待未完成的 I/O 完成回调完成，并可选择取消尚未开始执行的挂起回调。
+	/// </summary>
+	/// <remarks>
+	/// 当fCancelPendingCallbacks设置为 TRUE 时，仅取消排队的回调。未取消的 I/O 请求不会被取消。
+	/// 因此，调用者应该为OVERLAPPED结构调用GetOverlappedResult以检查 I/O 操作是否已完成，然后再释放该结构。
+	/// 作为替代方法，将fCancelPendingCallbacks设置为 FALSE，并让关联的 I/O 完成回调释放OVERLAPPED结构。
+	/// 注意不要在 I/O 请求仍然挂起时释放OVERLAPPED结构；使用GetOverlappedResult确定 I/O 操作的状态并等待操作完成。
+	/// 该CancelIoEx函数可以选择首先用于取消未完成的 I/O 请求，从而可能缩短等待时间。
+	/// 
+	/// 注意，正如上面所说，该函数若为TRUE，只是取消队列回调，不会影响排队的I/O请求，你需要使用CancelIoEx取消I/O请求
+	/// </remarks>
+	/// <param name="io">指向io完成结构的指针，它应该是调用CreateThreadpoolIo的返回值</param>
+	/// <param name="cancle_pending_callbacks">是否取消尚未开始执行的排队回调，若为TRUE，除了正在执行的回调，其他指定工作项回调将被取消</param>
+	inline void wait_for_threadpool_io_callbacks(PTP_IO io, BOOL cancle_pending_callbacks = false)
+	{
+		WaitForThreadpoolIoCallbacks(io, cancle_pending_callbacks);
+	}
+
+	/// <summary>
+	/// 当当前回调函数返回时线程池将释放指定关键段
+	/// </summary>
+	/// <param name="callback_instance">它是线程池回调函数的instance参数，用于指定当前回调</param>
+	/// <param name="cs">要释放的关键段</param>
+	inline void leave_critical_section_when_callback_returns(PTP_CALLBACK_INSTANCE callback_instance, CRITICAL_SECTION& cs)
+	{
+		LeaveCriticalSectionWhenCallbackReturns(callback_instance, &cs);
+	}
+
+	/// <summary>
+	/// 当当前回调函数返回时线程池将释放指定互斥量(mutex)
+	/// </summary>
+	/// <param name="callback_instance">它是线程池回调函数的instance参数，用于指定当前回调</param>
+	/// <param name="mutex">要释放的互斥量</param>
+	inline void release_mutex_when_callback_returns(PTP_CALLBACK_INSTANCE callback_instance, HANDLE mutex)
+	{
+		ReleaseMutexWhenCallbackReturns(callback_instance, mutex);
+	}
+
+	
+	/// <summary>
+	/// 当当前回调函数返回时线程池将释放指定信号量(semaphore)
+	/// </summary>
+	/// <param name="callback_instance">它是线程池回调函数的instance参数，用于指定当前回调</param>
+	/// <param name="semaphore">要释放的信号量</param>
+	/// <param name="crel">信号量对象计数的递增量</param>
+	inline void release_semaphore_when_callback_returns(PTP_CALLBACK_INSTANCE callback_instance, HANDLE semaphore, DWORD crel)
+	{
+		ReleaseSemaphoreWhenCallbackReturns(callback_instance, semaphore, crel);
+	}
+
+	/// <summary>
+	/// 当当前回调函数返回时线程池将触发指定事件
+	/// </summary>
+	/// <param name="callback_instance">它是线程池回调函数的instance参数，用于指定当前回调</param>
+	/// <param name="event">要出发的事件</param>
+	inline void set_event_when_callback_returns(PTP_CALLBACK_INSTANCE callback_instance, HANDLE event)
+	{
+		SetEventWhenCallbackReturns(callback_instance, event);
+	}
+
+	/// <summary>
+	/// 当当前回调函数返回时线程池将卸载指定DLL模块
+	/// </summary>
+	/// <param name="callback_instance">它是线程池回调函数的instance参数，用于指定当前回调</param>
+	/// <param name="module_handle">指定要卸载的DLL实例句柄</param>
+	inline void free_library_when_callback_returns(PTP_CALLBACK_INSTANCE callback_instance, HMODULE module_handle)
+	{
+		FreeLibraryWhenCallbackReturns(callback_instance, module_handle);
+	}
+
+	/// <summary>
+	/// 分配一个新的线程池来执行回调，创建之后，你需要调用SetThreadpoolThreadMaximum和Minimum指定池中可用的最大和最小线程数
+	/// </summary>
+	/// <returns>若成功返回线程池结构体的指针，不要修改此结构的成员，若失败返回NULL</returns>
+	inline PTP_POOL create_threadpool()
+	{
+		auto val = CreateThreadpool(nullptr);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 关闭指定线程池，若没有未完成的work, io, timer, wait回调，则立即释放等待对象；否则，将在未完成的回调完成后异步释放
+	/// </summary>
+	/// <param name="threadpool">指向线程池结构体的指针，它应该是调用CreateThreadpool的返回值</param>
+	inline void close_threadpool(PTP_POOL threadpool)
+	{
+		CloseThreadpool(threadpool);
+	}
+
+	/// <summary>
+	/// 设置指定线程池可以分配给处理回调的最大线程数
+	/// </summary>
+	/// <param name="threadpool">指向线程池结构体的指针，它应该是调用CreateThreadpool的返回值</param>
+	/// <param name="thread_maximum">线程池的线程最大值</param>
+	inline void set_threadpool_thread_maximum(PTP_POOL threadpool, DWORD thread_maximum)
+	{
+		SetThreadpoolThreadMaximum(threadpool, thread_maximum);
+	}
+
+	/// <summary>
+	/// 设置指定线程池可以分配给处理回调的最大线程数
+	/// </summary>
+	/// <param name="threadpool">指向线程池结构体的指针，它应该是调用CreateThreadpool的返回值</param>
+	/// <param name="thread_minimum">线程池的线程最小值</param>
+	/// <returns>操作是否成功</returns>
+	inline BOOL set_threadpool_thread_minimum(PTP_POOL threadpool, DWORD thread_minimum)
+	{
+		auto val = SetThreadpoolThreadMinimum(threadpool, thread_minimum);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 初始化回调环境
+	/// </summary>
+	/// <param name="pcbe">用户分配的一个TP_CALLBACK_ENVIRON结构，它定义一个回调环境</param>
+	inline void initialize_threadpool_environment(PTP_CALLBACK_ENVIRON pcbe)
+	{
+		InitializeThreadpoolEnvironment(pcbe);
+	}
+
+	/// <summary>
+	/// 删除指定的回调环境。当不再需要回调环境来创建新的线程池对象时调用此函数
+	/// </summary>
+	/// <param name="pcbe">用户分配的一个TP_CALLBACK_ENVIRON结构，它定义一个回调环境</param>
+	inline void destroy_threadpool_environment(PTP_CALLBACK_ENVIRON pcbe)
+	{
+		DestroyThreadpoolEnvironment(pcbe);
+	}
+
+	/// <summary>
+	/// 设置生成回调时要使用的线程池，若回调环境不指定线程池，则使用默认全局线程池(不需要销毁的线程池，与进程绑定)
+	/// </summary>
+	/// <param name="pcbe">用户分配的一个TP_CALLBACK_ENVIRON结构，它定义一个回调环境，它应该使用Initialize初始化过了</param>
+	/// <param name="threadpool">一个TP_POOL结构体的指针，它定义了线程池，它应该是CreateThreadpool返回的指针</param>
+	inline void set_threadpool_callback_pool(PTP_CALLBACK_ENVIRON pcbe, PTP_POOL threadpool)
+	{
+		SetThreadpoolCallbackPool(pcbe, threadpool);
+	}
+
+	/// <summary>
+	/// 表示与此回调环境关联的回调可能不会快速返回，线程池可以使用此信息来更好地确定何时应该创建新线程
+	/// </summary>
+	/// <param name="pcbe">用户分配的一个TP_CALLBACK_ENVIRON结构，它定义一个回调环境，它应该使用Initialize初始化过了</param>
+	inline void set_threadpool_callback_runs_long(PTP_CALLBACK_ENVIRON pcbe)
+	{
+		SetThreadpoolCallbackRunsLong(pcbe);
+	}
+
+	/// <summary>
+	/// 只要有未完成的回调，就确保指定的 DLL 保持加载状态。
+	/// </summary>
+	/// <remarks>注意事项看文档</remarks>
+	/// <param name="pcbe">用户分配的一个TP_CALLBACK_ENVIRON结构，它定义一个回调环境，它应该使用Initialize初始化过了</param>
+	/// <param name="module_handle">DLL的实例句柄</param>
+	inline void set_threadpool_callback_library(PTP_CALLBACK_ENVIRON pcbe, PVOID module_handle)
+	{
+		SetThreadpoolCallbackLibrary(pcbe, module_handle);
+	}
+
+	/// <summary>
+	/// 创建一个清理组，应用程序可以使用它来跟踪一个或多个线程池回调，使用SetThreadpoolCallbackCleanupGroup将清理组与回调环境关联
+	/// </summary>
+	/// <remarks>
+	/// 使用CreateThreadpool*系函数都会向组添加一个成员
+	/// 使用CloseThreadpool*系函数向组删除一个成员
+	/// 
+	/// 要关闭所有的回调，调用CloseThreadpoolCleanupGroupMembers
+	/// </remarks>
+	/// <returns>若成功返回线程池清理组结构体的指针，不要修改此结构的成员，若失败返回NULL</returns>
+	inline PTP_CLEANUP_GROUP create_threadpool_cleanup_group()
+	{
+		auto val = CreateThreadpoolCleanupGroup();
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 将指定的清理组与指定的回调环境相关联
+	/// </summary>
+	/// <param name="pcbe">用户分配的一个TP_CALLBACK_ENVIRON结构，它定义一个回调环境，它应该使用Initialize初始化过了</param>
+	/// <param name="cleanup_group">一个TP_CLEANUP_GROUP结构体的指针，它定义了清理组，它应该是CreateThreadpoolCleanupGroup返回的值</param>
+	/// <param name="cleanup_group_cancel_func">一个回调函数，当CloseThreadpoolCleanupGroupMembers的第二个参数为TRUE时，为所有取消的回调调用</param>
+	inline void set_threadpool_callback_cleanup_group(PTP_CALLBACK_ENVIRON pcbe, PTP_CLEANUP_GROUP cleanup_group, 
+		PTP_CLEANUP_GROUP_CANCEL_CALLBACK cleanup_group_cancel_func = nullptr)
+	{
+		SetThreadpoolCallbackCleanupGroup(pcbe, cleanup_group, cleanup_group_cancel_func);
+	}
+
+	/// <summary>
+	/// 释放指定清理组的成员，等待所有回调函数完成，并可选择取消任何未完成的回调函数。
+	/// </summary>
+	/// <remarks>
+	/// 使用了该函数，就不应该再使用CloseThreadpool*系函数单独关闭某个项，因为它们都被关闭了。若只是想简单地等待或取消排队项而不释放他们，使用
+	/// WaitForThreadpool*系函数。
+	/// 
+	/// 其他事项请看文档。
+	/// </remarks>
+	/// <param name="cleanup_group">一个TP_CLEANUP_GROUP结构体的指针，它定义了清理组，它应该是CreateThreadpoolCleanupGroup返回的值</param>
+	/// <param name="cancel_pending_callbacks">是否取消尚未开始执行的排队回调，若为TRUE，除了正在执行的回调，其他指定工作项回调将被取消</param>
+	/// <param name="cleanup_param">要传给清理组回调函数的参数，若你没有指定清理组回调，或cancel_pending_callbacks为false，该参数忽略</param>
+	inline void close_threadpool_cleanup_group_members(PTP_CLEANUP_GROUP cleanup_group, BOOL cancel_pending_callbacks = false
+		, PVOID cleanup_param = nullptr)
+	{
+		CloseThreadpoolCleanupGroupMembers(cleanup_group, cancel_pending_callbacks, cleanup_param);
+	}
+
+	/// <summary>
+	/// 关闭指定的清理组，注意，调用该函数时，清理组必须没有成员，使用CloseThreadpoolCleanupGroupMembers关闭所有成员
+	/// </summary>
+	/// <param name="cleanup_group">一个TP_CLEANUP_GROUP结构体的指针，它定义了清理组，它应该是CreateThreadpoolCleanupGroup返回的值</param>
+	inline void close_threadpool_cleanup_group(PTP_CLEANUP_GROUP cleanup_group)
+	{
+		CloseThreadpoolCleanupGroup(cleanup_group);
+	}
+
 
 namespace sync {
 
@@ -1186,7 +1582,7 @@ namespace sync {
 	inline HANDLE create_mutex(const std::tstring& mutex_name = _T(""), DWORD flags = 0,
 		DWORD desired_access = MUTEX_ALL_ACCESS, LPSECURITY_ATTRIBUTES mutex_attributes = nullptr)
 	{
-		auto val = CreateMutexEx(mutex_attributes, tstring_to_pointer(mutex_name), desired_access, desired_access);
+		auto val = CreateMutexEx(mutex_attributes, tstring_to_pointer(mutex_name), flags, desired_access);
 		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}

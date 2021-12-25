@@ -75,7 +75,7 @@ namespace mw {
 	/// <param name="buffer">[out]指向接收从文件或设备读取的数据的缓冲区的指针，该缓冲区必须在读取期间有效，且在读取完毕之前不得使用该缓冲区</param>
 	/// <param name="bytes_to_read">要读取的最大字节数</param>
 	/// <param name="bytes_read">[out,opt]用于接收使用该同步函数读取的字节数的变量的指针，当是异步IO时，该参数应该为NULL</param>
-	/// <param name="overlapped">[in,out,opt]指向OVERLAPPED数据结构的指针，该结构提供要在异步（重叠）文件读取操作期间使用的数据，该结构必须在读取期间可用</param>
+	/// <param name="overlapped">[in,out,opt]指向OVERLAPPED数据结构的指针，该结构提供要在异步（重叠）文件读取操作期间使用的数据，该结构必须在读取期间可用(唯一且有效)</param>
 	/// <returns>若函数成功，返回TRUE，若函数失败，或正在异步完成，返回值为FALSE。GetLastError得到的ERROR_IO_PENDING不是失败值(异步)</returns>
 	inline BOOL read_file(HANDLE file_handle, LPVOID buffer, DWORD bytes_to_read, LPDWORD bytes_read, LPOVERLAPPED overlapped = nullptr)
 	{
@@ -99,7 +99,7 @@ namespace mw {
 	/// <param name="file_handle">设备句柄，该句柄必须已经具有读取权限创建，并且它应该具有FILE_FLAG_OVERLAPPED标记(异步标记)</param>
 	/// <param name="buffer">[out,opt]指向接收从文件或设备读取的数据的缓冲区的指针，该缓冲区必须在读取期间有效，且在读取完毕之前不得使用该缓冲区</param>
 	/// <param name="bytes_to_read">要读取的字节数</param>
-	/// <param name="overlapped">[in,out]指向OVERLAPPED数据结构的指针，该结构提供要在异步（重叠）文件读取操作期间使用的数据，该结构必须在读取期间可用</param>
+	/// <param name="overlapped">[in,out]指向OVERLAPPED数据结构的指针，该结构提供要在异步（重叠）文件读取操作期间使用的数据，该结构必须在读取期间可用(唯一且有效)</param>
 	/// <param name="completion_routine">当读取操作完成并且调用线程处于可警告的等待状态时，指向要调用的完成例程的指针</param>
 	/// <returns>操作是否成功</returns>
 	inline BOOL read_file_async(HANDLE file_handle, LPVOID buffer, DWORD bytes_to_read, 
@@ -118,7 +118,7 @@ namespace mw {
 	/// <param name="buffer">指向包含要写入文件或设备的数据的缓冲区的指针，该缓冲区必须在写操作期间有效，且在写操作完毕之前不得使用该缓冲区</param>
 	/// <param name="bytes_to_write">要写入文件或设备的字节数。零值指定空写操作。空写操作的行为取决于底层文件系统或通信技术</param>
 	/// <param name="bytes_written">[out,opt]用于接收使用该同步函数写入的字节数的变量的指针，当是异步IO时，该参数应该为NULL</param>
-	/// <param name="overlapped">[in,out,opt]指向OVERLAPPED数据结构的指针，该结构提供要在异步（重叠）文件写入操作期间使用的数据，该结构必须在写入期间可用</param>
+	/// <param name="overlapped">[in,out,opt]指向OVERLAPPED数据结构的指针，该结构提供要在异步（重叠）文件写入操作期间使用的数据，该结构必须在写入期间可用(唯一且有效)</param>
 	/// <returns>若函数成功，返回TRUE，若函数失败，或正在异步完成，返回值为FALSE。GetLastError得到的ERROR_IO_PENDING不是失败值(异步)</returns>
 	inline BOOL write_file(HANDLE file_handle, LPCVOID buffer, DWORD bytes_to_write, LPDWORD bytes_written, LPOVERLAPPED overlapped = nullptr)
 	{
@@ -145,7 +145,7 @@ namespace mw {
 	/// <param name="file_handle">设备句柄，该句柄必须已经具有写操作权限创建，并且它应该具有FILE_FLAG_OVERLAPPED标记(异步标记),不要将I/O完成端口与此句柄相关联</param>
 	/// <param name="buffer">[opt]指向接收从文件或设备读取的数据的缓冲区的指针，该缓冲区必须在读取期间有效，且在读取完毕之前不得使用该缓冲区</param>
 	/// <param name="bytes_to_write">要写入文件或设备的字节数。零值指定空写操作。空写操作的行为取决于底层文件系统或通信技术</param>
-	/// <param name="overlapped">[in,out]指向OVERLAPPED数据结构的指针，该结构提供要在异步（重叠）文件读取操作期间使用的数据，该结构必须在写操作期间可用</param>
+	/// <param name="overlapped">[in,out]指向OVERLAPPED数据结构的指针，该结构提供要在异步（重叠）文件读取操作期间使用的数据，该结构必须在写操作期间可用(唯一且有效)</param>
 	/// <param name="completion_routine">当写操作完成并且调用线程处于可警告的等待状态时，指向要调用的完成例程的指针</param>
 	/// <returns>操作是否成功</returns>
 	inline BOOL write_file_async(HANDLE file_handle, LPCVOID buffer, DWORD bytes_to_write, 

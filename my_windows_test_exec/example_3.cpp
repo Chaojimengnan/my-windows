@@ -853,7 +853,7 @@ VOID CALLBACK work_callback(
 {
 	auto _index = mw::sync::interlocked_increment(index);
 	//std::cout << "猛男归来!" << _index <<  "\n";
-	printf_s("猛男归来!%d\n", _index);
+	printf_s("猛男归来!%d，thread_id = %d\n", _index, mw::get_current_thread_id());
 
 	mw::sleep(1000 * _index);
 
@@ -884,4 +884,231 @@ void example_3_12()
 
 	// 释放工作项资源
 	mw::close_threadpool_work(work_item);
+}
+
+VOID CALLBACK timer_callback(
+	PTP_CALLBACK_INSTANCE Instance,
+	PVOID                 Context,
+	PTP_TIMER             timer
+)
+{
+	printf_s("大咩德斯！\n");
+	Sleep(1000);
+}
+
+
+/// <summary>
+/// 测试线程池计时器，即隔一段时间调用函数
+/// </summary>
+void example_3_13()
+{
+	auto timer = mw::create_threadpool_timer(timer_callback);
+
+	FILETIME ft = { 0 };
+	ft.dwLowDateTime = -10000000;
+	mw::set_threadpool_timer(timer, &ft, 1000);
+
+	std::cout << "main_thread:" << mw::is_threadpool_timer_set(timer) << "\n";
+
+	Sleep(5000);
+
+	// 暂停计时器，然后等待当前还在执行的计时器回调，然后释放计时器结构体
+	mw::set_threadpool_timer(timer, nullptr);
+	mw::wait_for_threadpool_timer_callbacks(timer, true);
+	mw::close_threadpool_timer(timer);
+
+}
+
+
+VOID CALLBACK wait_callback(
+	PTP_CALLBACK_INSTANCE Instance,
+	PVOID Context,
+	PTP_WAIT Wait,
+	TP_WAIT_RESULT itResult
+)
+{
+	switch (itResult)
+	{
+	case WAIT_TIMEOUT:
+		std::cout << "回调函数：侦测到超时！\n";
+		break;
+	case WAIT_OBJECT_0:
+		std::cout << "回调函数：指定内核对象激活！\n";
+		break;
+	case WAIT_ABANDONED_0:
+		std::cout << "回调函数：内核对象被遗弃！\n";
+		break;
+	default:
+		std::cout << "回调函数：BUG，进入了奇怪的地方\n";
+		break;
+	}
+}
+
+/// <summary>
+/// 测试线程池等待，即等待内核对象触发，然后调用函数
+/// </summary>
+void example_3_14()
+{
+	auto wait = mw::create_threadpool_wait(wait_callback);
+
+	auto test_event = mw::sync::create_event();
+	mw::set_threadpool_wait(wait, test_event);
+
+
+	Sleep(1000);
+
+	mw::sync::set_event(test_event);
+
+	Sleep(1000);
+	mw::wait_for_threadpool_wait_callbakcs(wait, 0);
+	mw::close_threadpool_wait(wait);
+	
+}
+
+VOID CALLBACK io_callback(
+	_Inout_     PTP_CALLBACK_INSTANCE Instance,
+	_Inout_opt_ PVOID                 Context,
+	_Inout_opt_ PVOID                 Overlapped,
+	_In_        ULONG                 IoResult,
+	_In_        ULONG_PTR             NumberOfBytesTransferred,
+	_Inout_     PTP_IO                Io
+)
+{
+	std::cout << IoResult << "\n";
+	std::cout << NumberOfBytesTransferred << "\n\n";
+
+}
+
+/// <summary>
+/// 测试线程池io，即在异步I/O完成时调用一个函数
+/// </summary>
+void example_3_15()
+{
+	auto file_handle = mw::create_file(_T("../temp/123.txt"), GENERIC_WRITE, OPEN_EXISTING, 0);
+
+	auto io_handle = mw::create_threadpool_io(file_handle, io_callback);
+
+	OVERLAPPED op1 = { 0 }, op2 = {0}, op3 = {0};
+	op1.Offset = -1;
+	op1.OffsetHigh = -1;
+	op2.Offset = -1;
+	op2.OffsetHigh = -1;
+	op3.Offset = -1;
+	op3.OffsetHigh = -1;
+
+	// 每次异步IO之前就要调用该函数
+	mw::start_threadpool_io(io_handle);
+
+	// 除此之外，你还需要检查返回值和GetLastError，如果不是997，那么需要调用cancle将线程池等待取消掉
+	mw::write_file(file_handle, "asdhausdhasud", 13, nullptr, &op1);
+
+	// 每次异步IO之前就要调用该函数
+	mw::start_threadpool_io(io_handle);
+
+	mw::write_file(file_handle, "___1231241231234", 16, nullptr, &op2);
+
+	// 每次异步IO之前就要调用该函数
+	mw::start_threadpool_io(io_handle);
+
+	mw::write_file(file_handle, "@@@@@@@", 7, nullptr, &op3);
+
+	mw::wait_for_threadpool_io_callbacks(io_handle);
+
+	CloseHandle(file_handle);
+
+	mw::close_threadpool_io(io_handle);
+
+}
+
+
+/// <summary>
+/// 创建一个线程池(而不是使用默认线程池)，并创建一个回调环境与其关联，最后创建一个清理组与回调环境关联。
+/// </summary>
+void example_3_16()
+{
+	// 创建线程池，并指定最大线程和最小线程数量
+	auto threadpool = mw::create_threadpool();
+	mw::set_threadpool_thread_maximum(threadpool, 8);
+	mw::set_threadpool_thread_minimum(threadpool, 1);
+	
+	// 创建回调环境，并将其与线程池关联
+	TP_CALLBACK_ENVIRON pcbe = { 0 };
+	mw::initialize_threadpool_environment(&pcbe);
+
+	// 若没有这句，则回调环境与默认线程池关联
+	mw::set_threadpool_callback_pool(&pcbe, threadpool);
+
+	// 创建清理组，并将其与回调环境关联，其作用是得体地销毁线程池
+	auto cleanup_group = mw::create_threadpool_cleanup_group();
+	mw::set_threadpool_callback_cleanup_group(&pcbe, cleanup_group);
+
+	// 创建工作项，不要忘记与回调环境关联
+	auto work_item = mw::create_threadpool_work(work_callback, nullptr, &pcbe);
+
+	// 提交工作项
+	mw::submit_threadpool_work(work_item);
+	mw::submit_threadpool_work(work_item);
+	mw::submit_threadpool_work(work_item);
+	mw::submit_threadpool_work(work_item);
+
+
+	// 关闭所有成员，在之前等待所有回调完成
+	// (在这里只有work_item一个成员)，如果有多个不同类型的项，则只需这个函数就能Close所有项，不用分别调用不同的Close函数
+	mw::close_threadpool_cleanup_group_members(cleanup_group);
+
+	// 然后关闭清理组本身(调用之前必须确认清理组没有成员)
+	mw::close_threadpool_cleanup_group(cleanup_group);
+
+	// 最后关闭和释放线程池和回调环境
+	mw::destroy_threadpool_environment(&pcbe);
+	mw::close_threadpool(threadpool);
+}
+
+void* main_fiber = nullptr;
+void* work_fiber = nullptr;
+
+VOID WINAPI my_work_fiber(
+	LPVOID lpFiberParameter
+)
+{
+	std::cout << "工作纤程：我很好哦~\n";
+	
+	mw::switch_to_fiber(main_fiber);
+
+	std::cout << "工作纤程：我觉得你很幼稚，主纤程\n";
+
+	mw::switch_to_fiber(main_fiber);
+
+	std::cout << "工作纤程：纳尼！NO~~~~~\n";
+
+}
+
+
+/// <summary>
+/// 纤程初步
+/// </summary>
+void example_3_17()
+{
+	// 将当前线程转换为纤程
+	main_fiber = mw::convert_thread_to_fiber();
+
+	work_fiber = mw::create_fiber(my_work_fiber);
+
+	std::cout << "主纤程：你好吗，工作纤程？\n";
+
+	mw::switch_to_fiber(work_fiber);
+
+	std::cout << "主纤程：是吗，我也很好。\n";
+
+	mw::switch_to_fiber(work_fiber);
+
+	std::cout << "主纤程：那你去死吧(调用DeleteFiber)\n";
+
+	mw::delete_fiber(work_fiber);
+
+
+	std::cout << "完毕\n";
+
+	mw::convert_fiber_to_thread();
+
 }

@@ -62,5 +62,11 @@
     <ClInclude Include="mw_device.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mw_fiber.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mw_memory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

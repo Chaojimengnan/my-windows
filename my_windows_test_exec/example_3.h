@@ -27,3 +27,13 @@ void example_3_10();
 void example_3_11();
 
 void example_3_12();
+
+void example_3_13();
+
+void example_3_14();
+
+void example_3_15();
+
+void example_3_16();
+
+void example_3_17();

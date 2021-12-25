@@ -177,6 +177,7 @@
     <ClCompile Include="example_3.cpp" />
     <ClCompile Include="example_4.cpp" />
     <ClCompile Include="example_5.cpp" />
+    <ClCompile Include="example_6.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -194,6 +195,7 @@
     <ClInclude Include="example_3.h" />
     <ClInclude Include="example_4.h" />
     <ClInclude Include="example_5.h" />
+    <ClInclude Include="example_6.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
