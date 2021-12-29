@@ -128,4 +128,13 @@ namespace mw {
 		return true;
 	}
 
+	/// <summary>
+	/// 获取在WOW64下运行的应用程序的当前系统信息，若是在64位程序，或不是在x86-x64处理器上调用该函数，则等效于GetSystemInfo
+	/// </summary>
+	/// <param name="system_info">[out]一个用户分配的SYSTEM_INFO结构体，用于接收系统信息</param>
+	inline void get_system_info(SYSTEM_INFO& system_info)
+	{
+		GetNativeSystemInfo(&system_info);
+	}
+
 }//mw

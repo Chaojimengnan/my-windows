@@ -1,8 +1,7 @@
 #pragma once
 #include <sstream>
 
-namespace mw {
-namespace user {
+namespace mw::user {
 
 	/// <summary>
 	/// 创建并弹出一个消息框，消息框是一种特殊的模态对话框
@@ -292,5 +291,4 @@ namespace user {
 		return is_ok1 && is_ok2;
 	}
 
-};//user
-};//mw
+};//mw::user

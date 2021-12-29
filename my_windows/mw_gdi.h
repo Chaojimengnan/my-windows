@@ -1,7 +1,6 @@
 #pragma once
 
-namespace mw {
-namespace gdi {
+namespace mw::gdi {
 
 	// TODO:
 	// CreateDC，DeleteDC，CreateCompatibleDC，DeleteDC，CreateMetaFile，CloseMetaFile
@@ -365,8 +364,5 @@ namespace gdi {
 		return val;
 	}
 
-
-
-};//gdi
-};//mw
+};//mw::gdi
 

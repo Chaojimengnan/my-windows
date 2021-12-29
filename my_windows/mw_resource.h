@@ -1,7 +1,6 @@
 #pragma once
 
-namespace mw {
-namespace user {
+namespace mw::user {
 
 	/// <summary>
 	/// 从模块内部获取加载一个
@@ -69,5 +68,4 @@ namespace user {
 		return resource_handle;
 	}
 
-};//user
-};//mw
+};//mw::user

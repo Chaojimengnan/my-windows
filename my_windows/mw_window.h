@@ -1200,6 +1200,19 @@ namespace user {
 	}
 
 	/// <summary>
+	/// 将指定点的数组从一个窗口坐标系(from)映射到另一个窗口坐标系(to)
+	/// </summary>
+	/// <param name="window_handle_from">转换点的窗口句柄，若为NULL或HWND_DESKTOP，则假定点数组在屏幕坐标中</param>
+	/// <param name="window_handle_to">点转换到的窗口句柄，若为NULL或HWND_DESKTOP，则将点转换为屏幕坐标</param>
+	/// <param name="points">[in,out]POINT结构的数组，它也可以是RECT结构，在这种情况，points_count应为2</param>
+	/// <param name="points_count">POINT结构数组的数量</param>
+	/// <returns>若函数失败，返回值为0，否则低位是x轴之差，高位是y轴之差(from坐标点到to坐标点)</returns>
+	inline int map_window_points(HWND window_handle_from, HWND window_handle_to, LPPOINT points, UINT points_count)
+	{
+		return MapWindowPoints(window_handle_from, window_handle_to, points, points_count);
+	}
+
+	/// <summary>
 	/// 简单的窗口包装类，里面有一些有用的方法(持续更新)
 	/// </summary>
 	class window_instance {

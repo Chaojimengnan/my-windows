@@ -1,6 +1,7 @@
 #pragma once
 #include "mw_utility.h"
 #include "mw_security.h"
+#include <psapi.h>
 
 namespace mw {
 
@@ -317,6 +318,20 @@ namespace mw {
 	inline bool get_process_affinity_mask(HANDLE process_handle, DWORD_PTR& process_affinity_mask, DWORD_PTR& system_affinity_mask)
 	{
 		auto val = GetProcessAffinityMask(process_handle, &process_affinity_mask, &system_affinity_mask);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 获取与指定进程有关的内存使用情况的信息
+	/// </summary>
+	/// <param name="process_handle">指定进程的句柄，该句柄必须具有PROCESS_QUERY_INFORMATION或PROCESS_QUERY_LIMITED_INFORMATION访问权限</param>
+	/// <param name="process_memory_counters">[out]用户分配的PROCESS_MEMORY_COUNTERS结构体的指针，用于接收指定进程内存使用信息</param>
+	/// <returns>操作是否成功</returns>
+	inline BOOL get_process_memory_info(HANDLE process_handle, PROCESS_MEMORY_COUNTERS& process_memory_counters)
+	{
+		process_memory_counters.cb = sizeof(PROCESS_MEMORY_COUNTERS);
+		auto val = GetProcessMemoryInfo(process_handle, &process_memory_counters, sizeof(PROCESS_MEMORY_COUNTERS));
 		GET_ERROR_MSG_OUTPUT();
 		return val;
 	}

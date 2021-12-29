@@ -6,8 +6,7 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-namespace mw {
-namespace socket {
+namespace mw::socket {
 	
 	/// <summary>
 	/// 若你要使用socket库，首先应该运行该函数在当前进程中初始化Winsock 2 DLL
@@ -71,7 +70,7 @@ namespace socket {
 	/// <returns>若成功，返回引用到新套接字的描述符，若失败返回INVALID_SOCKET</returns>
 	inline SOCKET create_socket(int address_family = AF_INET | AF_INET6, int socket_type = SOCK_STREAM, int protocol = IPPROTO_TCP)
 	{
-		auto val = WSASocketW(address_family, socket_type, protocol, nullptr, 0, WSA_FLAG_OVERLAPPED);
+		auto val = WSASocket(address_family, socket_type, protocol, nullptr, 0, WSA_FLAG_OVERLAPPED);
 		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
@@ -87,6 +86,7 @@ namespace socket {
 		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
+
 
 	/// <summary>
 	/// 在指定套接字上建立一个连接
@@ -106,6 +106,27 @@ namespace socket {
 	/// 该函数在一个已连接的套接字上发送数据，注意，该函数仅仅把buffer指向的用户空间数据复制到内核空间的发送缓冲区，然后由协议发送
 	/// </summary>
 	/// <param name="socket">一个标识一个已连接的套接字的描述符</param>
+	/// <param name="buffers_to_send">指向WSABUF结构数组的指针,每个WSABUF结构都包含一个指向缓冲区的指针和缓冲区的长度(字节),在发送期间必须保证有效</param>
+	/// <param name="buffers_array_counts">buffers_to_send数组中WSABUF结构的数量</param>
+	/// <param name="number_of_bytes_sent">[out]指向I/O操作完成时调用所发送的数字(以字节为单位)，对于重叠套接字不起作用，应为NULL</param>
+	/// <param name="flags">用于修改WSASend函数调用行为的标志，请看文档</param>
+	/// <param name="overlapped">[opt]指向WSAOVERLAPPED结构的指针，对于非重叠套接字，忽略此参数</param>
+	/// <param name="completion_routine">[opt]发送操作完成时调用的完成例程的指针,对于非重叠套接字，忽略此参数</param>
+	/// <returns>若没有发生错误并且发送操作立即完成，返回0。否则，返回SOCKET_ERROR，其他事项请看文档</returns>
+	inline int socket_send_asyn(SOCKET socket, LPWSABUF buffers_to_send, DWORD buffers_array_counts,
+		LPDWORD number_of_bytes_sent, DWORD flags = 0, LPWSAOVERLAPPED overlapped = nullptr,
+		LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine = nullptr)
+	{
+		auto val = WSASend(socket, buffers_to_send, buffers_array_counts,
+			number_of_bytes_sent, flags, overlapped, completion_routine);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
+		return val;
+	}
+
+	/// <summary>
+	/// 该函数在一个已连接的套接字上发送数据，注意，该函数仅仅把buffer指向的用户空间数据复制到内核空间的发送缓冲区，然后由协议发送
+	/// </summary>
+	/// <param name="socket">一个标识一个已连接的套接字的描述符</param>
 	/// <param name="buffer">一个指向包含要传输的数据的缓存区的指针</param>
 	/// <param name="buffer_len">缓冲区的长度(以字节为单位)</param>
 	/// <param name="flags">一组指定调用方式的标志，请看文档，可选值是MSG_DONTROUTE和MSG_OOB，或者它们的组合</param>
@@ -113,6 +134,30 @@ namespace socket {
 	inline int socket_send(SOCKET socket, const char* buffer, int buffer_len, int flags = 0)
 	{
 		auto val = send(socket, buffer, buffer_len, flags);
+		GET_ERROR_MSG_OUTPUT_SOCKET();
+		return val;
+	}
+
+	/// <summary>
+	/// 该函数从已连接的套接字或绑定(bind)的无连接套接字接收数据。若没有数据发送，则调用线程被阻塞，直到客户端发送信息(请回忆三次握手，四次挥手)
+	/// </summary>
+	/// <remarks>
+	/// 若没复制完，buffer满了，则需要多调用几次该函数来接收数据，注意，接收数据的是协议，该函数仅仅只是从内核空间的接收缓冲区复制接受的数据
+	/// </remarks>
+	/// <param name="socket">一个标识一个已连接的套接字的描述符</param>
+	/// <param name="buffers_to_receive">[in,out]指向WSABUF结构数组的指针,每个WSABUF结构都包含一个指向缓冲区的指针和缓冲区的长度(字节)</param>
+	/// <param name="buffers_array_counts">buffers_to_receive数组中WSABUF结构的数量</param>
+	/// <param name="number_of_bytes_received">[out]指向I/O操作完成时调用所接收的数字(以字节为单位)，对于重叠套接字不起作用，应为NULL</param>
+	/// <param name="flags">[in,out]用于修改WSARecv函数调用行为的标志</param>
+	/// <param name="overlapped">[opt]指向WSAOVERLAPPED结构的指针，对于非重叠套接字，忽略此参数</param>
+	/// <param name="completion_routine">[opt]发送操作完成时调用的完成例程的指针,对于非重叠套接字，忽略此参数</param>
+	/// <returns>若没有发生错误并且接收操作立即完成，返回0。否则，返回SOCKET_ERROR，其他事项请看文档</returns>
+	inline int socket_recv_asyn(SOCKET socket, LPWSABUF buffers_to_receive, DWORD buffers_array_counts,
+		LPDWORD number_of_bytes_received, DWORD& flags, LPWSAOVERLAPPED overlapped = nullptr,
+		LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine = nullptr)
+	{
+		auto val = WSARecv(socket, buffers_to_receive, buffers_array_counts,
+			number_of_bytes_received, &flags, overlapped, completion_routine);
 		GET_ERROR_MSG_OUTPUT_SOCKET();
 		return val;
 	}
@@ -189,99 +234,4 @@ namespace socket {
 		return val;
 	}
 
-
-
-	// TODO:更细致控制的函数
-
-	/*/// <summary>
-	/// 该函数建立一个与另一个套接字应用程序的连接，交换连接数据，并且指定基于指定的FLOWSPEC结构体的所需要的服务质量
-	/// </summary>
-	/// <remarks>
-	/// TODO:
-	/// 为该函数作文档时，并未完全理解Socket工作方式，所以文档内容不保证完全正确，以后完善
-	/// </remarks>
-	/// <param name="socket">一个标识一个未连接的套接字的描述符</param>
-	/// <param name="address">指向一个包含要连接的地址的sockaddr结构的指针，它可以是ADDRINFOT的ai_addr成员，它包含IP地址，端口和其他的东西，请看文档</param>
-	/// <param name="address_len">address参数指向的sockaddr结构的长度(以字节为单位)它可以是ADDRINFOT的ai_addrlen成员</param>
-	/// <param name="user_data_to_dest">指向要在连接建立期间传输到另一个套接字的用户数据的指针,Windows 中的 TCP/IP 协议不支持连接数据，用于其他协议</param>
-	/// <param name="user_data_from_dest">[out]指向要在连接建立期间从另一个套接字传回的用户数据的指针, Windows 中的 TCP/IP 协议不支持连接数据，用于其他协议</param>
-	/// <param name="lpSQOS">对于socket参数的指向FLOWSPEC结构体的指针，每个方向一个(不太明白作用)</param>
-	/// <returns>若没有错误发生，返回0，否则返回SOCKET_ERROR</returns>
-	inline int socket_connect(SOCKET socket, const sockaddr* address, int address_len, 
-		LPWSABUF user_data_to_dest = nullptr, LPWSABUF user_data_from_dest = nullptr, LPQOS lpSQOS = nullptr)
-	{
-		auto val = WSAConnect(socket, address, address_len, user_data_to_dest, user_data_from_dest, lpSQOS, nullptr);
-		GET_ERROR_MSG_OUTPUT_SOCKET();
-		return val;
-	}
-	/// <summary>
-	/// 该函数在一个已连接的套接字上发送数据
-	/// </summary>
-	/// <remarks>
-	/// TODO:
-	/// 为该函数作文档时，并未完全理解Socket工作方式，所以文档内容不保证完全正确，以后完善
-	/// </remarks>
-	/// <param name="socket">一个标识一个已连接的套接字的描述符</param>
-	/// <param name="buffers_to_send">指向WSABUF结构数组的指针,每个WSABUF结构都包含一个指向缓冲区的指针和缓冲区的长度(字节),在发送期间必须保证有效</param>
-	/// <param name="buffers_array_counts">buffers_to_send数组中WSABUF结构的数量</param>
-	/// <param name="number_of_bytes_sent">[out]数字的指针，指向I/O操作立即完成时调用所发送的数字(以字节为单位)，该参数只有在overlapped不为NULL时，才可以为NULL</param>
-	/// <param name="flags">用于修改WSASend函数调用行为的标志，请看文档</param>
-	/// <param name="overlapped">指向WSAOVERLAPPED结构的指针，对于非重叠套接字，忽略此参数</param>
-	/// <param name="completion_routine">发送操作完成时调用的完成例程的指针,对于非重叠套接字，忽略此参数</param>
-	/// <returns>若没有发生错误并且发送操作立即完成，返回0。否则，返回SOCKET_ERROR，其他事项请看文档</returns>
-	inline int socket_send(SOCKET socket, LPWSABUF buffers_to_send, DWORD buffers_array_counts,
-		LPDWORD number_of_bytes_sent, DWORD flags = 0, LPWSAOVERLAPPED overlapped = nullptr,
-		LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine = nullptr)
-	{
-		auto val = WSASend(socket, buffers_to_send, buffers_array_counts, 
-			number_of_bytes_sent, flags, overlapped, completion_routine);
-		GET_ERROR_MSG_OUTPUT_SOCKET();
-		return val;
-	}
-	/// <summary>
-	/// 该函数从已连接的套接字或绑定的无连接套接字接收数据
-	/// </summary>
-	/// <param name="socket">一个标识一个已连接的套接字的描述符</param>
-	/// <param name="buffers_to_receive">[in,out]指向WSABUF结构数组的指针,每个WSABUF结构都包含一个指向缓冲区的指针和缓冲区的长度(字节)</param>
-	/// <param name="buffers_array_counts">buffers_to_receive数组中WSABUF结构的数量</param>
-	/// <param name="number_of_bytes_received">[out]如果接收操作立即完成，则是调用接收的数据数量（以字节为单位）</param>
-	/// <param name="flags">[in,out]用于修改WSARecv函数调用行为的标志</param>
-	/// <param name="overlapped">指向WSAOVERLAPPED结构的指针，对于非重叠套接字，忽略此参数</param>
-	/// <param name="completion_routine">发送操作完成时调用的完成例程的指针,对于非重叠套接字，忽略此参数</param>
-	/// <returns>若没有发生错误并且接收操作立即完成，返回0。否则，返回SOCKET_ERROR，其他事项请看文档</returns>
-	inline int socket_receive(SOCKET socket, LPWSABUF buffers_to_receive, DWORD buffers_array_counts,
-		DWORD& number_of_bytes_received, DWORD& flags, LPWSAOVERLAPPED overlapped = nullptr,
-		LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine = nullptr)
-	{
-		auto val = WSARecv(socket, buffers_to_receive, buffers_array_counts,
-			&number_of_bytes_received, &flags, overlapped, completion_routine);
-		GET_ERROR_MSG_OUTPUT_SOCKET();
-		return val;
-	}
-	/// <summary>
-	/// 该函数启动套接字的连接终止，并发送连接断开数据，它相当于shutdown指定SD_SEND，只不过它可以指定断开连接数据(disconnect_data)
-	/// </summary>
-	/// <param name="socket">标识一个套接字的描述符</param>
-	/// <param name="disconnect_data">断开连接数据,TCP/IP并不支持这个功能，它用于其他协议，所以置为nullptr即可</param>
-	/// <returns>若没有错误发送，返回0，否则返回SOCKET_ERROR</returns>
-	inline int socket_send_disconnect(SOCKET socket, LPWSABUF disconnect_data_out = nullptr)
-	{
-		auto val = WSASendDisconnect(socket, disconnect_data_out);
-		GET_ERROR_MSG_OUTPUT_SOCKET();
-		return val;
-	}
-	/// <summary>
-	/// 该函数终止在套接字上的接收，如果套接字是面向连接的，则获取断开连接数据(disconnect_data)
-	/// </summary>
-	/// <param name="socket">标识一个套接字的描述符</param>
-	/// <param name="disconnect_data">[out]用于接收输入的断开连接数据,TCP/IP并不支持这个功能，它用于其他协议，所以置为nullptr即可</param>
-	/// <returns>若没有错误发送，返回0，否则返回SOCKET_ERROR</returns>
-	inline int socket_receive_disconnect(SOCKET socket, LPWSABUF disconnect_data_in = nullptr)
-	{
-		auto val = WSARecvDisconnect(socket, disconnect_data_in);
-		GET_ERROR_MSG_OUTPUT_SOCKET();
-		return val;
-	}*/
-
-};//window
-};//mw
+};//mw::socket

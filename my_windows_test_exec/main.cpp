@@ -41,9 +41,11 @@ int main(int argc, char* argv[])
 	//example_3_15();
 	//example_3_16();
 	//example_3_17();
-	example_6();
-
+	//example_6();
+	//example_6_1();
 	//std::cin.get();
+
+	//std::cout << "Large page minimum size supports : " << mw::get_large_page_minimum() << "\n";
 
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);

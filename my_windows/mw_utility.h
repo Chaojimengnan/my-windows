@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tlhelp32.h>
+
 namespace mw {
 
 	/// <summary>
@@ -181,6 +183,51 @@ namespace mw {
 	{
 		return (Int64ShllMod32(ft.dwHighDateTime, 32) | ft.dwLowDateTime);
 	}
+
+	class tool_help {
+	public:
+		tool_help() : snapshot(INVALID_HANDLE_VALUE) {}
+		tool_help(DWORD flags, DWORD process_id) : tool_help() {
+			create_snapshot(flags, process_id);
+		}
+		tool_help(const tool_help&) = delete;
+		tool_help(tool_help&& _t) {
+			snapshot = _t.snapshot;
+			_t.snapshot = INVALID_HANDLE_VALUE;
+		};
+		~tool_help() {
+			if (snapshot != INVALID_HANDLE_VALUE)
+				CloseHandle(snapshot);
+		}
+		tool_help& operator=(const tool_help&) = delete;
+		tool_help& operator=(tool_help&& _t)
+		{
+			if (this != &_t)
+			{
+				snapshot = _t.snapshot;
+				_t.snapshot = INVALID_HANDLE_VALUE;
+			}
+			return *this;
+		}
+
+	public:
+		bool create_snapshot(DWORD flags, DWORD process_id)
+		{
+			if (snapshot != INVALID_HANDLE_VALUE)
+				CloseHandle(snapshot);
+			
+			if (flags == 0) snapshot = INVALID_HANDLE_VALUE;
+			else snapshot = CreateToolhelp32Snapshot(flags, process_id);
+
+			return (snapshot != INVALID_HANDLE_VALUE);
+		}
+
+
+	private:
+		HANDLE snapshot;
+
+	};
+
 
 namespace user {
 
