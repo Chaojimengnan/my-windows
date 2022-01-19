@@ -1,5 +1,6 @@
 #pragma once
 #include "mw_process.h"
+#include "mw_library.h"
 #include <unordered_map>
 
 namespace mw {

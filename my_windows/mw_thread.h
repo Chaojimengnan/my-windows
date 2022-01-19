@@ -39,7 +39,7 @@ namespace mw {
 	/// </summary>
 	/// <param name="exit_code">线程的退出代码</param>
 	[[deprecated(_T("你不应该使用该函数，而是使用c_exit_thread"))]]
-	inline void exit_thread(DWORD exit_code)
+	[[noreturn]] inline void exit_thread(DWORD exit_code)
 	{
 		ExitThread(exit_code);
 	}
@@ -122,10 +122,33 @@ namespace mw {
 	}
 
 	/// <summary>
+	/// 创建在另一个进程的虚拟地址空间中运行的线程
+	/// </summary>
+	/// <remarks>
+	/// 请注意，即使lpStartAddress指向数据、代码或不可访问， CreateRemoteThread也可能成功。如果线程运行时起始地址无效，
+	/// 则发生异常，线程终止。由于起始地址无效而导致的线程终止被视为线程进程的错误退出。
+	/// </remarks>
+	/// <param name="process_handle">要在其中创建线程的进程句柄，该句柄必须具有PROCESS_CREATE_THREAD、PROCESS_QUERY_INFORMATION、PROCESS_VM_OPERATION、PROCESS_VM_WRITE和PROCESS_VM_READ访问权限</param>
+	/// <param name="thread_function">新创建的线程的线程函数的地址，该函数必须存在于远程进程中</param>
+	/// <param name="parameter">将作为参数传给线程函数，它可以是程序定义的任意值或指针</param>
+	/// <param name="thread_id">[out]返回新创建线程的ID，可以为NULL，则不返回线程ID</param>
+	/// <param name="thread_attributes">线程安全属性</param>
+	/// <param name="creation_flags">控制线程创建的标志，一般为0，可以为CREATE_SUSPENDED，该标志将在创建完新线程后暂停线程</param>
+	/// <param name="stack_size">堆栈的初始大小，以字节为单位，系统将此值舍入到最近的页面，若为0，则使用可执行程序默认大小</param>
+	/// <returns>若函数成功，返回新线程的句柄，若失败返回NULL</returns>
+	inline HANDLE create_remote_thread(HANDLE process_handle, LPTHREAD_START_ROUTINE thread_function, LPVOID parameter = nullptr, LPDWORD thread_id = nullptr,
+		LPSECURITY_ATTRIBUTES thread_attributes = nullptr, DWORD creation_flags = 0, size_t stack_size = 0)
+	{
+		auto val = CreateRemoteThread(process_handle, thread_attributes, stack_size, thread_function, parameter, creation_flags, thread_id);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
 	/// 结束该调用线程，使用C/C++运行库的程序应该调用该函数而不是ExitThread，但是并不鼓励调用该函数，应该是线程函数自然返回。
 	/// </summary>
 	/// <param name="exit_code">线程的退出代码</param>
-	inline void c_exit_thread(DWORD exit_code)
+	[[noreturn]] inline void c_exit_thread(DWORD exit_code)
 	{
 		_endthreadex(exit_code);
 	}
@@ -780,6 +803,53 @@ namespace mw {
 		CloseThreadpoolCleanupGroup(cleanup_group);
 	}
 
+	/// <summary>
+	/// 分配线程本地存储 (TLS) 索引。进程的任何线程随后都可以使用此索引来存储和获取线程本地的值，因为每个线程都接收自己的索引槽。
+	/// </summary>
+	/// <returns>若成功，返回值是TLS索引，索引的槽被初始化为0，若失败，返回值是TLS_OUT_OF_INDEXES</returns>
+	inline DWORD tls_alloc()
+	{
+		auto val = TlsAlloc();
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 在调用线程的线程本地存储 (TLS) 槽中存储指定 TLS 索引的值。进程的每个线程对于每个 TLS 索引都有自己的插槽。
+	/// </summary>
+	/// <param name="index">由TlsAlloc 函数分配的 TLS 索引</param>
+	/// <param name="value">要存储在调用线程的 TLS 槽中的数据</param>
+	/// <returns>操作是否成功</returns>
+	inline BOOL tls_set_value(DWORD index, LPVOID value)
+	{
+		auto val = TlsSetValue(index, value);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 获取指定 TLS 索引的调用线程的线程本地存储 (TLS) 槽中的值。进程的每个线程对于每个 TLS 索引都有自己的插槽。
+	/// </summary>
+	/// <param name="index">由TlsAlloc函数分配的 TLS 索引</param>
+	/// <returns>若函数成功，返回调用线程TLS槽中的值，若失败返回0，由于TLS槽中的值也可能是0，所以需要GetLastError来检查是否出错</returns>
+	inline LPVOID tls_get_value(DWORD index)
+	{
+		auto val = TlsGetValue(index);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 释放线程本地存储 (TLS) 索引，使其可供重用(实际就是将对应索引位标志从INUSE改为FREE)
+	/// </summary>
+	/// <param name="index">由TlsAlloc函数分配的 TLS 索引</param>
+	/// <returns>操作是否成功</returns>
+	inline BOOL tls_free(DWORD index)
+	{
+		auto val = TlsFree(index);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
 
 namespace sync {
 

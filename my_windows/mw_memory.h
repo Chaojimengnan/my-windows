@@ -351,9 +351,40 @@ namespace mw {
 		return val;
 	}
 
-
-
-
 	// HeapLock, HeapUnlock, HeapWalk,GetProcessHeaps,HeapValidate,HeapCompact作用不大
+
+	/// <summary>
+	/// 将指定进程的地址空间中的指定地址范围内的数据复制到当前进程的指定缓冲区中。任何具有 PROCESS_VM_READ 访问句柄的进程都可以调用该函数。要读取的整个区域必须是可访问的，如果不可访问，则函数失败
+	/// </summary>
+	/// <param name="process_handle">要被读取内存的进程句柄，该句柄必须具有PROCESS_VM_READ 访问权限</param>
+	/// <param name="base_address">指向要从中读取的指定进程中的基地址的指针。在发生任何数据传输之前，系统验证指定大小的基地址和内存中的所有数据是否可访问以进行读取访问</param>
+	/// <param name="buffer">[out]用于接收从指定进程地址空间复制数据的缓冲区</param>
+	/// <param name="size">要从指定进程读取的字节数</param>
+	/// <param name="number_of_bytes_read">[out]用于接收传输到指定缓冲区的字节数，若为NULL，则忽略该参数</param>
+	/// <returns>操作是否成功</returns>
+	inline BOOL read_process_memory(HANDLE process_handle, LPCVOID base_address, 
+		LPVOID buffer, SIZE_T size, SIZE_T* number_of_bytes_read = nullptr)
+	{
+		auto val = ReadProcessMemory(process_handle, base_address, buffer, size, number_of_bytes_read);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
+
+	/// <summary>
+	/// 将数据写入指定进程中的内存区域。要写入的整个区域必须可访问，否则操作将失败
+	/// </summary>
+	/// <param name="process_handle">要被修改内存的进程句柄，该句柄必须具有 PROCESS_VM_WRITE 和 PROCESS_VM_OPERATION 访问权限</param>
+	/// <param name="base_address">指向要从中写入的指定进程中的基地址的指针。在发生任何数据传输之前，系统验证指定大小的基地址和内存中的所有数据是否都可以进行写访问</param>
+	/// <param name="buffer">指向缓冲区的指针，该缓冲区包含要写入指定进程地址空间的数据</param>
+	/// <param name="size">要写入指定进程的字节数</param>
+	/// <param name="number_of_bytes_written">[out]用于接收写入指定进程的字节数，若为NULL，则忽略该参数</param>
+	/// <returns>操作是否成功</returns>
+	inline BOOL write_process_memory(HANDLE process_handle, LPVOID base_address, 
+		LPVOID buffer, SIZE_T size, SIZE_T* number_of_bytes_written = nullptr)
+	{
+		auto val = WriteProcessMemory(process_handle, base_address, buffer, size, number_of_bytes_written);
+		GET_ERROR_MSG_OUTPUT();
+		return val;
+	}
 
 };

@@ -108,6 +108,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <DelayLoadDLLs>my_windows_dll_x64_Debug.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,6 +129,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <DelayLoadDLLs>my_windows_dll_x64_Debug.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -170,9 +172,6 @@
     <ProjectReference Include="..\my_windows\my_windows.vcxproj">
       <Project>{b39786f3-3cf0-4828-be14-c6f2e2e7b67d}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\my_windows_dll\my_windows_dll.vcxproj">
-      <Project>{fa88aad1-63d8-46c9-9dc2-fd661f7de0f9}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="example_1.cpp" />
@@ -182,6 +181,7 @@
     <ClCompile Include="example_5.cpp" />
     <ClCompile Include="example_6.cpp" />
     <ClCompile Include="example_7.cpp" />
+    <ClCompile Include="example_8.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -201,6 +201,7 @@
     <ClInclude Include="example_5.h" />
     <ClInclude Include="example_6.h" />
     <ClInclude Include="example_7.h" />
+    <ClInclude Include="example_8.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

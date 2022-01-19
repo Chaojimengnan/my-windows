@@ -26,19 +26,6 @@ namespace mw {
 		return target_process_handle;
 	}
 
-
-	/// <summary>
-	/// 获取指定模块的模块句柄，该模块必须已经被当前进程加载(该函数在多线程不可靠，用EX版本)
-	/// </summary>
-	/// <param name="module_name">模块名字(exe或dll)，若为""，则返回主调进程的可执行文件的句柄(基地址)</param>
-	/// <returns>返回指定模块的句柄(基地址)</returns>
-	inline HMODULE get_module_handle(const std::tstring& module_name = _T(""))
-	{
-		auto val = GetModuleHandle(tstring_to_pointer(module_name));
-		GET_ERROR_MSG_OUTPUT();
-		return val;
-	}
-
 	/// <summary>
 	/// 进程信息结构体
 	/// </summary>
@@ -206,7 +193,7 @@ namespace mw {
 	/// 结束该调用进程及其所有线程，有DLL谨慎使用该函数，具体看文档
 	/// </summary>
 	/// <param name="exit_code">进程和所有线程的退出代码</param>
-	inline void exit_process(UINT exit_code)
+	[[noreturn]] inline void exit_process(UINT exit_code)
 	{
 		ExitProcess(exit_code);
 	}

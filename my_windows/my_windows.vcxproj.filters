@@ -68,5 +68,11 @@
     <ClInclude Include="mw_memory.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mw_library.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mw_debug.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1112,3 +1112,37 @@ void example_3_17()
 	mw::convert_fiber_to_thread();
 
 }
+
+
+
+DWORD WINAPI thread_tls_getter(PVOID param)
+{
+	auto index = reinterpret_cast<DWORD>(param);
+
+	mw::tls_set_value(index, (LPVOID)10);
+
+
+	std::cout << mw::get_current_thread_id() << ":" << (int)mw::tls_get_value(index);
+
+	return 0;
+}
+
+
+
+/// <summary>
+/// TLS尝试
+/// </summary>
+void example_3_18()
+{
+	auto index = mw::tls_alloc();
+
+	auto thread_handle = mw::c_create_thread(thread_tls_getter, (LPVOID)index);
+	mw::tls_set_value(index, (LPVOID)5);
+	std::cout << mw::get_current_thread_id() << ":" << (int)mw::tls_get_value(index);
+
+	mw::sync::wait_for_single_object(thread_handle);
+
+
+	mw::tls_free(index);
+	CloseHandle(thread_handle);
+}

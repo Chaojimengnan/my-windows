@@ -191,7 +191,7 @@ namespace mw {
 			create_snapshot(flags, process_id);
 		}
 		tool_help(const tool_help&) = delete;
-		tool_help(tool_help&& _t) {
+		tool_help(tool_help&& _t) noexcept {
 			snapshot = _t.snapshot;
 			_t.snapshot = INVALID_HANDLE_VALUE;
 		};
@@ -200,7 +200,7 @@ namespace mw {
 				CloseHandle(snapshot);
 		}
 		tool_help& operator=(const tool_help&) = delete;
-		tool_help& operator=(tool_help&& _t)
+		tool_help& operator=(tool_help&& _t) noexcept
 		{
 			if (this != &_t)
 			{
@@ -211,7 +211,13 @@ namespace mw {
 		}
 
 	public:
-		bool create_snapshot(DWORD flags, DWORD process_id)
+		/// <summary>
+		/// 拍摄指定进程的快照，以及这些进程使用的堆，模块和线程
+		/// </summary>
+		/// <param name="flags">要包含在快照中的系统部分，该参数可以是TH32CS_开头的宏的一个或多个</param>
+		/// <param name="process_id">要包含在快照中的进程的进程标识符。此参数可以为零以指示当前进程</param>
+		/// <returns>操作是否成功</returns>
+		bool create_snapshot(DWORD flags = TH32CS_SNAPALL, DWORD process_id = 0)
 		{
 			if (snapshot != INVALID_HANDLE_VALUE)
 				CloseHandle(snapshot);
@@ -222,6 +228,65 @@ namespace mw {
 			return (snapshot != INVALID_HANDLE_VALUE);
 		}
 
+		bool process_first(PROCESSENTRY32& process_entry) const
+		{
+			bool is_ok = Process32First(snapshot, &process_entry);
+			if (is_ok && (process_entry.th32ProcessID == 0))
+				is_ok = process_next(process_entry); // Remove the "[System Process]" (PID = 0)
+			return is_ok;
+		}
+		bool process_next(PROCESSENTRY32& process_entry) const
+		{
+			bool is_ok = Process32Next(snapshot, &process_entry);
+			if (is_ok && (process_entry.th32ProcessID == 0))
+				is_ok = process_next(process_entry); // Remove the "[System Process]" (PID = 0)
+			return is_ok;
+		}
+		bool process_find(DWORD process_id, PROCESSENTRY32& process_entry) const
+		{
+			bool is_found = FALSE;
+			for (BOOL fOk = process_first(process_entry); fOk; fOk = process_next(process_entry)) {
+				is_found = (process_entry.th32ProcessID == process_id);
+				if (is_found) break;
+			}
+			return is_found;
+		}
+
+		bool module_first(MODULEENTRY32& module_entry) const
+		{
+			return Module32First(snapshot, &module_entry);
+		}
+		bool module_next(MODULEENTRY32& module_entry) const
+		{
+			return Module32Next(snapshot, &module_entry);
+		}
+		bool module_find(PVOID base_address, MODULEENTRY32& module_entry) const
+		{
+			BOOL is_found = FALSE;
+			for (BOOL fOk = module_first(module_entry); fOk; fOk = module_next(module_entry)) {
+				is_found = (module_entry.modBaseAddr == base_address);
+				if (is_found) break;
+			}
+			return is_found;
+		}
+		bool module_find(const std::tstring& module_name, MODULEENTRY32& module_entry) const
+		{
+			BOOL is_found = FALSE;
+			for (BOOL fOk = module_first(module_entry); fOk; fOk = module_next(module_entry)) {
+				is_found = (module_entry.szModule == module_name) || (module_entry.szExePath == module_name);
+				if (is_found) break;
+			}
+			return is_found;
+		}
+
+		bool thread_first(THREADENTRY32& thread_entry) const
+		{
+			return Thread32First(snapshot, &thread_entry);
+		}
+		bool thread_next(THREADENTRY32& thread_entry) const
+		{
+			return Thread32Next(snapshot, &thread_entry);
+		}
 
 	private:
 		HANDLE snapshot;

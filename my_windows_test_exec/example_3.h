@@ -37,3 +37,5 @@ void example_3_15();
 void example_3_16();
 
 void example_3_17();
+
+void example_3_18();

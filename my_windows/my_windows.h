@@ -17,3 +17,5 @@
 #include "mw_device.h"			// I/O设备相关的封装
 #include "mw_fiber.h"			// 纤程相关的封装
 #include "mw_memory.h"			// 内存相关的封装
+#include "mw_library.h"			// 模块相关的封装
+#include "mw_debug.h"			// Debug助手相关的封装

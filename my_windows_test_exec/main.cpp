@@ -5,6 +5,7 @@
 #include "example_5.h"
 #include "example_6.h"
 #include "example_7.h"
+#include "example_8.h"
 
 
 int main(int argc, char* argv[])
@@ -50,7 +51,21 @@ int main(int argc, char* argv[])
 	//example_6_4();
 	//example_6_5();
 	//example_6_6();
-	example_7();
+	//example_7();
+	//example_7_1();
+	//example_7_2();
+	//example_3_18();
+	//example_7_3();
+	//example_7_4();
+	//example_7_5();
+	//example_7_6();
+	//example_7_7();
+	//example_7_8();
+	//example_8();
+	//example_8_1();
+	//example_8_2();
+	example_8_3();
+
 	//std::cout << "Large page minimum size supports : " << mw::get_large_page_minimum() << "\n";
 
 #ifdef _DEBUG

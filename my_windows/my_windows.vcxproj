@@ -204,11 +204,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="mw_debug.h" />
     <ClInclude Include="mw_device.h" />
     <ClInclude Include="mw_dialog.h" />
     <ClInclude Include="mw_fiber.h" />
     <ClInclude Include="mw_gdi.h" />
     <ClInclude Include="mw_job.h" />
+    <ClInclude Include="mw_library.h" />
     <ClInclude Include="mw_memory.h" />
     <ClInclude Include="mw_resource.h" />
     <ClInclude Include="mw_socket.h" />
