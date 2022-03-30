@@ -17,4 +17,3 @@ void example_7_6();
 void example_7_7();
 
 void example_7_8();
-

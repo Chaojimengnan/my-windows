@@ -1,8 +1,7 @@
 #include "my_windows/my_windows.h"
+#include "output.h"
 #include <iostream>
 #include <vector>
-#include "output.h"
-
 
 //BOOL WINAPI DllMain(
 //    HINSTANCE dll_handle,  // handle to DLL module
@@ -36,14 +35,13 @@
 //    return TRUE;  // Successful DLL_PROCESS_ATTACH.
 //}
 
-
 int
-WINAPI
-message_box_hack(
-    _In_opt_ HWND hWnd,
-    _In_opt_ LPCWSTR lpText,
-    _In_opt_ LPCWSTR lpCaption,
-    _In_ UINT uType)
+    WINAPI
+    message_box_hack(
+        _In_opt_ HWND hWnd,
+        _In_opt_ LPCWSTR lpText,
+        _In_opt_ LPCWSTR lpCaption,
+        _In_ UINT uType)
 {
     // 拦截API，改成我们想要的内容
     return mw::user::message_box(_T("asdsadsadasdsadsada"), _T("adsadasdsadsada"));
@@ -81,21 +79,18 @@ message_box_hack(
 //    return TRUE;  // Successful DLL_PROCESS_ATTACH.
 //}
 
-#include <sstream>
 #include "main.h"
-
+#include <sstream>
 
 LRESULT CALLBACK hook_procedure(int nCode, WPARAM wParam, LPARAM lParam)
 {
     return mw::user::call_next_hook(nCode, wParam, lParam);
 }
 
-
-
 // 使用挂钩注入DLL(FDM就是你了！)
 BOOL WINAPI DllMain(
-    HINSTANCE dll_handle,  // handle to DLL module
-    DWORD reason,          // reason for calling function
+    HINSTANCE dll_handle, // handle to DLL module
+    DWORD reason,         // reason for calling function
     LPVOID reserved)      // reserved
 {
     // Perform actions based on the reason for calling.
@@ -122,5 +117,5 @@ BOOL WINAPI DllMain(
         // Perform any necessary cleanup.
         break;
     }
-    return TRUE;  // Successful DLL_PROCESS_ATTACH.
+    return TRUE; // Successful DLL_PROCESS_ATTACH.
 }

@@ -291,4 +291,4 @@ namespace mw::user {
 		return is_ok1 && is_ok2;
 	}
 
-};//mw::user
+}; // namespace mw::user

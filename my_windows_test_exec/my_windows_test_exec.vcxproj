@@ -75,24 +75,28 @@
     <TargetName>$(ProjectName)_$(PlatformTarget)_$(Configuration)</TargetName>
     <OutDir>$(SolutionDir)output\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(PlatformTarget)\$(Configuration)\$(ProjectName)</IntDir>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>$(ProjectName)_$(PlatformTarget)_$(Configuration)</TargetName>
     <OutDir>$(SolutionDir)output\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(PlatformTarget)\$(Configuration)\$(ProjectName)</IntDir>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)_$(PlatformTarget)_$(Configuration)</TargetName>
     <OutDir>$(SolutionDir)output\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(PlatformTarget)\$(Configuration)\$(ProjectName)</IntDir>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>$(ProjectName)_$(PlatformTarget)_$(Configuration)</TargetName>
     <OutDir>$(SolutionDir)output\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(PlatformTarget)\$(Configuration)\$(ProjectName)</IntDir>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
