@@ -19,7 +19,7 @@
 #    define LOERR_ENABLE_PREDEFINE_WINDOWS
 #    define LOERR_ENABLE_PREDEFINE_WINDOWS_SOCKET
 
-#include <loerr/loerr.h>
+#    include <loerr/loerr.h>
 
 #    ifndef GET_ERROR_MSG_OUTPUT()
 #        define GET_ERROR_MSG_OUTPUT() LOERR_WINDOWS_OUTPUT_IF_ERROR()
@@ -30,9 +30,11 @@
 #    ifndef GET_ERROR_MSG_OUTPUT_SOCKET()
 #        define GET_ERROR_MSG_OUTPUT_SOCKET() LOERR_WINDOWS_SOCKET_OUTPUT_IF_ERROR();
 #    endif
-
+#else
+#    define GET_ERROR_MSG_OUTPUT()
+#    define GET_ERROR_MSG_OUTPUT_NORMAL(value, error_value)
+#    define GET_ERROR_MSG_OUTPUT_SOCKET()
 #endif
-
 
 #ifdef UNICODE
 #    define tstring wstring
