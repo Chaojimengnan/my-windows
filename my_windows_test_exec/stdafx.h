@@ -1,4 +1,5 @@
 #pragma once
+#define MY_WINDOWS_PRINT_ERROR
 #include "my_windows/my_windows.h"
 #include <iostream>
 #include <sstream>

@@ -1,0 +1,11 @@
+{
+    "name": "my-windows",
+    "version-string": "1.0.6",
+    "port-version": 1,
+    "description": "一个对Windows API进行简单内联包装的C++仅头文件库(header only)，除了Windows API，并无其他依赖",
+    "homepage": "https://github.com/Chaojimengnan/my-windows",
+    "dependencies":[
+        "loerr"
+    ],
+    "supports":"windows"
+}

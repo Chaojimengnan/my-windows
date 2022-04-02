@@ -12,48 +12,27 @@
 #include <string>
 #include <vector>
 
-/// 获取错误代码,如果是非0值则将对应文本输入到流中
-#ifdef _DEBUG
-#    define GET_ERROR_MSG_OUTPUT()                                                                                           \
-        {                                                                                                                    \
-            auto my_error_code = GetLastError();                                                                             \
-            if (my_error_code != 0) {                                                                                        \
-                _tprintf_s(_T("thread(%d): %s (%d) %s%s : %d \n\n"), GetCurrentThreadId(),                                   \
-                    _T(__FUNCTION__), my_error_code, mw::formate_error_code(my_error_code).c_str(), _T(__FILE__), __LINE__); \
-                SetLastError(0);                                                                                             \
-            }                                                                                                                \
-        }
-#else
-#    define GET_ERROR_MSG_OUTPUT()
+#ifdef MY_WINDOWS_PRINT_ERROR
+
+#    define LOERR_ENABLE_TRANSFER
+#    define LOERR_ENABLE_PREDEFINE
+#    define LOERR_ENABLE_PREDEFINE_WINDOWS
+#    define LOERR_ENABLE_PREDEFINE_WINDOWS_SOCKET
+
+#include <loerr/loerr.h>
+
+#    ifndef GET_ERROR_MSG_OUTPUT()
+#        define GET_ERROR_MSG_OUTPUT() LOERR_WINDOWS_OUTPUT_IF_ERROR()
+#    endif
+#    ifndef GET_ERROR_MSG_OUTPUT_NORMAL(value, error_value)
+#        define GET_ERROR_MSG_OUTPUT_NORMAL(value, error_value) LOERR_OUTPUT_IF_VALUE_EQUAL(value, error_value)
+#    endif
+#    ifndef GET_ERROR_MSG_OUTPUT_SOCKET()
+#        define GET_ERROR_MSG_OUTPUT_SOCKET() LOERR_WINDOWS_SOCKET_OUTPUT_IF_ERROR();
+#    endif
+
 #endif
 
-// 判断函数返回值，若为error_value，则输入到流中(适用于没有错误代码和对应文本的函数)
-#ifdef _DEBUG
-#    define GET_ERROR_MSG_OUTPUT_NORMAL(value, error_value)                                           \
-        {                                                                                             \
-            if (value == error_value) {                                                               \
-                _tprintf_s(_T("thread(%d): %s : function fails\n%s : %d \n\n"), GetCurrentThreadId(), \
-                    _T(__FUNCTION__), _T(__FILE__), __LINE__);                                        \
-            }                                                                                         \
-        }
-#else
-#    define GET_ERROR_MSG_OUTPUT_NORMAL(value, error_value)
-#endif
-
-// 适用于Windows Socket 2的错误输出宏
-#ifdef _DEBUG
-#    define GET_ERROR_MSG_OUTPUT_SOCKET()                                                                                    \
-        {                                                                                                                    \
-            auto my_error_code = WSAGetLastError();                                                                          \
-            if (my_error_code != 0) {                                                                                        \
-                _tprintf_s(_T("thread(%d): %s (%d) %s%s : %d \n\n"), GetCurrentThreadId(),                                   \
-                    _T(__FUNCTION__), my_error_code, mw::formate_error_code(my_error_code).c_str(), _T(__FILE__), __LINE__); \
-                WSASetLastError(0);                                                                                          \
-            }                                                                                                                \
-        }
-#else
-#    define GET_ERROR_MSG_OUTPUT_SOCKET()
-#endif
 
 #ifdef UNICODE
 #    define tstring wstring

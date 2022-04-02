@@ -367,3 +367,4 @@ FodyWeavers.xsd
 /doxygen_doc
 /output/my_windows
 /temp
+/vcpkg_installed
