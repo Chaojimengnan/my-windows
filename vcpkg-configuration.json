@@ -3,7 +3,7 @@
         {
             "kind": "git",
             "repository": "https://github.com/Chaojimengnan/lomekragow-registry",
-            "baseline": "b1b6cc8484b326c523b6f876dbfc5677f4be6d97",
+            "baseline": "5279e78210ef33eb45c6cfc6124a72dd672ace88",
             "packages": [
                 "my-windows",
                 "auto-tools",
