@@ -211,6 +211,30 @@ namespace user {
     }
 
     /// <summary>
+    /// 设置分层(layered)窗口的不透明度或透明颜色键，即在CreateWindowEx指定WS_EX_LAYERED，或在创建后通过
+    /// SetWindowLong指定WS_EX_LAYERED的窗口。
+    /// </summary>
+    /// <param name="window_handle">它应该是一个分层窗口的句柄</param>
+    /// <param name="color_to_transparent">指定要变成透明的颜色，窗口所有该颜色的像素都变为透明</param>
+    /// <param name="alpha">设置不透明度，255则是完全不透明，0是完全透明</param>
+    /// <param name="flags">可以是LWA_ALPHA或LWA_COLORKEY，以及它们的组合，分别代表1.只看alpha，2.只看color_to_transparent，
+    /// 3.先将color_to_transparent对应的像素变为透明，然后其他像素应用于alpha。
+    /// </param>
+    /// <returns>操作是否成功</returns>
+    inline BOOL set_layered_window_attributes(HWND window_handle, COLORREF color_to_transparent = RGB(255, 255, 255), BYTE alpha = 0x0, DWORD flags = LWA_ALPHA)
+    {
+        auto val = SetLayeredWindowAttributes(window_handle, color_to_transparent, alpha, flags);
+        GET_ERROR_MSG_OUTPUT();
+        return val;
+    }
+
+    
+    /*inline BOOL update_layered_window(HWND window_handle)
+    {
+
+    }*/
+
+    /// <summary>
     /// 获取指定窗口类名字的WNDCLASSEXA信息，一般用于超类化一个系统全局窗口类
     /// </summary>
     /// <param name="window_class_name">指定窗口类名字</param>

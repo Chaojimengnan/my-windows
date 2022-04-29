@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <sstream>
+
 namespace mw::gdi {
 
 // TODO:
@@ -363,5 +366,140 @@ inline COLORREF get_pixel(HDC device_context, int x, int y)
     GET_ERROR_MSG_OUTPUT_NORMAL(val, CLR_INVALID);
     return val;
 }
+
+
+/// <summary>
+/// 该函数执行将对应于像素矩形的颜色数据从指定的源设备上下文到目标设备上下文的位块传输
+/// </summary>
+/// <param name="target_device_context">目标设备上下文的句柄</param>
+/// <param name="target_x">目标矩形左上角的 x 坐标（以逻辑单位表示）</param>
+/// <param name="target_y">目标矩形左上角的 y 坐标（以逻辑单位表示）</param>
+/// <param name="width">源矩形和目标矩形的宽度（以逻辑单位表示）</param>
+/// <param name="height">源矩形和目标矩形的高度（以逻辑单位表示）</param>
+/// <param name="source_device_context">源设备上下文的句柄</param>
+/// <param name="source_x">源矩形左上角的 x 坐标（以逻辑单位表示）</param>
+/// <param name="source_y">源矩形左上角的 y 坐标（以逻辑单位表示）</param>
+/// <param name="rop">光栅操作代码。这些代码定义了如何将源矩形的颜色数据与目标矩形的颜色数据组合以实现最终颜色，一般为SRCCOPY，即直接复制</param>
+/// <returns>操作是否成功</returns>
+inline BOOL bit_blt(HDC target_device_context, int target_x, int target_y, int width, int height, HDC source_device_context,
+    int source_x = 0, int source_y = 0, DWORD rop = SRCCOPY)
+{
+    auto val = BitBlt(target_device_context, target_x, target_y, width, height, source_device_context, source_x, source_y, rop);
+    GET_ERROR_MSG_OUTPUT();
+    return val;
+}
+
+/// <summary>
+/// 该函数创建与指定设备上下文关联的设备兼容的位图。该位图可以被选择到任何兼容原设备的内存设备上下文中(即CreateCompatibleDC)
+/// 当您不在需要该位图时，使用DeleteObject函数将其删除
+/// </summary>
+/// <param name="device_context">要兼容的设备上下文</param>
+/// <param name="width">位图宽度，以像素为单位。</param>
+/// <param name="height">位图高度，以像素为单位。</param>
+/// <returns>如果函数成功，则返回值是兼容位图 (DDB) 的句柄。如果函数失败，则返回值为NULL。</returns> 
+inline HBITMAP create_compatible_bitmap(HDC device_context, int width, int height)
+{
+    auto val = CreateCompatibleBitmap(device_context, width, height);
+    GET_ERROR_MSG_OUTPUT_NORMAL(val, nullptr);
+    return val;
+}
+
+/// <summary>
+/// GetDIBits函数检索指定兼容位图的位，并使用指定格式将它们作为 DIB 复制到缓冲区中。若buffer_bits不为NULL，需要
+/// 初始化BITMAPINFOHEADER结构的前六个成员以指定 DIB 的大小和格式。若为NULL，GetDIBits检查lpbi指向的第一个结构的第一个成员。
+/// 此成员必须指定BITMAPCOREHEADER或BITMAPINFOHEADER结构的大小（以字节为单位）。该函数使用指定的大小来确定应如何初始化剩余成员。
+/// </summary>
+/// <param name="device_context">它应该是创建DDB位图句柄时指定兼容的设备上下文</param>
+/// <param name="bitmap_handle">位图句柄。这必须是兼容位图(DDB)</param>
+/// <param name="start">要检索的第一条扫描线，一般为0</param>
+/// <param name="lines">要检索的扫描行数,一般为位图的高度</param>
+/// <param name="buffer_bits">[out]用于接受位图数据的指针，若为NULL，仅将位图的尺寸和格式传递给bitmap_info</param>
+/// <param name="bitmap_info">[in,out]指定DIB数据所需格式的结构体，之后调用时函数还会填写位图的尺寸等信息到该结构体</param>
+/// <param name="usage">BITMAPINFO结构的bmiColors成员的格式，它必须是DIB_PAL_COLORS或DIB_RGB_COLORS</param>
+/// <returns>若buffer_bits不为nullptr且函数成功，返回位图中复制的扫描行数，若为nullptr且函数成功，返回非零值，若函数失败返回0</returns>
+inline int get_DIBits(HDC device_context, HBITMAP bitmap_handle, UINT start, UINT lines, LPVOID buffer_bits, BITMAPINFO& bitmap_info, UINT usage = DIB_RGB_COLORS)
+{
+    auto val = GetDIBits(device_context, bitmap_handle, start, lines, buffer_bits, &bitmap_info, usage);
+    GET_ERROR_MSG_OUTPUT_NORMAL(val, 0);
+    return val;
+}
+
+/// <summary>
+/// 自定义实用函数，用于捕获屏幕任意区域的图像，并返回完整位图数据(除了位图数据还包括文件头)
+/// </summary>
+/// <param name="rect">指定要从屏幕捕获的区域矩阵</param>
+/// <param name="stream">[out]用于接受位图数据流的流对象</param>
+/// <returns>操作是否成功</returns>
+inline BOOL grab_screen_area(const RECT& rect, std::stringstream& stream)
+{
+    stream.clear();
+    HDC screen_hdc = get_dc(nullptr);
+    HDC memory_hdc = create_compatible_dc(screen_hdc);
+    HBITMAP bitmap_handle = create_compatible_bitmap(screen_hdc, rect.right - rect.left, rect.bottom - rect.top);
+    select_object(memory_hdc, bitmap_handle);
+    bit_blt(memory_hdc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, screen_hdc, rect.left, rect.top);
+
+    BITMAP bitmap {};
+    GetObjectA(bitmap_handle, sizeof(bitmap), &bitmap);
+
+    BITMAPFILEHEADER file_header {};
+    BITMAPINFOHEADER info_header { sizeof(BITMAPINFOHEADER) };
+
+    get_DIBits(screen_hdc, bitmap_handle, 0, bitmap.bmHeight, nullptr, (BITMAPINFO&)info_header);
+    char* temp_data = new char[info_header.biSizeImage];
+    info_header.biCompression = BI_RGB;  
+    get_DIBits(screen_hdc, bitmap_handle, 0, bitmap.bmHeight, temp_data, (BITMAPINFO&)info_header);
+
+    file_header.bfType = 0x4D42;
+    file_header.bfOffBits = sizeof(info_header) + sizeof(file_header);
+    file_header.bfSize = file_header.bfOffBits + info_header.biSizeImage;
+
+    stream.write((const char*)&file_header, sizeof(file_header));
+    stream.write((const char*)&info_header, sizeof(info_header));
+    stream.write(temp_data, info_header.biSizeImage);
+
+    delete_object(bitmap_handle);
+    release_dc(nullptr, screen_hdc);
+    delete_dc(memory_hdc);
+    delete[] temp_data;
+    return true;
+}
+
+/// <summary>
+/// 自定义实用函数，用于捕获屏幕任意区域的图像，并返回纯位图数据，并不包含其他额外信息
+/// </summary>
+/// <param name="rect">指定要从屏幕捕获的区域矩阵</param>
+/// <param name="stream">[out]用于接受位图数据流的流对象</param>
+/// <param name="info_header">[out]位图信息</param>
+/// <returns>操作是否成功</returns>
+inline BOOL grab_screen_area_raw(const RECT& rect, std::stringstream& stream, BITMAPINFOHEADER& info_header)
+{
+    stream.clear();
+    HDC screen_hdc = get_dc(nullptr);
+    HDC memory_hdc = create_compatible_dc(screen_hdc);
+    HBITMAP bitmap_handle = create_compatible_bitmap(screen_hdc, rect.right - rect.left, rect.bottom - rect.top);
+    select_object(memory_hdc, bitmap_handle);
+    bit_blt(memory_hdc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, screen_hdc, rect.left, rect.top);
+
+    BITMAP bitmap {};
+    GetObjectA(bitmap_handle, sizeof(bitmap), &bitmap);
+
+    //BITMAPINFOHEADER info_header { sizeof(BITMAPINFOHEADER) };
+    info_header.biSize = sizeof(BITMAPINFOHEADER);
+
+    get_DIBits(screen_hdc, bitmap_handle, 0, bitmap.bmHeight, nullptr, (BITMAPINFO&)info_header);
+    char* temp_data = new char[info_header.biSizeImage];
+    info_header.biCompression = BI_RGB;
+    get_DIBits(screen_hdc, bitmap_handle, 0, bitmap.bmHeight, temp_data, (BITMAPINFO&)info_header);
+
+    stream.write(temp_data, info_header.biSizeImage);
+
+    delete_object(bitmap_handle);
+    release_dc(nullptr, screen_hdc);
+    delete_dc(memory_hdc);
+    delete[] temp_data;
+    return true;
+}
+
 
 }; // namespace mw::gdi

@@ -6,6 +6,7 @@
 #include "example_6.h"
 #include "example_7.h"
 #include "example_8.h"
+#include "example_9.h"
 
 int main(int argc, char* argv[])
 {
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
     //example_3_10();
     //example_3_11();
     //example_3_12();
-    example_5();
+    //example_5();
     //example_5_server();
     //example_5_client();
     //example_2();
@@ -65,6 +66,8 @@ int main(int argc, char* argv[])
     //example_8_2();
     //example_8_3();
     //example_8_4();
+
+    example_9();
 
     //std::cout << "Large page minimum size supports : " << mw::get_large_page_minimum() << "\n";
 
